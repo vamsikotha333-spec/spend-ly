@@ -196,6 +196,39 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
           addedBy={addedBy}
           setAddedBy={setAddedBy}
         />
+
+        {showSaveOptions && !editTransaction ? (
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              type="button"
+              onClick={() => { setSaveMode("another"); submitWithMode("another"); }}
+              className="flex-1 h-12 bg-gradient-primary hover:opacity-90"
+            >
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Save & Add Another
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setSaveMode("list"); submitWithMode("list"); }}
+              className="flex-1 h-12"
+            >
+              Save & Go to Transactions
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Button type="submit" className="flex-1 h-12 bg-gradient-primary hover:opacity-90">
+              <PlusCircle className="mr-2 h-5 w-5" />
+              {editTransaction ? "Update" : "Add"} Transaction
+            </Button>
+            {editTransaction && onCancelEdit && (
+              <Button type="button" variant="outline" onClick={onCancelEdit} className="h-12">
+                Cancel
+              </Button>
+            )}
+          </div>
+        )}
       </form>
     </Card>
   );
@@ -253,39 +286,3 @@ function MemberSelects({
   );
 }
 
-        {showSaveOptions && !editTransaction ? (
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              type="button"
-              onClick={() => { setSaveMode("another"); submitWithMode("another"); }}
-              className="flex-1 h-12 bg-gradient-primary hover:opacity-90"
-            >
-              <PlusCircle className="mr-2 h-5 w-5" />
-              Save & Add Another
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => { setSaveMode("list"); submitWithMode("list"); }}
-              className="flex-1 h-12"
-            >
-              Save & Go to Transactions
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button type="submit" className="flex-1 h-12 bg-gradient-primary hover:opacity-90">
-              <PlusCircle className="mr-2 h-5 w-5" />
-              {editTransaction ? "Update" : "Add"} Transaction
-            </Button>
-            {editTransaction && onCancelEdit && (
-              <Button type="button" variant="outline" onClick={onCancelEdit} className="h-12">
-                Cancel
-              </Button>
-            )}
-          </div>
-        )}
-      </form>
-    </Card>
-  );
-}
