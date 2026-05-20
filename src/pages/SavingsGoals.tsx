@@ -11,10 +11,11 @@ import { Target, PlusCircle, Trash2, Edit2, IndianRupee, Calendar, User } from "
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { ADDED_BY_OPTIONS } from "@/types/transaction";
+import { useMembers } from "@/hooks/useMembers";
 
 export default function SavingsGoals() {
   const { goals, isLoading, addGoal, updateGoal, deleteGoal } = useSavingsGoals();
+  const { memberNames } = useMembers();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<SavingsGoal | null>(null);
   const [form, setForm] = useState({ name: "", target_amount: "", current_amount: "", deadline: "", person: "Central", category: "" });
@@ -156,7 +157,7 @@ export default function SavingsGoals() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Central">Central</SelectItem>
-                      {ADDED_BY_OPTIONS.map((p) => (
+                      {memberNames.map((p) => (
                         <SelectItem key={p} value={p}>{p}</SelectItem>
                       ))}
                     </SelectContent>

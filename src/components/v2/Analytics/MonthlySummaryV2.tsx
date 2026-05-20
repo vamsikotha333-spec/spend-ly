@@ -6,7 +6,7 @@ import { Download } from "lucide-react";
 import { Transaction } from "@/types/transaction";
 import { format, eachMonthOfInterval, isSameMonth, getYear } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { APPLICABLE_TO_OPTIONS } from "@/types/transaction";
+import { useMemberOptions } from "@/hooks/useMembers";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface MonthlySummaryV2Props {
@@ -16,6 +16,7 @@ interface MonthlySummaryV2Props {
 export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
   const [paidByFilter, setPaidByFilter] = useState<string>("all");
   const [selectedYear, setSelectedYear] = useState<string>("all");
+  const memberOptions = useMemberOptions(transactions);
 
   const startDate = new Date(2025, 9, 1);
   const endDate = new Date(2026, 11, 31);
@@ -109,7 +110,7 @@ export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All People</SelectItem>
-              {APPLICABLE_TO_OPTIONS.map((person) => (
+              {memberOptions.map((person) => (
                 <SelectItem key={person} value={person}>
                   {person}
                 </SelectItem>

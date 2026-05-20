@@ -10,8 +10,10 @@ import { format } from "date-fns";
 import { CalendarIcon, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Transaction, APPLICABLE_TO_OPTIONS, ADDED_BY_OPTIONS } from "@/types/transaction";
+import { Transaction } from "@/types/transaction";
 import { CategoryCombobox } from "@/components/v2/Categories/CategoryCombobox";
+import { useMembers } from "@/hooks/useMembers";
+import { Link } from "react-router-dom";
 
 interface TransactionFormV2Props {
   onAddTransaction: (transaction: Omit<Transaction, "id">, mode?: "another" | "list") => void;
@@ -188,37 +190,12 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="applicableTo">Applicable To *</Label>
-          <Select value={applicableTo} onValueChange={setApplicableTo} required>
-            <SelectTrigger className="h-12">
-              <SelectValue placeholder="Select entity" />
-            </SelectTrigger>
-            <SelectContent>
-              {APPLICABLE_TO_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="addedBy">Added By *</Label>
-          <Select value={addedBy} onValueChange={setAddedBy} required>
-            <SelectTrigger className="h-12">
-              <SelectValue placeholder="Select person" />
-            </SelectTrigger>
-            <SelectContent>
-              {ADDED_BY_OPTIONS.map((member) => (
-                <SelectItem key={member} value={member}>
-                  {member}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <MemberSelects
+          applicableTo={applicableTo}
+          setApplicableTo={setApplicableTo}
+          addedBy={addedBy}
+          setAddedBy={setAddedBy}
+        />
 
         {showSaveOptions && !editTransaction ? (
           <div className="flex flex-col sm:flex-row gap-2">
@@ -256,3 +233,56 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
     </Card>
   );
 }
+
+function MemberSelects({
+  applicableTo,
+  setApplicableTo,
+  addedBy,
+  setAddedBy,
+}: {
+  applicableTo: string;
+  setApplicableTo: (v: string) => void;
+  addedBy: string;
+  setAddedBy: (v: string) => void;
+}) {
+  const { memberNames, isLoading } = useMembers();
+  const empty = !isLoading && memberNames.length === 0;
+  return (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor="applicableTo">Applicable To *</Label>
+        <Select value={applicableTo} onValueChange={setApplicableTo} required>
+          <SelectTrigger className="h-12">
+            <SelectValue placeholder={empty ? "Add members first" : "Select"} />
+          </SelectTrigger>
+          <SelectContent>
+            {memberNames.map((m) => (
+              <SelectItem key={m} value={m}>{m}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="addedBy">Added By *</Label>
+        <Select value={addedBy} onValueChange={setAddedBy} required>
+          <SelectTrigger className="h-12">
+            <SelectValue placeholder={empty ? "Add members first" : "Select"} />
+          </SelectTrigger>
+          <SelectContent>
+            {memberNames.map((m) => (
+              <SelectItem key={m} value={m}>{m}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {empty && (
+          <p className="text-xs text-muted-foreground">
+            No members yet —{" "}
+            <Link to="/members" className="underline text-primary">add some</Link>{" "}
+            to populate these dropdowns.
+          </p>
+        )}
+      </div>
+    </>
+  );
+}
+

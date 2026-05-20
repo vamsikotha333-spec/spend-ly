@@ -4,7 +4,7 @@ import { Transaction } from "@/types/transaction";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { eachMonthOfInterval, isSameMonth, format, subMonths } from "date-fns";
-import { APPLICABLE_TO_OPTIONS } from "@/types/transaction";
+
 
 interface SpendingByPersonProps {
   transactions: Transaction[];

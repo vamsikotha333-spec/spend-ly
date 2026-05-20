@@ -11,17 +11,12 @@ export interface Transaction {
 }
 
 export const TRANSACTION_TYPES = ["Income", "Expense", "Savings"] as const;
-export const APPLICABLE_TO_OPTIONS = [
-  "Central",
-  "Yasoda",
-  "Vamsi",
-  "Abdul",
-  "Mmd",
-  "MDPL",
-  "CHE",
-  "Other",
-] as const;
-export const ADDED_BY_OPTIONS = ["Yasoda", "Vamsi", "Abdul"] as const;
+// NOTE: ADDED_BY_OPTIONS / APPLICABLE_TO_OPTIONS removed.
+// Member names are now dynamic and per-user — load via useMembers() from
+// "@/hooks/useMembers". Empty arrays are kept here only for any leftover
+// imports during refactor; do not rely on them for UI lists.
+export const APPLICABLE_TO_OPTIONS: readonly string[] = [];
+export const ADDED_BY_OPTIONS: readonly string[] = [];
 
 export const CATEGORIES = {
   Income: ["💰 Salary", "💻 Freelance", "📈 Investment", "🎁 Gift", "💵 Other Income"],

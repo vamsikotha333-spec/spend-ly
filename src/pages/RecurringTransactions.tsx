@@ -11,11 +11,13 @@ import { Repeat, PlusCircle, Trash2, Edit2, Calendar, IndianRupee } from "lucide
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { ADDED_BY_OPTIONS, APPLICABLE_TO_OPTIONS, TRANSACTION_TYPES } from "@/types/transaction";
+import { TRANSACTION_TYPES } from "@/types/transaction";
+import { useMembers } from "@/hooks/useMembers";
 import { useCategories, categoryDisplay, type CategoryType } from "@/hooks/useCategories";
 
 export default function RecurringTransactionsPage() {
   const { recurring, isLoading, addRecurring, updateRecurring, deleteRecurring } = useRecurringTransactions();
+  const { memberNames } = useMembers();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<RecurringTransaction | null>(null);
   const [form, setForm] = useState({
@@ -162,7 +164,7 @@ export default function RecurringTransactionsPage() {
                   <Select value={form.added_by} onValueChange={(v) => setForm({ ...form, added_by: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {ADDED_BY_OPTIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                      {memberNames.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -171,7 +173,7 @@ export default function RecurringTransactionsPage() {
                   <Select value={form.applicable_to} onValueChange={(v) => setForm({ ...form, applicable_to: v })}>
                     <SelectTrigger><SelectValue placeholder="Optional" /></SelectTrigger>
                     <SelectContent>
-                      {APPLICABLE_TO_OPTIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                      {memberNames.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>

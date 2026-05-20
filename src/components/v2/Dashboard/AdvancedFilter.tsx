@@ -8,7 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useFilters } from "@/contexts/FilterContext";
-import { ADDED_BY_OPTIONS, APPLICABLE_TO_OPTIONS, TRANSACTION_TYPES } from "@/types/transaction";
+import { TRANSACTION_TYPES } from "@/types/transaction";
+import { useMemberOptions } from "@/hooks/useMembers";
+import { useTransactions } from "@/hooks/useTransactions";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCategories, categoryDisplay } from "@/hooks/useCategories";
 import { useMemo } from "react";
@@ -18,6 +20,8 @@ export function AdvancedFilter() {
   const [open, setOpen] = useState(false);
   const [categorySearch, setCategorySearch] = useState("");
   const { allCategories } = useCategories();
+  const { transactions } = useTransactions();
+  const memberOptions = useMemberOptions(transactions);
 
   const allCategoryDisplays = useMemo(
     () => Array.from(new Set(allCategories.map((c) => categoryDisplay(c)))).sort(),
@@ -101,7 +105,7 @@ export function AdvancedFilter() {
                   <AccordionTrigger>Added By ({filters.addedBy.length})</AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-3">
-                      {ADDED_BY_OPTIONS.map((p) => (
+                      {memberOptions.map((p) => (
                         <div key={p} className="flex items-center space-x-2">
                           <Checkbox id={`person-${p}`} checked={filters.addedBy.includes(p)} onCheckedChange={() => toggleAddedBy(p)} />
                           <Label htmlFor={`person-${p}`} className="cursor-pointer">{p}</Label>
@@ -115,7 +119,7 @@ export function AdvancedFilter() {
                   <AccordionTrigger>Applicable To ({filters.applicableTo.length})</AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-3">
-                      {APPLICABLE_TO_OPTIONS.map((e) => (
+                      {memberOptions.map((e) => (
                         <div key={e} className="flex items-center space-x-2">
                           <Checkbox id={`entity-${e}`} checked={filters.applicableTo.includes(e)} onCheckedChange={() => toggleApplicableTo(e)} />
                           <Label htmlFor={`entity-${e}`} className="cursor-pointer">{e}</Label>
