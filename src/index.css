@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 43 100% 99%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 224 76% 48%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 46 97% 95%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 152 81% 96%;
+
+    --info: 239 84% 60%;
+    --info-foreground: 0 0% 100%;
+    --info-soft: 239 100% 97%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-soft: 0 86% 97%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(239 84% 67%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(158 64% 52%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 72% 51%), hsl(14 90% 60%));
+    --gradient-info: linear-gradient(135deg, hsl(217 91% 60%), hsl(239 84% 67%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 98%));
+    --gradient-insight: linear-gradient(135deg, hsl(220 100% 98%), hsl(239 100% 96%));
+
+    --shadow-soft: 0 1px 3px hsla(222, 47%, 11%, 0.04), 0 1px 2px hsla(222, 47%, 11%, 0.06);
+    --shadow-medium: 0 4px 12px hsla(222, 47%, 11%, 0.06);
+    --shadow-large: 0 8px 24px hsla(222, 47%, 11%, 0.08);
+    --shadow-hover: 0 8px 24px hsla(217, 91%, 60%, 0.12);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 224 76% 48%;
+
+    --secondary: 222 40% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 40% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 38 40% 15%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 142 40% 12%;
+
+    --info: 239 84% 67%;
+    --info-foreground: 0 0% 100%;
+    --info-soft: 239 40% 16%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-soft: 0 40% 12%;
+
+    --border: 222 30% 20%;
+    --input: 222 30% 20%;
+    --ring: 217 91% 60%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(239 84% 67%));
+    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%), hsl(158 64% 52%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 72% 51%), hsl(14 90% 60%));
+    --gradient-info: linear-gradient(135deg, hsl(217 91% 60%), hsl(239 84% 67%));
+    --gradient-card: linear-gradient(145deg, hsl(222 47% 12%), hsl(222 40% 14%));
+    --gradient-insight: linear-gradient(135deg, hsl(222 47% 12%), hsl(239 40% 14%));
+
+    --shadow-soft: 0 1px 3px hsla(0, 0%, 0%, 0.2);
+    --shadow-medium: 0 4px 12px hsla(0, 0%, 0%, 0.3);
+    --shadow-large: 0 8px 24px hsla(0, 0%, 0%, 0.4);
+    --shadow-hover: 0 8px 24px hsla(217, 91%, 60%, 0.2);
+
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 40% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 30% 18%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply text-foreground antialiased;
+    /* Spec: linear-gradient(180deg, #F8FAFC, #EFF6FF) */
+    background: linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(214 100% 97%) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  .dark body {
+    background: linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 11%) 100%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .card-premium {
+    @apply rounded-xl border bg-card shadow-soft transition-all duration-200;
+  }
+  .card-premium:hover {
+    @apply shadow-hover -translate-y-0.5;
+  }
+  .bg-page-gradient {
+    background: linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(214 100% 97%) 100%);
+  }
+  .dark .bg-page-gradient {
+    background: linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 11%) 100%);
+  }
+  .card-sheen-success {
+    background: linear-gradient(145deg, hsl(152 81% 96%) 0%, hsl(152 70% 92%) 100%);
+  }
+  .card-sheen-danger {
+    background: linear-gradient(145deg, hsl(0 86% 97%) 0%, hsl(0 80% 94%) 100%);
+  }
+  .card-sheen-info {
+    background: linear-gradient(145deg, hsl(239 100% 97%) 0%, hsl(239 90% 94%) 100%);
+  }
+  .dark .card-sheen-success {
+    background: linear-gradient(145deg, hsl(142 40% 12%) 0%, hsl(142 40% 15%) 100%);
+  }
+  .dark .card-sheen-danger {
+    background: linear-gradient(145deg, hsl(0 40% 12%) 0%, hsl(0 40% 15%) 100%);
+  }
+  .dark .card-sheen-info {
+    background: linear-gradient(145deg, hsl(239 40% 16%) 0%, hsl(239 40% 19%) 100%);
+  }
+}
