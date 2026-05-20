@@ -17,6 +17,7 @@ import { useCategories, categoryDisplay, type CategoryType } from "@/hooks/useCa
 
 export default function RecurringTransactionsPage() {
   const { recurring, isLoading, addRecurring, updateRecurring, deleteRecurring } = useRecurringTransactions();
+  const { memberNames } = useMembers();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<RecurringTransaction | null>(null);
   const [form, setForm] = useState({

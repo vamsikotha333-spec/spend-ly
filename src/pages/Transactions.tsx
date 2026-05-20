@@ -27,6 +27,7 @@ import {
 
 export default function Transactions() {
   const { transactions, isLoading, deleteTransaction, addTransaction, updateTransaction } = useTransactions();
+  const personOptions = useMemberOptions(transactions);
   const { getFilteredTransactions } = useFilters();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");

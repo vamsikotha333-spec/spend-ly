@@ -15,6 +15,7 @@ import { useMembers } from "@/hooks/useMembers";
 
 export default function SavingsGoals() {
   const { goals, isLoading, addGoal, updateGoal, deleteGoal } = useSavingsGoals();
+  const { memberNames } = useMembers();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<SavingsGoal | null>(null);
   const [form, setForm] = useState({ name: "", target_amount: "", current_amount: "", deadline: "", person: "Central", category: "" });
