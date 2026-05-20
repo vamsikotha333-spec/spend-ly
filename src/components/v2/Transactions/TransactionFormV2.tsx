@@ -196,6 +196,62 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
           addedBy={addedBy}
           setAddedBy={setAddedBy}
         />
+      </form>
+    </Card>
+  );
+}
+
+function MemberSelects({
+  applicableTo,
+  setApplicableTo,
+  addedBy,
+  setAddedBy,
+}: {
+  applicableTo: string;
+  setApplicableTo: (v: string) => void;
+  addedBy: string;
+  setAddedBy: (v: string) => void;
+}) {
+  const { memberNames, isLoading } = useMembers();
+  const empty = !isLoading && memberNames.length === 0;
+  return (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor="applicableTo">Applicable To *</Label>
+        <Select value={applicableTo} onValueChange={setApplicableTo} required>
+          <SelectTrigger className="h-12">
+            <SelectValue placeholder={empty ? "Add members first" : "Select"} />
+          </SelectTrigger>
+          <SelectContent>
+            {memberNames.map((m) => (
+              <SelectItem key={m} value={m}>{m}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="addedBy">Added By *</Label>
+        <Select value={addedBy} onValueChange={setAddedBy} required>
+          <SelectTrigger className="h-12">
+            <SelectValue placeholder={empty ? "Add members first" : "Select"} />
+          </SelectTrigger>
+          <SelectContent>
+            {memberNames.map((m) => (
+              <SelectItem key={m} value={m}>{m}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {empty && (
+          <p className="text-xs text-muted-foreground">
+            No members yet —{" "}
+            <Link to="/members" className="underline text-primary">add some</Link>{" "}
+            to populate these dropdowns.
+          </p>
+        )}
+      </div>
+    </>
+  );
+}
 
         {showSaveOptions && !editTransaction ? (
           <div className="flex flex-col sm:flex-row gap-2">
