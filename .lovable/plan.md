@@ -1,108 +1,122 @@
-## Category Management: Edit, Delete, Usage Counts, Auto-Sync
+# Plan: Global Default Categories + Per-User Dynamic Members
 
-Add a dedicated **Manage Categories** screen where users can see usage counts, rename, and safely delete categories. Existing dynamic add (from the Transaction form combobox) keeps working. All changes propagate automatically because every page already derives data from `transactions` via React Query / realtime.
+Goal: New users get the full seeded category list automatically, hardcoded names (Vamsi/Yasoda/Abdul/Central/MDPL/…) disappear for everyone except the historical data that already references them, and every user manages their own member list that drives all dropdowns/filters/analytics. current user vamsikotha mail, he shiould have usual default names as he is using from long back. the same names
 
-### Where it lives
+No UI redesign. No changes to historical rows. All existing analytics keep working because they read `added_by` / `applicable_to` strings straight from each user's own transactions.
 
-- New route: `/categories` → `src/pages/ManageCategories.tsx`
-- New sidebar entry under **Finance**: "Categories" (Tag icon)
-- Reuses existing `useCategories` hook (extended) and `useTransactions`
+---
 
-### UI: Manage Categories page
+## 1. Database changes (single new migration)
 
-Three tabs: **Income | Expense | Savings** (matching the `type` segmentation).
+### a) `category_templates` (new table — the master list for new users)
 
-Each tab shows a list of category rows:
-
-```text
-[emoji] Category Name                    (12 transactions)   [✏️] [🗑]
+```
+id uuid pk, name text, type text, emoji text, sort_order int, created_at timestamptz
+unique(type, lower(name))
 ```
 
-Behavior:
-- Edit/Delete icons appear on row hover (always visible on touch)
-- Empty state per tab: "No categories yet — add one from the transaction form"
-- Smooth fade/slide on add/remove (framer-motion already present? if not, simple CSS transitions)
-- Search box at top to filter long lists
+- Seed it with the exact same Income/Expense/Savings rows currently in the original seed migration (the 28 expense + 5 income + 7 savings).
+- RLS: `SELECT` allowed to `authenticated` (read-only reference data). No insert/update/delete from client.
+- Does **not** replace `public.categories`. Existing categories rows (with their ids, names, user_id) remain untouched so every historical transaction/budget/goal mapping is preserved.
 
-### Usage count logic (dynamic, never stored)
+### b) `members` (new table — per-user dynamic member list)
 
-For each category row, count is computed in-memory:
-
-```ts
-count = transactions.filter(t =>
-  t.transaction_type === category.type &&
-  categoryKey(t.category) === categoryKey(categoryDisplay(category))
-).length
+```
+id uuid pk default gen_random_uuid()
+user_id uuid not null default auth.uid() references auth.users(id) on delete cascade
+name text not null
+created_at timestamptz default now()
+unique(user_id, lower(name))
 ```
 
-Uses existing `categoryKey` / `canonicalDisplay` from `src/utils/categoryNormalize.ts` so old transactions stored as `"🛒 Groceries"` match a new emoji-less `"Groceries"` row correctly.
+- RLS: standard `user_id = auth.uid()` for select/insert/update/delete (authenticated only).
+- Add to `supabase_realtime` publication.
+- **No seed data.** New users start with an empty list, exactly as requested.
 
-### Edit (rename) flow
+### c) Signup trigger — copy templates into `public.categories` for the new user
 
-Inline edit: clicking ✏️ swaps the row's name into an Input + Save/Cancel buttons.
+```
+create function public.handle_new_user_categories() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.categories (name, type, emoji, user_id)
+  select t.name, t.type, t.emoji, new.id
+  from public.category_templates t
+  on conflict do nothing;
+  return new;
+end $$;
 
-Validation:
-- Trim + collapse spaces + Title Case via existing `normalizeName`
-- Reject empty
-- Reject duplicate within same `type` (case-insensitive) — show inline error "A category with this name already exists"
+create trigger on_auth_user_created_seed_categories
+after insert on auth.users
+for each row execute function public.handle_new_user_categories();
+```
 
-On Save:
-1. `UPDATE categories SET name=$new WHERE id=$id`
-2. **Cascade rename in transactions**: `UPDATE transactions SET category=$newDisplay WHERE category=$oldDisplay` — match by exact stored display string for the old category. Where `$newDisplay = emoji ? \`${emoji} ${newName}\` : newName`.
-3. Invalidate `["categories"]` and `["transactions"]` queries; realtime channel already broadcasts transactions changes.
+- Fires once per signup (email or Google). Inserts rows owned by the new user_id, so the existing `categories` RLS (`user_id = auth.uid()`) keeps the user isolated.
+- Existing users are not touched — their `categories` rows already exist.
+- Idempotent via the existing `categories_type_name_unique` index — but note that index is global `(type, lower(name))`. We need to drop that index and replace with `(user_id, type, lower(name))` so two different users can each own a "Groceries" row. This is a safe change: current data has only one owner, so no duplicates exist.
 
-### Delete flow
+### d) No changes to: `transactions`, `budgets`, `savings_goals`, `recurring_transactions` schemas or RLS. Historical `added_by` / `applicable_to` values stay as plain strings; old names like "Vamsi" continue to appear only inside that one user's existing data.
 
-On 🗑 click, look up `count` first.
+---
 
-**Case 1 — count === 0**: confirm via small popover "Delete this category?" → DELETE row → toast.
+## 2. Frontend — remove hardcoded names
 
-**Case 2 — count > 0**: open `AlertDialog` (using existing `alert-dialog` UI):
+### `src/types/transaction.ts`
 
-> "**Groceries** has **12 transactions**. What would you like to do?"
+- Delete `ADDED_BY_OPTIONS` and `APPLICABLE_TO_OPTIONS` exports (or keep them as `[] as const` for any leftover import safety, then remove call sites).
+- `CATEGORIES` constant stays for backward compatibility but is no longer used for dropdowns (already replaced by `CategoryCombobox` reading from DB).
 
-Three buttons:
-1. **Cancel** — close
-2. **Reassign to another category** — reveals a second `CategoryCombobox` (same `type`, excluding current). On confirm:
-   - `UPDATE transactions SET category=$targetDisplay WHERE category=$oldDisplay`
-   - `DELETE FROM categories WHERE id=$id`
-3. **Delete anyway** — mark transactions as Uncategorized:
-   - Ensure a category row `{ name: "Uncategorized", type: $type, emoji: null }` exists (insert if missing)
-   - `UPDATE transactions SET category='Uncategorized' WHERE category=$oldDisplay`
-   - `DELETE FROM categories WHERE id=$id`
+### New hook `src/hooks/useMembers.ts`
 
-All three cases invalidate React Query caches. Realtime + invalidation means **Monthly Summary, Category Analytics, Budget vs Actual, charts, filters** all refresh automatically — they already read from `useTransactions` + derive categories from transaction data.
+- `useMembers()` → `{ members: string[], addMember, renameMember, deleteMember, isLoading }`.
+- React Query against `members` table, realtime subscription, same patterns as `useCategories`.
 
-### Auto-sync guarantee
+### Replace all usages of the two constants:
 
-No structural change needed to other pages. Verified data flow:
-- `useTransactions` subscribes to `postgres_changes` on `public.transactions` → cascade UPDATE/DELETE statements above trigger real-time events for every connected client.
-- `useCategories` invalidates on every mutation → combobox in `TransactionFormV2` shows fresh list immediately.
-- Pages that derive category lists from transactions (Spending by Category, Budget, Monthly Summary) re-render on the same `transactions` update.
 
-### Hook extensions: `useCategories`
+| File                                               | Change                                                                                                                                                |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `components/v2/Transactions/TransactionFormV2.tsx` | Use `useMembers()` for both Added By and Applicable To select options. If list is empty, show a hint "Add members in Settings → Members" with a link. |
+| `pages/Transactions.tsx` (filter)                  | Same — load from `useMembers()`.                                                                                                                      |
+| `pages/SavingsGoals.tsx`                           | Same for the person select.                                                                                                                           |
+| `pages/RecurringTransactions.tsx`                  | Same for both selects.                                                                                                                                |
+| `components/v2/Dashboard/AdvancedFilter.tsx`       | Same for Added By & Applicable To groups.                                                                                                             |
+| `components/v2/Analytics/MonthlySummaryV2.tsx`     | Iterate over `useMembers()` instead of `APPLICABLE_TO_OPTIONS`.                                                                                       |
+| `components/v2/Dashboard/SpendingByPerson.tsx`     | Iterate over `useMembers()` instead.                                                                                                                  |
 
-Add to existing hook:
-- `renameCategory({ id, newName })` — normalizes, duplicate-checks, updates row, cascades transactions
-- `deleteCategory({ id, mode: 'empty' | 'reassign' | 'uncategorized', targetDisplay? })`
-- `getUsageCount(category)` — pure helper that takes the transactions array (passed in by caller) and returns a number; or a `useCategoryUsageCounts(transactions)` selector returning `Record<categoryId, number>`.
 
-The cascade UPDATEs use `supabase.from("transactions").update(...).eq("category", oldDisplay)`. Single statement, no per-row loop.
+For analytics components that previously iterated a fixed list, also union with members actually present in the filtered transactions (so historical names still surface for that user even if not in their current members list — preserves analytics). Implementation: `Array.from(new Set([...members, ...txns.map(t => t.applicable_to).filter(Boolean)]))`.
 
-### Files
+---
 
-**Created**
-- `src/pages/ManageCategories.tsx`
-- `src/components/v2/Categories/CategoryRow.tsx` (single row with hover actions, inline edit)
-- `src/components/v2/Categories/DeleteCategoryDialog.tsx` (the 3-option AlertDialog)
+## 3. Manage Members UI
 
-**Edited**
-- `src/hooks/useCategories.ts` — add rename/delete mutations, usage-count selector
-- `src/components/layout/AppSidebar.tsx` — add "Categories" nav item under Finance
-- `src/App.tsx` — add `/categories` route
+### New page `src/pages/ManageMembers.tsx`
 
-### Not in scope
+- Mirrors the visual structure of `ManageCategories.tsx` (reuse the same Card/Row layout — no redesign).
+- Inline add, inline rename, delete with confirm dialog.
+- On delete, do NOT touch historical transactions — they keep the old string. Show a small note: "Existing transactions keep this name; it just won't appear in new dropdowns."
 
-- Editing emojis (rename keeps existing emoji; new categories created via combobox stay emoji-less as today)
-- Per-user permissions (app is shared / no auth)
-- Bulk delete / multi-select
+### Route + sidebar entry
+
+- Add `/members` route in `App.tsx` inside the protected layout.
+- Add a "Members" item to `AppSidebar.tsx` next to "Categories".
+
+---
+
+## 4. Backward compatibility checks
+
+- Existing user `969c5b5e-…` (current account) keeps all categories, transactions, budgets, goals, recurring rows. Sidebar gains a Members link; their Members table starts empty — they can add Vamsi/Yasoda/Abdul themselves, or we can offer a one-time "Import names from my transactions" button on the Manage Members page (auto-detect distinct `added_by` + `applicable_to` from their own transactions). I'll include that button so the original account isn't left with empty dropdowns.
+- All charts and analytics keep working because they aggregate by the string stored on each transaction, not by the constants.
+- RLS already isolates every table per `user_id` — multi-user isolation requirement is already satisfied; this plan does not weaken it.
+
+---
+
+## 5. Technical summary (for review)
+
+- 1 migration: `category_templates` + seed, `members` + RLS + realtime, `handle_new_user_categories` trigger on `auth.users`, swap unique index on `categories` to `(user_id, type, lower(name))`.
+- 1 new hook (`useMembers`), 1 new page (`ManageMembers`), 1 sidebar item, 1 route.
+- ~8 component edits to swap `ADDED_BY_OPTIONS` / `APPLICABLE_TO_OPTIONS` for `useMembers()` + historical-union.
+- Zero changes to `transactions`, `budgets`, `savings_goals`, `recurring_transactions` schemas, RLS, or any analytics math.
+
+Ready to implement on approval.
