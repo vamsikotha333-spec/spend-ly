@@ -12,7 +12,8 @@ import { Search, Download, Edit, Trash2, TrendingUp, TrendingDown, PiggyBank } f
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { TransactionFormV2 } from "@/components/v2/Transactions/TransactionFormV2";
-import { TRANSACTION_TYPES, ADDED_BY_OPTIONS } from "@/types/transaction";
+import { TRANSACTION_TYPES } from "@/types/transaction";
+import { useMemberOptions } from "@/hooks/useMembers";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -146,7 +147,7 @@ export default function Transactions() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All People</SelectItem>
-              {ADDED_BY_OPTIONS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+              {personOptions.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
             </SelectContent>
           </Select>
           <Button size="sm" variant="outline" onClick={handleExport} className="h-10">
