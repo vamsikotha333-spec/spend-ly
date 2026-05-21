@@ -23,7 +23,7 @@ export function useTransactions() {
     fetchTransactions();
 
     const channel = supabase
-      .channel("transactions-global")
+      .channel(`transactions-rt-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "transactions" }, (payload) => {
         if (payload.eventType === "INSERT") {
           setTransactions((prev) => [mapRow(payload.new), ...prev]);
