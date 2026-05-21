@@ -1,6 +1,6 @@
 import {
   Home, ArrowLeftRight, PlusCircle, Table2, BarChart3,
-  Sparkles, Wallet, Target, Repeat, PieChart, Tag, LogOut, type LucideIcon,
+  Sparkles, Wallet, Target, Repeat, PieChart, Tag, Users, LogOut, type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
