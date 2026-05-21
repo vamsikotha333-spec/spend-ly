@@ -43,7 +43,7 @@ export function useCategories(type?: CategoryType) {
 
   useEffect(() => {
     const channel = supabase
-      .channel("categories-global")
+      .channel(`categories-rt-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "categories" },
