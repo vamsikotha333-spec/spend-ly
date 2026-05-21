@@ -41,6 +41,7 @@ const App = () => (
             <Route path="goals" element={<SavingsGoals />} />
             <Route path="recurring" element={<RecurringTransactions />} />
             <Route path="categories" element={<ManageCategories />} />
+            <Route path="members" element={<ManageMembers />} />
             <Route path="insights" element={<Insights />} />
           </Route>
           <Route path="*" element={<NotFound />} />
