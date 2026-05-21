@@ -32,7 +32,7 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
   const [description, setDescription] = useState(editTransaction?.description || "");
   const [date, setDate] = useState<Date>(editTransaction?.date ? new Date(editTransaction.date) : new Date());
   const [addedBy, setAddedBy] = useState(editTransaction?.addedBy || "");
-  const [applicableTo, setApplicableTo] = useState(editTransaction?.applicable_to || "Central");
+  const [applicableTo, setApplicableTo] = useState(editTransaction?.applicable_to || "");
   
 
   const [saveMode, setSaveMode] = useState<"another" | "list">("another");
