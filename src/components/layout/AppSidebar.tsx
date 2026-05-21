@@ -47,6 +47,7 @@ const navGroups: NavGroup[] = [
       { title: "Budget vs Actual", icon: PieChart, path: "/budget" },
       { title: "Recurring", icon: Repeat, path: "/recurring" },
       { title: "Categories", icon: Tag, path: "/categories" },
+      { title: "Members", icon: Users, path: "/members" },
     ],
   },
   {
