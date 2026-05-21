@@ -46,7 +46,7 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
       setDescription(editTransaction.description || "");
       setDate(new Date(editTransaction.date));
       setAddedBy(editTransaction.addedBy);
-      setApplicableTo(editTransaction.applicable_to || "Central");
+      setApplicableTo(editTransaction.applicable_to || "");
     }
   }, [editTransaction]);
 
