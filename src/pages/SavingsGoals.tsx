@@ -1,27 +1,169 @@
 import { useState } from "react";
 import { useSavingsGoals, SavingsGoal } from "@/hooks/useSavingsGoals";
+import { useSavingsContributions, SavingsContribution } from "@/hooks/useSavingsContributions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Target, PlusCircle, Trash2, Edit2, IndianRupee, Calendar, User } from "lucide-react";
+import { Target, PlusCircle, Trash2, Edit2, Calendar, User, History, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useMembers } from "@/hooks/useMembers";
+
+function ContributionsDialog({ goal, onClose }: { goal: SavingsGoal; onClose: () => void }) {
+  const { contributions, addContribution, updateContribution, deleteContribution } = useSavingsContributions(goal.id);
+  const { updateGoal } = useSavingsGoals();
+  const [newAmt, setNewAmt] = useState("");
+  const [newNote, setNewNote] = useState("");
+  const [newDate, setNewDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [editing, setEditing] = useState<SavingsContribution | null>(null);
+  const [editAmt, setEditAmt] = useState("");
+  const [editNote, setEditNote] = useState("");
+  const [editDate, setEditDate] = useState("");
+
+  const handleAdd = async () => {
+    const amt = Number(newAmt);
+    if (!amt || amt <= 0) return toast.error("Enter a valid amount");
+    try {
+      await addContribution({
+        goal_id: goal.id,
+        amount: amt,
+        note: newNote,
+        contributed_at: new Date(newDate).toISOString(),
+      });
+      await updateGoal(goal.id, { current_amount: goal.current_amount + amt });
+      setNewAmt(""); setNewNote("");
+      toast.success("Contribution added");
+    } catch {
+      toast.error("Failed to add contribution");
+    }
+  };
+
+  const startEdit = (c: SavingsContribution) => {
+    setEditing(c);
+    setEditAmt(String(c.amount));
+    setEditNote(c.note || "");
+    setEditDate(format(new Date(c.contributed_at), "yyyy-MM-dd"));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editing) return;
+    const newAmount = Number(editAmt);
+    if (!newAmount || newAmount <= 0) return toast.error("Enter a valid amount");
+    try {
+      const diff = newAmount - editing.amount;
+      await updateContribution(editing.id, {
+        amount: newAmount,
+        note: editNote || null,
+        contributed_at: new Date(editDate).toISOString(),
+      });
+      if (diff !== 0) {
+        await updateGoal(goal.id, { current_amount: goal.current_amount + diff });
+      }
+      setEditing(null);
+      toast.success("Updated");
+    } catch {
+      toast.error("Failed to update");
+    }
+  };
+
+  const handleDelete = async (c: SavingsContribution) => {
+    try {
+      await deleteContribution(c.id);
+      await updateGoal(goal.id, { current_amount: Math.max(0, goal.current_amount - c.amount) });
+      toast.success("Deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Contributions — {goal.name}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <Card className="p-3 border bg-muted/30">
+            <p className="text-xs font-medium mb-2">Add contribution</p>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <Input type="number" placeholder="Amount" value={newAmt} onChange={(e) => setNewAmt(e.target.value)} />
+              <Input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
+            </div>
+            <Input placeholder="Note (optional)" value={newNote} onChange={(e) => setNewNote(e.target.value)} className="mb-2" />
+            <Button size="sm" className="w-full" onClick={handleAdd}>
+              <PlusCircle className="h-3 w-3 mr-1" /> Add
+            </Button>
+          </Card>
+
+          <div>
+            <p className="text-xs font-medium mb-2 text-muted-foreground">History ({contributions.length})</p>
+            {contributions.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">No contributions logged yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {contributions.map((c) => (
+                  <Card key={c.id} className="p-3 border">
+                    {editing?.id === c.id ? (
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input type="number" value={editAmt} onChange={(e) => setEditAmt(e.target.value)} />
+                          <Input type="date" value={editDate} onChange={(e) => setEditDate(e.target.value)} />
+                        </div>
+                        <Input value={editNote} onChange={(e) => setEditNote(e.target.value)} placeholder="Note" />
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={handleSaveEdit} className="flex-1">
+                            <Check className="h-3 w-3 mr-1" /> Save
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditing(null)}>
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold tabular-nums">₹{c.amount.toLocaleString("en-IN")}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {format(new Date(c.contributed_at), "dd MMM yyyy")}
+                            {c.note ? ` · ${c.note}` : ""}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(c)}>
+                            <Edit2 className="h-3 w-3" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete(c)}>
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function SavingsGoals() {
   const { goals, isLoading, addGoal, updateGoal, deleteGoal } = useSavingsGoals();
   const { memberNames } = useMembers();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<SavingsGoal | null>(null);
-  const [form, setForm] = useState({ name: "", target_amount: "", current_amount: "", deadline: "", person: "Central", category: "" });
+  const [historyGoal, setHistoryGoal] = useState<SavingsGoal | null>(null);
+  const [form, setForm] = useState({ name: "", target_amount: "", current_amount: "", deadline: "", person: "Combined", category: "" });
 
   const resetForm = () => {
-    setForm({ name: "", target_amount: "", current_amount: "", deadline: "", person: "Central", category: "" });
+    setForm({ name: "", target_amount: "", current_amount: "", deadline: "", person: "Combined", category: "" });
     setEditing(null);
     setShowForm(false);
   };
@@ -75,15 +217,6 @@ export default function SavingsGoals() {
     }
   };
 
-  const addFunds = async (goal: SavingsGoal, amount: number) => {
-    try {
-      await updateGoal(goal.id, { current_amount: goal.current_amount + amount });
-      toast.success(`₹${amount.toLocaleString("en-IN")} added to ${goal.name}`);
-    } catch {
-      toast.error("Failed to update goal");
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -108,7 +241,6 @@ export default function SavingsGoals() {
             <PlusCircle className="h-4 w-4 mr-1" /> New Goal
           </Button>
         </div>
-        {/* Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide-up">
           <Card className="p-5 border-0 shadow-soft">
             <p className="text-xs text-muted-foreground mb-1">Total Goals</p>
@@ -125,7 +257,6 @@ export default function SavingsGoals() {
           </Card>
         </div>
 
-        {/* Form Dialog */}
         <Dialog open={showForm} onOpenChange={(open) => { if (!open) resetForm(); else setShowForm(true); }}>
           <DialogContent>
             <DialogHeader>
@@ -156,7 +287,7 @@ export default function SavingsGoals() {
                   <Select value={form.person} onValueChange={(v) => setForm({ ...form, person: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Central">Central</SelectItem>
+                      <SelectItem value="Combined">Combined</SelectItem>
                       {memberNames.map((p) => (
                         <SelectItem key={p} value={p}>{p}</SelectItem>
                       ))}
@@ -169,7 +300,10 @@ export default function SavingsGoals() {
           </DialogContent>
         </Dialog>
 
-        {/* Goals Grid */}
+        {historyGoal && (
+          <ContributionsDialog goal={historyGoal} onClose={() => setHistoryGoal(null)} />
+        )}
+
         {goals.length === 0 ? (
           <Card className="p-12 text-center border-0 shadow-soft">
             <Target className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
@@ -203,6 +337,9 @@ export default function SavingsGoals() {
                       </div>
                     </div>
                     <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Contribution history" onClick={() => setHistoryGoal(goal)}>
+                        <History className="h-3 w-3" />
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(goal)}>
                         <Edit2 className="h-3 w-3" />
                       </Button>
@@ -221,17 +358,11 @@ export default function SavingsGoals() {
                     <p className="text-xs text-muted-foreground mt-1 text-right">{pct.toFixed(1)}%</p>
                   </div>
 
-                  {!isComplete && (
-                    <div className="flex gap-2">
-                      {[500, 1000, 5000].map((amt) => (
-                        <Button key={amt} variant="outline" size="sm" className="flex-1 text-xs" onClick={() => addFunds(goal, amt)}>
-                          +₹{amt.toLocaleString("en-IN")}
-                        </Button>
-                      ))}
-                    </div>
-                  )}
+                  <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => setHistoryGoal(goal)}>
+                    <PlusCircle className="h-3 w-3 mr-1" /> Add / Manage Contributions
+                  </Button>
                   {isComplete && (
-                    <div className="text-center py-1">
+                    <div className="text-center py-1 mt-2">
                       <span className="text-sm font-medium text-success">🎉 Goal Achieved!</span>
                     </div>
                   )}
