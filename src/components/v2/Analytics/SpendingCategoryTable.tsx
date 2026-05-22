@@ -118,12 +118,12 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
   const grandTotal = Object.values(columnTotals).reduce((sum, val) => sum + val, 0);
 
   return (
-    <Card className="p-6 shadow-medium">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
-        <h2 className="text-xl font-bold">Spending by Category</h2>
+    <Card className="p-3 md:p-5 shadow-medium">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 className="text-base md:text-lg font-bold">Spending by Category</h2>
         <div className="flex items-center gap-2">
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[150px] h-8 text-xs">
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
@@ -133,31 +133,35 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
             </SelectContent>
           </Select>
           <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Filter Year" />
+            <SelectTrigger className="w-[110px] h-8 text-xs">
+              <SelectValue placeholder="Year" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Years</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2026">2026</SelectItem>
+              {availableYears.map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
       </div>
-      
+
+      {allMonths.length === 0 ? (
+        <p className="text-center text-sm text-muted-foreground py-8">No transactions yet. Add your first transaction to see analytics.</p>
+      ) : (
       <div className="overflow-x-auto">
-        <Table>
+        <Table className="text-xs">
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold sticky left-0 bg-background z-10 min-w-[250px]">
+              <TableHead className="font-bold sticky left-0 bg-background z-10 min-w-[160px] text-xs py-2">
                 Category
               </TableHead>
               {months.map((month) => (
-                <TableHead key={month.toISOString()} className="text-right font-bold min-w-[120px]">
-                  {format(month, "MMM yyyy")}
+                <TableHead key={month.toISOString()} className="text-right font-bold min-w-[80px] text-xs py-2 px-2">
+                  {format(month, "MMM ''yy")}
                 </TableHead>
               ))}
-              <TableHead className="text-right font-bold bg-muted/50 min-w-[120px]">Total</TableHead>
+              <TableHead className="text-right font-bold bg-muted/50 min-w-[90px] text-xs py-2 px-2">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
