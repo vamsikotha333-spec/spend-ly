@@ -21,8 +21,9 @@ import {
 import { canonicalDisplay } from "@/utils/categoryNormalize";
 import { isSameMonth, subMonths, format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useMemberOptions } from "@/hooks/useMembers";
 
-type Person = "Combined" | "Vamsi" | "Yasoda" | "Central";
+type Person = string; // "Combined" or any dynamic member name
 
 const LEAK_CATEGORIES = [
   "Dining",
