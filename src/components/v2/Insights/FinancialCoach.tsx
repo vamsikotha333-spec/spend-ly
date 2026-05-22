@@ -199,20 +199,20 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
               Personalized analysis of spending behavior, money leaks, and savings opportunities — updated live with your data.
             </p>
           </div>
-          <Tabs value={person} onValueChange={(v) => setPerson(v as Person)}>
-            <TabsList className="bg-white/15 border border-white/20">
+          <Tabs value={person} onValueChange={(v) => setPerson(v)}>
+            <TabsList className="bg-white/15 border border-white/20 flex-wrap h-auto">
               <TabsTrigger value="Combined" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
                 👨‍👩 Combined
               </TabsTrigger>
-              <TabsTrigger value="Vamsi" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
-                Vamsi
-              </TabsTrigger>
-              <TabsTrigger value="Yasoda" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
-                Yasoda
-              </TabsTrigger>
-              <TabsTrigger value="Central" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
-                Central
-              </TabsTrigger>
+              {memberOptions.map((name) => (
+                <TabsTrigger
+                  key={name}
+                  value={name}
+                  className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary"
+                >
+                  {name}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
         </div>
