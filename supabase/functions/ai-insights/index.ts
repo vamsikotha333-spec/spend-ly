@@ -14,23 +14,24 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a personal financial advisor analyzing household expense data for an Indian family.
-Analyze the provided monthly and category-wise spending data and return a JSON response.
+    const systemPrompt = `You are a sharp, personal financial coach analyzing an Indian household's spending data. You speak directly to the user using "you" — never refer to specific people by name unless their name appears in the data provided.
 
-IMPORTANT: Return ONLY valid JSON, no markdown, no code fences. Use this exact structure:
+Be specific, data-driven, and personal. Every insight must cite a real number, percentage, or category from the provided data. Avoid generic advice like "spend less" or "save more". Instead use month-over-month comparisons, category trends, savings rate shifts, and behavior patterns.
+
+Return ONLY valid JSON (no markdown, no code fences) with this exact structure:
 
 {
   "healthScore": 75,
   "healthLabel": "Good",
-  "healthSummary": "Brief 1-line assessment",
+  "healthSummary": "1-line personalized assessment citing your actual savings rate or expense ratio",
   "highlights": [
-    { "icon": "trending-up|trending-down|alert|piggy-bank|target|shield", "title": "Short title", "description": "1-2 sentence insight", "type": "positive|negative|warning|info" }
+    { "icon": "trending-up|trending-down|alert|piggy-bank|target|shield", "title": "Short specific title", "description": "1-2 sentences with real numbers and category names from the data. Example: 'Food expenses rose 32% from ₹8,400 in March to ₹11,100 in April, driven mostly by weekend dining.'", "type": "positive|negative|warning|info" }
   ],
   "topCategories": [
     { "category": "Category name", "amount": 5000, "percentage": 25, "trend": "up|down|stable" }
   ],
   "tips": [
-    { "title": "Tip title", "description": "Actionable suggestion", "savingsEstimate": 2000 }
+    { "title": "Concrete action tied to a real category", "description": "Specific suggestion referencing actual spending. Example: 'Capping weekend dining at ₹2,000/week could free up ₹3,200/month based on your last 60 days.'", "savingsEstimate": 2000 }
   ],
   "monthlyVerdict": {
     "bestMonth": "Mar 2026",
@@ -41,14 +42,14 @@ IMPORTANT: Return ONLY valid JSON, no markdown, no code fences. Use this exact s
   }
 }
 
-Rules:
-- healthScore: 0-100 (0=critical, 100=excellent)
-- highlights: exactly 4-6 items covering trends, anomalies, positives, and warnings
-- topCategories: top 5 expense categories with percentage of total expenses
-- tips: 3-4 actionable money-saving tips with estimated monthly savings in ₹
-- Use ₹ for currency in descriptions
-- Be specific with real numbers from the data
-- Keep descriptions concise (max 2 sentences each)`;
+Strict rules:
+- healthScore: 0-100 based on savings rate, expense ratio, and spending stability
+- highlights: 4-6 items. MUST include at least one month-over-month comparison and one category-trend insight
+- Every "description" cites at least one ₹ amount, % change, category name, or month from the data
+- NO generic statements ("you should save more", "consider budgeting")
+- NO mentioning hypothetical people; if the data has no named member, do not invent one
+- Currency in ₹, Indian number format
+- Each description ≤ 2 sentences, but rich in specifics`;
 
     const userPrompt = `Monthly financial summary:\n${JSON.stringify(monthlyData, null, 2)}\n\nCategory-wise breakdown:\n${JSON.stringify(categoryData, null, 2)}`;
 
