@@ -201,6 +201,7 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
           </TableBody>
         </Table>
       </div>
+      )}
     </Card>
   );
 }
