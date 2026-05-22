@@ -10,16 +10,22 @@ interface SpendingByPersonProps {
   transactions: Transaction[];
 }
 
-const PERSON_COLORS: Record<string, string> = {
-  Central: "hsl(38, 92%, 50%)",
-  Yasoda: "hsl(142, 71%, 45%)",
-  Vamsi: "hsl(217, 91%, 60%)",
-  Abdul: "hsl(280, 65%, 60%)",
-  Mmd: "hsl(190, 80%, 45%)",
-  MDPL: "hsl(330, 70%, 55%)",
-  CHE: "hsl(60, 70%, 45%)",
-  Other: "hsl(0, 0%, 55%)",
-};
+const PALETTE = [
+  "hsl(217, 91%, 60%)",
+  "hsl(142, 71%, 45%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(280, 65%, 60%)",
+  "hsl(190, 80%, 45%)",
+  "hsl(330, 70%, 55%)",
+  "hsl(60, 70%, 45%)",
+  "hsl(0, 70%, 55%)",
+];
+
+function colorFor(name: string) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
 
 function getType(t: Transaction) {
   return t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
