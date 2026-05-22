@@ -25,14 +25,14 @@ export default function RecurringTransactionsPage() {
     amount: "",
     category: "",
     description: "",
-    added_by: "Vamsi",
+    added_by: "",
     applicable_to: "",
     frequency: "monthly",
     next_run_date: "",
   });
 
   const resetForm = () => {
-    setForm({ transaction_type: "Expense", amount: "", category: "", description: "", added_by: "Vamsi", applicable_to: "", frequency: "monthly", next_run_date: "" });
+    setForm({ transaction_type: "Expense", amount: "", category: "", description: "", added_by: "", applicable_to: "", frequency: "monthly", next_run_date: "" });
     setEditing(null);
     setShowForm(false);
   };

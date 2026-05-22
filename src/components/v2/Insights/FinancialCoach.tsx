@@ -21,8 +21,9 @@ import {
 import { canonicalDisplay } from "@/utils/categoryNormalize";
 import { isSameMonth, subMonths, format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useMemberOptions } from "@/hooks/useMembers";
 
-type Person = "Combined" | "Vamsi" | "Yasoda" | "Central";
+type Person = string; // "Combined" or any dynamic member name
 
 const LEAK_CATEGORIES = [
   "Dining",
@@ -57,11 +58,11 @@ interface Props {
 
 export function FinancialCoach({ transactions, allTransactions }: Props) {
   const [person, setPerson] = useState<Person>("Combined");
+  const memberOptions = useMemberOptions(allTransactions);
 
   const filterByPerson = (txns: Transaction[]) => {
     if (person === "Combined") return txns;
-    // Filter by Applicable To (default to Central when unset)
-    return txns.filter((t) => (t.applicable_to || "Central") === person);
+    return txns.filter((t) => (t.applicable_to || "") === person);
   };
 
   const scoped = useMemo(() => filterByPerson(transactions), [transactions, person]);
@@ -198,20 +199,20 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
               Personalized analysis of spending behavior, money leaks, and savings opportunities — updated live with your data.
             </p>
           </div>
-          <Tabs value={person} onValueChange={(v) => setPerson(v as Person)}>
-            <TabsList className="bg-white/15 border border-white/20">
+          <Tabs value={person} onValueChange={(v) => setPerson(v)}>
+            <TabsList className="bg-white/15 border border-white/20 flex-wrap h-auto">
               <TabsTrigger value="Combined" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
                 👨‍👩 Combined
               </TabsTrigger>
-              <TabsTrigger value="Vamsi" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
-                Vamsi
-              </TabsTrigger>
-              <TabsTrigger value="Yasoda" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
-                Yasoda
-              </TabsTrigger>
-              <TabsTrigger value="Central" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
-                Central
-              </TabsTrigger>
+              {memberOptions.map((name) => (
+                <TabsTrigger
+                  key={name}
+                  value={name}
+                  className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary"
+                >
+                  {name}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
         </div>

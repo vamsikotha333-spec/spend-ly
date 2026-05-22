@@ -10,16 +10,22 @@ interface SpendingByPersonProps {
   transactions: Transaction[];
 }
 
-const PERSON_COLORS: Record<string, string> = {
-  Central: "hsl(38, 92%, 50%)",
-  Yasoda: "hsl(142, 71%, 45%)",
-  Vamsi: "hsl(217, 91%, 60%)",
-  Abdul: "hsl(280, 65%, 60%)",
-  Mmd: "hsl(190, 80%, 45%)",
-  MDPL: "hsl(330, 70%, 55%)",
-  CHE: "hsl(60, 70%, 45%)",
-  Other: "hsl(0, 0%, 55%)",
-};
+const PALETTE = [
+  "hsl(217, 91%, 60%)",
+  "hsl(142, 71%, 45%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(280, 65%, 60%)",
+  "hsl(190, 80%, 45%)",
+  "hsl(330, 70%, 55%)",
+  "hsl(60, 70%, 45%)",
+  "hsl(0, 70%, 55%)",
+];
+
+function colorFor(name: string) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
 
 function getType(t: Transaction) {
   return t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
@@ -94,7 +100,7 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
               <PieChart>
                 <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" animationDuration={800}>
                   {pieData.map((d) => (
-                    <Cell key={d.name} fill={PERSON_COLORS[d.name] || "hsl(0,0%,60%)"} />
+                    <Cell key={d.name} fill={colorFor(d.name)} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(v: number) => `₹${v.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`} />
@@ -107,7 +113,7 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
                   <div key={name} className="space-y-1 animate-slide-up" style={{ animationDelay: `${i * 60}ms`, animationFillMode: "both" }}>
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: PERSON_COLORS[name] || "hsl(0,0%,60%)" }} />
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorFor(name) }} />
                         <span className="font-medium">{name}</span>
                       </div>
                       <span className="text-muted-foreground tabular-nums">
@@ -117,7 +123,7 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
                     <div className="relative h-1.5 rounded-full bg-muted overflow-hidden">
                       <div
                         className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
-                        style={{ width: `${pct}%`, backgroundColor: PERSON_COLORS[name] || "hsl(0,0%,60%)" }}
+                        style={{ width: `${pct}%`, backgroundColor: colorFor(name) }}
                       />
                     </div>
                   </div>
@@ -143,7 +149,7 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
                     key={person}
                     dataKey={person}
                     stackId="a"
-                    fill={PERSON_COLORS[person] || "hsl(0,0%,60%)"}
+                    fill={colorFor(person)}
                     animationDuration={800}
                     animationBegin={i * 100}
                     radius={i === activePeople.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
@@ -175,7 +181,7 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
                 style={{ animationDelay: `${pi * 80}ms`, animationFillMode: "both" }}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PERSON_COLORS[person] || "hsl(0,0%,60%)" }} />
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: colorFor(person) }} />
                   <p className="text-sm font-semibold">{person}</p>
                   <span className="text-xs text-muted-foreground ml-auto tabular-nums">
                     Total: ₹{(personMap[person] || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
