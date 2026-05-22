@@ -58,11 +58,11 @@ interface Props {
 
 export function FinancialCoach({ transactions, allTransactions }: Props) {
   const [person, setPerson] = useState<Person>("Combined");
+  const memberOptions = useMemberOptions(allTransactions);
 
   const filterByPerson = (txns: Transaction[]) => {
     if (person === "Combined") return txns;
-    // Filter by Applicable To (default to Central when unset)
-    return txns.filter((t) => (t.applicable_to || "Central") === person);
+    return txns.filter((t) => (t.applicable_to || "") === person);
   };
 
   const scoped = useMemo(() => filterByPerson(transactions), [transactions, person]);
