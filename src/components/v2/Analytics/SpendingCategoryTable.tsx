@@ -33,9 +33,28 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
   const [sortBy, setSortBy] = useState<string>("spend-desc");
   const { categories: expenseCategories } = useCategories("Expense");
 
-  const startDate = new Date(2025, 9, 1);
-  const endDate = new Date(2026, 11, 31);
-  const allMonths = eachMonthOfInterval({ start: startDate, end: endDate });
+  // Dynamic month range: from user's first transaction to current month
+  const expensesAll = transactions.filter(
+    (t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense"
+  );
+  const firstDate = useMemo(() => {
+    if (transactions.length === 0) return new Date();
+    return transactions.reduce(
+      (min, t) => (t.date < min ? t.date : min),
+      transactions[0].date
+    );
+  }, [transactions]);
+  const startDate = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1);
+  const endDate = new Date();
+  const allMonths = useMemo(
+    () => (transactions.length === 0 ? [] : eachMonthOfInterval({ start: startDate, end: endDate })),
+    [startDate.getTime(), endDate.getTime(), transactions.length]
+  );
+
+  const availableYears = useMemo(
+    () => Array.from(new Set(allMonths.map((m) => getYear(m)))).sort(),
+    [allMonths]
+  );
 
   const months = selectedYear === "all"
     ? allMonths
