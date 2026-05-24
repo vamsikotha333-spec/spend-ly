@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { PeriodComparison } from "./PeriodComparison";
+import { useSavingsGoals } from "@/hooks/useSavingsGoals";
 
 interface AIInsightsProps {
   transactions: Transaction[];
@@ -45,6 +46,12 @@ interface StructuredInsights {
     description: string;
     type: "positive" | "negative" | "warning" | "info";
   }>;
+  positiveTrends?: Array<{ icon: string; title: string; description: string }>;
+  warnings?: Array<{ icon: string; title: string; description: string }>;
+  recommendations?: Array<{ title: string; description: string; monthlySavings: number; yearlyImpact: number }>;
+  categoryTrends?: Array<{ category: string; amount: number; percentage: number; trend: "up" | "down" | "stable"; deltaPct?: number; note?: string }>;
+  memberInsights?: Array<{ member: string; title: string; description: string }>;
+  goalInsights?: Array<{ goal: string; title: string; description: string }>;
   topCategories: Array<{
     category: string;
     amount: number;
@@ -292,34 +299,104 @@ export function AIInsights({ transactions }: AIInsightsProps) {
   const [compareMode, setCompareMode] = useState(false);
   const [periodA, setPeriodA] = useState<PeriodType>("this-month");
   const [periodB, setPeriodB] = useState<PeriodType>("last-month");
+  const { goals } = useSavingsGoals();
+
+  const goalData = useMemo(
+    () => goals.map((g) => ({
+      name: g.name,
+      target_amount: g.target_amount,
+      current_amount: g.current_amount,
+      progressPct: g.target_amount > 0 ? Math.round((g.current_amount / g.target_amount) * 100) : 0,
+      deadline: g.deadline,
+      person: g.person,
+    })),
+    [goals]
+  );
+
 
   const buildAggregatedData = useCallback((txns: Transaction[]) => {
-    const startDate = new Date(2025, 9, 1);
-    const endDate = new Date(2026, 11, 31);
-    const months = eachMonthOfInterval({ start: startDate, end: endDate });
+    const getT = (t: Transaction) => t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
+    const memberOf = (t: Transaction) => (t.applicable_to && t.applicable_to.trim()) || t.addedBy || "Unassigned";
+
+    // Month range derived from actual data
+    let startDate = new Date();
+    let endDate = new Date();
+    if (txns.length > 0) {
+      startDate = txns.reduce((min, t) => (t.date < min ? t.date : min), txns[0].date);
+      endDate = txns.reduce((max, t) => (t.date > max ? t.date : max), txns[0].date);
+    }
+    const months = txns.length > 0 ? eachMonthOfInterval({ start: startOfMonth(startDate), end: endOfMonth(endDate) }) : [];
 
     const monthlyData = months
       .map((month) => {
         const mt = txns.filter((t) => isSameMonth(t.date, month));
         return {
           month: format(month, "MMM yyyy"),
-          income: mt.filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Income").reduce((s, t) => s + t.amount, 0),
-          expenses: mt.filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense").reduce((s, t) => s + t.amount, 0),
-          savings: mt.filter((t) => t.transaction_type === "Savings").reduce((s, t) => s + t.amount, 0),
+          income: mt.filter((t) => getT(t) === "Income").reduce((s, t) => s + t.amount, 0),
+          expenses: mt.filter((t) => getT(t) === "Expense").reduce((s, t) => s + t.amount, 0),
+          savings: mt.filter((t) => getT(t) === "Savings").reduce((s, t) => s + t.amount, 0),
         };
       })
       .filter((m) => m.income > 0 || m.expenses > 0 || m.savings > 0);
 
     const categoryMap: Record<string, number> = {};
-    txns
-      .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense")
-      .forEach((t) => { categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount; });
-
+    txns.filter((t) => getT(t) === "Expense").forEach((t) => {
+      categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount;
+    });
     const categoryData = Object.entries(categoryMap)
       .sort(([, a], [, b]) => b - a)
       .map(([category, amount]) => ({ category, amount }));
 
-    return { monthlyData, categoryData };
+    // Member-wise contribution (dynamic — no hardcoded names)
+    const memberAgg: Record<string, { name: string; expense: number; savings: number; income: number; topCategory?: string; topCategoryAmount: number }> = {};
+    for (const t of txns) {
+      const m = memberOf(t);
+      if (!memberAgg[m]) memberAgg[m] = { name: m, expense: 0, savings: 0, income: 0, topCategoryAmount: 0 };
+      const ty = getT(t);
+      if (ty === "Expense") memberAgg[m].expense += t.amount;
+      else if (ty === "Savings") memberAgg[m].savings += t.amount;
+      else if (ty === "Income") memberAgg[m].income += t.amount;
+    }
+    // Compute top category per member
+    for (const m of Object.keys(memberAgg)) {
+      const catMap: Record<string, number> = {};
+      txns.filter((t) => memberOf(t) === m && getT(t) === "Expense").forEach((t) => {
+        catMap[t.category] = (catMap[t.category] || 0) + t.amount;
+      });
+      const top = Object.entries(catMap).sort(([, a], [, b]) => b - a)[0];
+      if (top) {
+        memberAgg[m].topCategory = top[0];
+        memberAgg[m].topCategoryAmount = top[1];
+      }
+    }
+    const totalExp = Object.values(memberAgg).reduce((s, x) => s + x.expense, 0);
+    const totalSav = Object.values(memberAgg).reduce((s, x) => s + x.savings, 0);
+    const memberData = Object.values(memberAgg).map((x) => ({
+      member: x.name,
+      expense: x.expense,
+      savings: x.savings,
+      income: x.income,
+      expensePct: totalExp > 0 ? Math.round((x.expense / totalExp) * 100) : 0,
+      savingsPct: totalSav > 0 ? Math.round((x.savings / totalSav) * 100) : 0,
+      topCategory: x.topCategory,
+      topCategoryAmount: x.topCategoryAmount,
+    }));
+
+    // Category MoM trend deltas (latest vs previous month)
+    const trendData: Array<{ category: string; latest: number; previous: number; deltaPct: number }> = [];
+    if (months.length >= 2) {
+      const lastM = months[months.length - 1];
+      const prevM = months[months.length - 2];
+      const catSet = new Set(categoryData.slice(0, 8).map((c) => c.category));
+      for (const cat of catSet) {
+        const latest = txns.filter((t) => getT(t) === "Expense" && t.category === cat && isSameMonth(t.date, lastM)).reduce((s, t) => s + t.amount, 0);
+        const previous = txns.filter((t) => getT(t) === "Expense" && t.category === cat && isSameMonth(t.date, prevM)).reduce((s, t) => s + t.amount, 0);
+        const deltaPct = previous > 0 ? Math.round(((latest - previous) / previous) * 100) : 0;
+        trendData.push({ category: cat, latest, previous, deltaPct });
+      }
+    }
+
+    return { monthlyData, categoryData, memberData, trendData };
   }, []);
 
   const filterByPeriod = useCallback((txns: Transaction[], period: PeriodType) => {
@@ -329,7 +406,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
 
   const aggregatedData = useMemo(() => buildAggregatedData(transactions), [transactions, buildAggregatedData]);
 
-  const callInsightsAPI = async (data: ReturnType<typeof buildAggregatedData>) => {
+  const callInsightsAPI = async (data: Record<string, unknown>) => {
     const { data: result, error } = await supabase.functions.invoke("ai-insights", { body: data });
     if (error) throw error;
     if (result?.error) throw new Error(result.error);
@@ -348,14 +425,17 @@ export function AIInsights({ transactions }: AIInsightsProps) {
         const dataA = buildAggregatedData(txnsA);
         const dataB = buildAggregatedData(txnsB);
 
-        const [resultA, resultB] = await Promise.all([callInsightsAPI(dataA), callInsightsAPI(dataB)]);
+        const [resultA, resultB] = await Promise.all([
+          callInsightsAPI({ ...dataA, goalData }),
+          callInsightsAPI({ ...dataB, goalData }),
+        ]);
 
         if (resultA?.structured) setStructuredInsights(resultA.insights);
         else if (resultA?.insights) setLegacyInsights(resultA.insights);
 
         if (resultB?.structured) setCompareInsights(resultB.insights);
       } else {
-        const result = await callInsightsAPI(aggregatedData);
+        const result = await callInsightsAPI({ ...aggregatedData, goalData });
         if (result?.structured) setStructuredInsights(result.insights);
         else if (result?.insights) setLegacyInsights(result.insights);
       }
@@ -505,6 +585,53 @@ export function AIInsights({ transactions }: AIInsightsProps) {
               {structuredInsights.highlights.map((h, i) => <HighlightCard key={i} highlight={h} index={i} />)}
             </div>
           </div>
+
+          {/* Positive trends + warnings */}
+          {(structuredInsights.positiveTrends?.length || structuredInsights.warnings?.length) ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {structuredInsights.positiveTrends && structuredInsights.positiveTrends.length > 0 && (
+                <Card className="p-5 shadow-medium border-0">
+                  <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                    <TrendingDown className="h-4 w-4 text-success" /> Positive Trends
+                  </h3>
+                  <div className="space-y-2.5">
+                    {structuredInsights.positiveTrends.map((p, i) => (
+                      <div key={i} className="p-3 rounded-xl border bg-success/5 border-success/15">
+                        <div className="flex items-start gap-2.5">
+                          <div className="mt-0.5 text-success flex-shrink-0">{ICON_MAP[p.icon] || <Shield className="h-5 w-5" />}</div>
+                          <div>
+                            <p className="font-semibold text-xs mb-0.5">{p.title}</p>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">{p.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+              {structuredInsights.warnings && structuredInsights.warnings.length > 0 && (
+                <Card className="p-5 shadow-medium border-0">
+                  <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-destructive" /> Warnings & Overspending
+                  </h3>
+                  <div className="space-y-2.5">
+                    {structuredInsights.warnings.map((w, i) => (
+                      <div key={i} className="p-3 rounded-xl border bg-destructive/5 border-destructive/15">
+                        <div className="flex items-start gap-2.5">
+                          <div className="mt-0.5 text-destructive flex-shrink-0">{ICON_MAP[w.icon] || <AlertTriangle className="h-5 w-5" />}</div>
+                          <div>
+                            <p className="font-semibold text-xs mb-0.5">{w.title}</p>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">{w.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </div>
+          ) : null}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
@@ -518,13 +645,57 @@ export function AIInsights({ transactions }: AIInsightsProps) {
             </Card>
             <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-amber-500" /> Smart Saving Tips
+                <Lightbulb className="h-4 w-4 text-amber-500" /> Smart Recommendations
               </h3>
               <div className="space-y-3">
-                {structuredInsights.tips.map((tip, i) => <TipCard key={i} tip={tip} index={i} />)}
+                {(structuredInsights.recommendations && structuredInsights.recommendations.length > 0
+                  ? structuredInsights.recommendations.map((r) => ({ title: r.title, description: r.description, savingsEstimate: r.monthlySavings || 0 }))
+                  : structuredInsights.tips
+                ).map((tip, i) => <TipCard key={i} tip={tip} index={i} />)}
               </div>
             </Card>
           </div>
+
+          {/* Member-wise insights */}
+          {structuredInsights.memberInsights && structuredInsights.memberInsights.length > 0 && (
+            <Card className="p-5 shadow-medium border-0">
+              <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" /> Member-wise Insights
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {structuredInsights.memberInsights.map((m, i) => (
+                  <div key={i} className="p-3 rounded-xl border bg-primary/5 border-primary/15">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="text-[10px]">{m.member}</Badge>
+                      <p className="font-semibold text-xs">{m.title}</p>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">{m.description}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Goal insights */}
+          {structuredInsights.goalInsights && structuredInsights.goalInsights.length > 0 && (
+            <Card className="p-5 shadow-medium border-0">
+              <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                <Target className="h-4 w-4 text-info" /> Goal Tracking Insights
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {structuredInsights.goalInsights.map((g, i) => (
+                  <div key={i} className="p-3 rounded-xl border bg-info/5 border-info/15">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="text-[10px]">{g.goal}</Badge>
+                      <p className="font-semibold text-xs">{g.title}</p>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">{g.description}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           <MonthlyVerdictCard verdict={structuredInsights.monthlyVerdict} />
         </>
       )}

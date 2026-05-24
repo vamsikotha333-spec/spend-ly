@@ -10,48 +10,68 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { monthlyData, categoryData } = await req.json();
+    const payload = await req.json();
+    const { monthlyData, categoryData, memberData, goalData, recurringData, trendData } = payload || {};
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a sharp, personal financial coach analyzing an Indian household's spending data. You speak directly to the user using "you" — never refer to specific people by name unless their name appears in the data provided.
+    const systemPrompt = `You are a sharp, candid personal financial advisor analyzing an Indian household's real financial data. You speak directly to the user using "you" and "your". You refer to household members by the exact names provided in the data — never invent names, never use placeholders like "Member A".
 
-Be specific, data-driven, and personal. Every insight must cite a real number, percentage, or category from the provided data. Avoid generic advice like "spend less" or "save more". Instead use month-over-month comparisons, category trends, savings rate shifts, and behavior patterns.
+Your job is to act like a true intelligent advisor: surface BOTH good habits and bad habits, detect trends and patterns, and give realistic recommendations with concrete rupee impact. Every insight must cite at least one real number, percentage, category, member name or month from the supplied data. Never produce generic, template-style advice such as "spend less" or "try to save more". If the data does not support an insight, omit it — do not fabricate.
 
-Return ONLY valid JSON (no markdown, no code fences) with this exact structure:
+Return ONLY valid JSON (no markdown fences) matching this exact schema:
 
 {
-  "healthScore": 75,
-  "healthLabel": "Good",
-  "healthSummary": "1-line personalized assessment citing your actual savings rate or expense ratio",
-  "highlights": [
-    { "icon": "trending-up|trending-down|alert|piggy-bank|target|shield", "title": "Short specific title", "description": "1-2 sentences with real numbers and category names from the data. Example: 'Food expenses rose 32% from ₹8,400 in March to ₹11,100 in April, driven mostly by weekend dining.'", "type": "positive|negative|warning|info" }
+  "healthScore": 0-100,
+  "healthLabel": "Excellent | Good | Fair | Needs Attention",
+  "healthSummary": "1 sentence personalized to the user's actual savings rate and expense ratio",
+  "positiveTrends": [
+    { "icon": "trending-up|trending-down|piggy-bank|shield|target", "title": "Short positive habit", "description": "1-2 sentences citing real numbers, %, categories or member names" }
   ],
-  "topCategories": [
-    { "category": "Category name", "amount": 5000, "percentage": 25, "trend": "up|down|stable" }
+  "warnings": [
+    { "icon": "alert|trending-up|trending-down", "title": "Short bad habit / warning", "description": "1-2 sentences with real numbers, %, categories or member names. Severity is implied by language." }
   ],
-  "tips": [
-    { "title": "Concrete action tied to a real category", "description": "Specific suggestion referencing actual spending. Example: 'Capping weekend dining at ₹2,000/week could free up ₹3,200/month based on your last 60 days.'", "savingsEstimate": 2000 }
+  "recommendations": [
+    { "title": "Concrete action tied to a real category or pattern", "description": "Specific suggestion referencing actual spending. Mention monthly impact and 1-year projection where useful.", "monthlySavings": 0, "yearlyImpact": 0 }
+  ],
+  "categoryTrends": [
+    { "category": "Category name as in data", "amount": 0, "percentage": 0, "trend": "up|down|stable", "deltaPct": 0, "note": "Optional 1-line context" }
+  ],
+  "memberInsights": [
+    { "member": "Exact member name from data", "title": "Short comparison statement", "description": "1 sentence using their actual share/contribution numbers" }
+  ],
+  "goalInsights": [
+    { "goal": "Goal name from data", "title": "Short status", "description": "1 sentence about pacing toward target_amount with the current_amount" }
   ],
   "monthlyVerdict": {
-    "bestMonth": "Mar 2026",
-    "worstMonth": "Jan 2026",
-    "averageExpense": 15000,
-    "averageIncome": 30000,
-    "savingsRate": 20
-  }
+    "bestMonth": "MMM yyyy",
+    "worstMonth": "MMM yyyy",
+    "averageExpense": 0,
+    "averageIncome": 0,
+    "savingsRate": 0
+  },
+  "highlights": [
+    { "icon": "trending-up|trending-down|alert|piggy-bank|target|shield", "title": "...", "description": "...", "type": "positive|negative|warning|info" }
+  ],
+  "topCategories": [
+    { "category": "...", "amount": 0, "percentage": 0, "trend": "up|down|stable" }
+  ],
+  "tips": [
+    { "title": "...", "description": "...", "savingsEstimate": 0 }
+  ]
 }
 
 Strict rules:
-- healthScore: 0-100 based on savings rate, expense ratio, and spending stability
-- highlights: 4-6 items. MUST include at least one month-over-month comparison and one category-trend insight
-- Every "description" cites at least one ₹ amount, % change, category name, or month from the data
-- NO generic statements ("you should save more", "consider budgeting")
-- NO mentioning hypothetical people; if the data has no named member, do not invent one
-- Currency in ₹, Indian number format
-- Each description ≤ 2 sentences, but rich in specifics`;
+- positiveTrends: 2-4 items celebrating real improvements (MoM decreases in spending, growing savings, stable essential categories, balanced behaviour). If genuinely none exist, return [].
+- warnings: 2-4 items pointing out real overspending, category spikes, recurring leaks, declining savings. Avoid duplicates with positiveTrends.
+- recommendations: 3-5 items, each ACTIONABLE and quantified. monthlySavings and yearlyImpact must be realistic numbers grounded in the user's averages, not invented.
+- categoryTrends: top 5 by amount. deltaPct compares latest month vs previous month for that category (0 if no prior data).
+- memberInsights: only if memberData has entries — produce 2-4 comparison statements using their actual expense% / savings% / top category.
+- goalInsights: only if goalData has entries.
+- highlights, topCategories, tips: keep these populated as a backward-compatible mirror of positiveTrends+warnings, categoryTrends and recommendations so older UI still works.
+- Currency in ₹ Indian format. Every description ≤ 2 sentences. No mention of names not in the data.`;
 
-    const userPrompt = `Monthly financial summary:\n${JSON.stringify(monthlyData, null, 2)}\n\nCategory-wise breakdown:\n${JSON.stringify(categoryData, null, 2)}`;
+    const userPrompt = `Monthly summary (income/expense/savings per month):\n${JSON.stringify(monthlyData ?? [], null, 2)}\n\nCategory breakdown (expenses):\n${JSON.stringify(categoryData ?? [], null, 2)}\n\nMember-wise contribution (real names, expense and savings share):\n${JSON.stringify(memberData ?? [], null, 2)}\n\nSavings goals (progress vs target):\n${JSON.stringify(goalData ?? [], null, 2)}\n\nRecurring/recent recurring patterns:\n${JSON.stringify(recurringData ?? [], null, 2)}\n\nCategory MoM trend deltas:\n${JSON.stringify(trendData ?? [], null, 2)}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -91,18 +111,42 @@ Strict rules:
 
     const data = await response.json();
     let content = data.choices?.[0]?.message?.content || "";
-    
-    // Strip markdown code fences if present
     content = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-    
+
     let insights;
     try {
       insights = JSON.parse(content);
     } catch {
-      // Fallback: return as legacy markdown
       return new Response(JSON.stringify({ insights: content }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Backward-compat: derive highlights from positiveTrends + warnings if the model omits them.
+    if (!insights.highlights || !Array.isArray(insights.highlights) || insights.highlights.length === 0) {
+      const pos = (insights.positiveTrends || []).map((p: any) => ({
+        icon: p.icon || "trending-down",
+        title: p.title,
+        description: p.description,
+        type: "positive",
+      }));
+      const warn = (insights.warnings || []).map((w: any) => ({
+        icon: w.icon || "alert",
+        title: w.title,
+        description: w.description,
+        type: "warning",
+      }));
+      insights.highlights = [...pos, ...warn].slice(0, 6);
+    }
+    if (!insights.topCategories || insights.topCategories.length === 0) {
+      insights.topCategories = (insights.categoryTrends || []).slice(0, 5);
+    }
+    if (!insights.tips || insights.tips.length === 0) {
+      insights.tips = (insights.recommendations || []).map((r: any) => ({
+        title: r.title,
+        description: r.description,
+        savingsEstimate: r.monthlySavings || 0,
+      }));
     }
 
     return new Response(JSON.stringify({ insights, structured: true }), {

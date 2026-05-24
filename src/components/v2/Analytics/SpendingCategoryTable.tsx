@@ -4,13 +4,14 @@ import { Transaction } from "@/types/transaction";
 import { format, eachMonthOfInterval, isSameMonth, getYear } from "date-fns";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCategories, categoryDisplay } from "@/hooks/useCategories";
 
-// Strip leading emoji/symbols + whitespace, lowercase for matching old & new entries
+type TxnType = "Expense" | "Savings" | "Income";
+
 const normalizeCategory = (raw: string): string => {
   if (!raw) return "";
   const stripped = raw.replace(/^[^\p{L}\p{N}]+/u, "").trim().toLowerCase();
-  // Map old/legacy category names to current canonical names
   const aliasMap: Record<string, string> = {
     "dry fruits": "dry fruits & nuts",
     "food & dining": "dining (breakfast, lunch, dinner, snacks)",
@@ -28,21 +29,24 @@ interface SpendingCategoryTableProps {
   transactions: Transaction[];
 }
 
+const getTxnType = (t: Transaction): TxnType =>
+  (t.transaction_type as TxnType) || (t.type === "credit" ? "Income" : "Expense");
+
+const TAB_META: Record<TxnType, { label: string; heading: string; sortLabels: { desc: string; asc: string } }> = {
+  Expense: { label: "Expenses", heading: "Spending by Category", sortLabels: { desc: "Highest Spending", asc: "Lowest Spending" } },
+  Savings: { label: "Savings", heading: "Savings by Category", sortLabels: { desc: "Highest Savings", asc: "Lowest Savings" } },
+  Income: { label: "Income", heading: "Income by Category", sortLabels: { desc: "Highest Income", asc: "Lowest Income" } },
+};
+
 export function SpendingCategoryTable({ transactions }: SpendingCategoryTableProps) {
+  const [activeType, setActiveType] = useState<TxnType>("Expense");
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("spend-desc");
-  const { categories: expenseCategories } = useCategories("Expense");
+  const { categories: dbCategories } = useCategories(activeType);
 
-  // Dynamic month range: from user's first transaction to current month
-  const expensesAll = transactions.filter(
-    (t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense"
-  );
   const firstDate = useMemo(() => {
     if (transactions.length === 0) return new Date();
-    return transactions.reduce(
-      (min, t) => (t.date < min ? t.date : min),
-      transactions[0].date
-    );
+    return transactions.reduce((min, t) => (t.date < min ? t.date : min), transactions[0].date);
   }, [transactions]);
   const startDate = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1);
   const endDate = new Date();
@@ -60,17 +64,16 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
     ? allMonths
     : allMonths.filter(m => getYear(m) === Number(selectedYear));
 
-  // Get all expense transactions
-  const expenses = transactions.filter(
-    (t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense"
+  const scoped = useMemo(
+    () => transactions.filter((t) => getTxnType(t) === activeType),
+    [transactions, activeType]
   );
 
-  // Build dynamic category list: DB categories + any legacy categories present in transactions
   const categoryList = useMemo(() => {
-    const fromDb = expenseCategories.map((c) => categoryDisplay(c));
+    const fromDb = dbCategories.map((c) => categoryDisplay(c));
     const seen = new Set(fromDb.map((c) => normalizeCategory(c)));
     const fromTx: string[] = [];
-    for (const t of expenses) {
+    for (const t of scoped) {
       const raw = (t.category || "").trim();
       if (!raw) continue;
       const key = normalizeCategory(raw);
@@ -80,19 +83,18 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
       }
     }
     return [...fromDb, ...fromTx].sort((a, b) => a.localeCompare(b));
-  }, [expenseCategories, expenses]);
+  }, [dbCategories, scoped]);
 
-  // Calculate spending per category per month (categories as rows)
   const data = useMemo(() => {
     const rows = categoryList.map((category) => {
       const normalizedTarget = normalizeCategory(category);
       const monthTotals: Record<string, number> = {};
       months.forEach((month) => {
         const monthKey = month.toISOString();
-        const spending = expenses
+        const total = scoped
           .filter((t) => normalizeCategory(t.category) === normalizedTarget && isSameMonth(t.date, month))
           .reduce((sum, t) => sum + t.amount, 0);
-        monthTotals[monthKey] = spending;
+        monthTotals[monthKey] = total;
       });
       const rowTotal = Object.values(monthTotals).reduce((sum, val) => sum + val, 0);
       return { category, months: monthTotals, total: rowTotal };
@@ -106,29 +108,29 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
       }
     });
     return rows;
-  }, [categoryList, months, expenses, sortBy]);
+  }, [categoryList, months, scoped, sortBy]);
 
-  // Calculate column totals (sum per month across all categories)
   const columnTotals: Record<string, number> = {};
   months.forEach((month) => {
     const monthKey = month.toISOString();
     columnTotals[monthKey] = data.reduce((sum, row) => sum + row.months[monthKey], 0);
   });
-  
+
   const grandTotal = Object.values(columnTotals).reduce((sum, val) => sum + val, 0);
+  const meta = TAB_META[activeType];
 
   return (
     <Card className="p-3 md:p-5 shadow-medium">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h2 className="text-base md:text-lg font-bold">Spending by Category</h2>
-        <div className="flex items-center gap-2">
+        <h2 className="text-base md:text-lg font-bold">{meta.heading}</h2>
+        <div className="flex items-center gap-2 flex-wrap">
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[150px] h-8 text-xs">
+            <SelectTrigger className="w-[160px] h-8 text-xs">
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="spend-desc">Highest Spending</SelectItem>
-              <SelectItem value="spend-asc">Lowest Spending</SelectItem>
+              <SelectItem value="spend-desc">{meta.sortLabels.desc}</SelectItem>
+              <SelectItem value="spend-asc">{meta.sortLabels.asc}</SelectItem>
               <SelectItem value="alpha">Alphabetical (A–Z)</SelectItem>
             </SelectContent>
           </Select>
@@ -146,61 +148,71 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
         </div>
       </div>
 
+      <Tabs value={activeType} onValueChange={(v) => setActiveType(v as TxnType)} className="mb-3">
+        <TabsList>
+          <TabsTrigger value="Expense">Expenses</TabsTrigger>
+          <TabsTrigger value="Savings">Savings</TabsTrigger>
+          <TabsTrigger value="Income">Income</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {allMonths.length === 0 ? (
         <p className="text-center text-sm text-muted-foreground py-8">No transactions yet. Add your first transaction to see analytics.</p>
+      ) : scoped.length === 0 ? (
+        <p className="text-center text-sm text-muted-foreground py-8">No {meta.label.toLowerCase()} recorded yet.</p>
       ) : (
-      <div className="overflow-x-auto">
-        <Table className="text-xs">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="font-bold sticky left-0 bg-background z-10 min-w-[160px] text-xs py-2">
-                Category
-              </TableHead>
-              {months.map((month) => (
-                <TableHead key={month.toISOString()} className="text-right font-bold min-w-[80px] text-xs py-2 px-2">
-                  {format(month, "MMM ''yy")}
+        <div className="overflow-x-auto">
+          <Table className="text-xs">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-bold sticky left-0 bg-background z-10 min-w-[160px] text-xs py-2">
+                  Category
                 </TableHead>
+                {months.map((month) => (
+                  <TableHead key={month.toISOString()} className="text-right font-bold min-w-[80px] text-xs py-2 px-2">
+                    {format(month, "MMM ''yy")}
+                  </TableHead>
+                ))}
+                <TableHead className="text-right font-bold bg-muted/50 min-w-[90px] text-xs py-2 px-2">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((row, index) => (
+                <TableRow key={row.category} className={index % 2 === 0 ? "bg-muted/30" : ""}>
+                  <TableCell className="font-medium sticky left-0 bg-background z-10">
+                    {row.category}
+                  </TableCell>
+                  {months.map((month) => {
+                    const monthKey = month.toISOString();
+                    const amount = row.months[monthKey];
+                    return (
+                      <TableCell key={monthKey} className="text-right">
+                        {amount > 0 ? `₹${amount.toFixed(2)}` : "-"}
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell className="text-right font-bold bg-muted/30">
+                    {row.total > 0 ? `₹${row.total.toFixed(2)}` : "-"}
+                  </TableCell>
+                </TableRow>
               ))}
-              <TableHead className="text-right font-bold bg-muted/50 min-w-[90px] text-xs py-2 px-2">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((row, index) => (
-              <TableRow key={row.category} className={index % 2 === 0 ? "bg-muted/30" : ""}>
-                <TableCell className="font-medium sticky left-0 bg-background z-10">
-                  {row.category}
-                </TableCell>
+              <TableRow className="bg-muted font-bold border-t-2">
+                <TableCell className="sticky left-0 bg-muted z-10">Total</TableCell>
                 {months.map((month) => {
                   const monthKey = month.toISOString();
-                  const amount = row.months[monthKey];
                   return (
                     <TableCell key={monthKey} className="text-right">
-                      {amount > 0 ? `₹${amount.toFixed(2)}` : "-"}
+                      ₹{columnTotals[monthKey].toFixed(2)}
                     </TableCell>
                   );
                 })}
-                <TableCell className="text-right font-bold bg-muted/30">
-                  {row.total > 0 ? `₹${row.total.toFixed(2)}` : "-"}
+                <TableCell className="text-right bg-muted">
+                  ₹{grandTotal.toFixed(2)}
                 </TableCell>
               </TableRow>
-            ))}
-            <TableRow className="bg-muted font-bold border-t-2">
-              <TableCell className="sticky left-0 bg-muted z-10">Total</TableCell>
-              {months.map((month) => {
-                const monthKey = month.toISOString();
-                return (
-                  <TableCell key={monthKey} className="text-right">
-                    ₹{columnTotals[monthKey].toFixed(2)}
-                  </TableCell>
-                );
-              })}
-              <TableCell className="text-right bg-muted">
-                ₹{grandTotal.toFixed(2)}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
+            </TableBody>
+          </Table>
+        </div>
       )}
     </Card>
   );

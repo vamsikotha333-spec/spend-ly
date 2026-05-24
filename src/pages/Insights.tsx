@@ -3,6 +3,7 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useFilters } from "@/contexts/FilterContext";
 import { AIInsights } from "@/components/v2/Analytics/AIInsights";
 import { FinancialCoach } from "@/components/v2/Insights/FinancialCoach";
+import { MemberComparisonPanel } from "@/components/v2/Insights/MemberComparisonPanel";
 
 export default function Insights() {
   const { transactions, isLoading } = useTransactions();
@@ -25,6 +26,7 @@ export default function Insights() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
         <FinancialCoach transactions={filtered} allTransactions={transactions} />
+        <MemberComparisonPanel transactions={filtered} />
         <AIInsights transactions={filtered} />
       </div>
     </div>

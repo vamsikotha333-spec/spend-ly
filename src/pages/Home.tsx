@@ -174,11 +174,11 @@ export default function Home() {
   const getGoalEmoji = (name: string) =>
     Object.entries(goalEmojis).find(([k]) => name.toLowerCase().includes(k.toLowerCase()))?.[1] || "🎯";
 
-  // Overview percentages for standout section
-  const overviewTotal = stats.income + stats.expenses + stats.savings;
-  const incomePct = overviewTotal > 0 ? (stats.income / overviewTotal) * 100 : 0;
-  const expensePct = overviewTotal > 0 ? (stats.expenses / overviewTotal) * 100 : 0;
-  const savingsPct = overviewTotal > 0 ? (stats.savings / overviewTotal) * 100 : 0;
+  // Net Cashflow ratios — expressed as % of income (mathematically meaningful).
+  // Income is shown as the base amount (not a percentage).
+  const expenseRatio = stats.income > 0 ? (stats.expenses / stats.income) * 100 : 0;
+  const savingsRatio = stats.income > 0 ? (stats.savings / stats.income) * 100 : 0;
+  const remainingRatio = Math.max(0, 100 - expenseRatio - savingsRatio);
   const netCashflow = stats.income - stats.expenses;
 
   return (
@@ -332,33 +332,34 @@ export default function Home() {
                 </div>
               </div>
 
-              {overviewTotal > 0 ? (
+              {stats.income > 0 ? (
                 <>
+                  {/* Bar represents 100% of income, split into expense / savings / remaining */}
                   <div className="h-2 w-full rounded-full overflow-hidden flex bg-white/15 ring-1 ring-white/20 shadow-inner">
-                    <div className="h-full bg-success transition-all duration-500" style={{ width: `${incomePct}%` }} />
-                    <div className="h-full bg-destructive transition-all duration-500" style={{ width: `${expensePct}%` }} />
-                    <div className="h-full bg-info transition-all duration-500" style={{ width: `${savingsPct}%` }} />
+                    <div className="h-full bg-destructive transition-all duration-500" style={{ width: `${Math.min(100, expenseRatio)}%` }} />
+                    <div className="h-full bg-info transition-all duration-500" style={{ width: `${Math.min(100, savingsRatio)}%` }} />
+                    <div className="h-full bg-success/60 transition-all duration-500" style={{ width: `${remainingRatio}%` }} />
                   </div>
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-success ring-2 ring-white/30 shrink-0" />
                       <div className="min-w-0">
                         <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Income</p>
-                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{incomePct.toFixed(0)}%</p>
+                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{formatCompactINR(stats.income)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-destructive ring-2 ring-white/30 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Expense</p>
-                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{expensePct.toFixed(0)}%</p>
+                        <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Expense Ratio</p>
+                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{expenseRatio.toFixed(0)}%</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-info ring-2 ring-white/30 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Savings</p>
-                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{savingsPct.toFixed(0)}%</p>
+                        <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Savings Rate</p>
+                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{savingsRatio.toFixed(0)}%</p>
                       </div>
                     </div>
                   </div>
