@@ -299,6 +299,20 @@ export function AIInsights({ transactions }: AIInsightsProps) {
   const [compareMode, setCompareMode] = useState(false);
   const [periodA, setPeriodA] = useState<PeriodType>("this-month");
   const [periodB, setPeriodB] = useState<PeriodType>("last-month");
+  const { goals } = useSavingsGoals();
+
+  const goalData = useMemo(
+    () => goals.map((g) => ({
+      name: g.name,
+      target_amount: g.target_amount,
+      current_amount: g.current_amount,
+      progressPct: g.target_amount > 0 ? Math.round((g.current_amount / g.target_amount) * 100) : 0,
+      deadline: g.deadline,
+      person: g.person,
+    })),
+    [goals]
+  );
+
 
   const buildAggregatedData = useCallback((txns: Transaction[]) => {
     const getT = (t: Transaction) => t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
