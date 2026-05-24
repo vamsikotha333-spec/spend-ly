@@ -567,6 +567,53 @@ export function AIInsights({ transactions }: AIInsightsProps) {
               {structuredInsights.highlights.map((h, i) => <HighlightCard key={i} highlight={h} index={i} />)}
             </div>
           </div>
+
+          {/* Positive trends + warnings */}
+          {(structuredInsights.positiveTrends?.length || structuredInsights.warnings?.length) ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {structuredInsights.positiveTrends && structuredInsights.positiveTrends.length > 0 && (
+                <Card className="p-5 shadow-medium border-0">
+                  <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                    <TrendingDown className="h-4 w-4 text-success" /> Positive Trends
+                  </h3>
+                  <div className="space-y-2.5">
+                    {structuredInsights.positiveTrends.map((p, i) => (
+                      <div key={i} className="p-3 rounded-xl border bg-success/5 border-success/15">
+                        <div className="flex items-start gap-2.5">
+                          <div className="mt-0.5 text-success flex-shrink-0">{ICON_MAP[p.icon] || <Shield className="h-5 w-5" />}</div>
+                          <div>
+                            <p className="font-semibold text-xs mb-0.5">{p.title}</p>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">{p.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+              {structuredInsights.warnings && structuredInsights.warnings.length > 0 && (
+                <Card className="p-5 shadow-medium border-0">
+                  <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-destructive" /> Warnings & Overspending
+                  </h3>
+                  <div className="space-y-2.5">
+                    {structuredInsights.warnings.map((w, i) => (
+                      <div key={i} className="p-3 rounded-xl border bg-destructive/5 border-destructive/15">
+                        <div className="flex items-start gap-2.5">
+                          <div className="mt-0.5 text-destructive flex-shrink-0">{ICON_MAP[w.icon] || <AlertTriangle className="h-5 w-5" />}</div>
+                          <div>
+                            <p className="font-semibold text-xs mb-0.5">{w.title}</p>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">{w.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </div>
+          ) : null}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
@@ -580,13 +627,57 @@ export function AIInsights({ transactions }: AIInsightsProps) {
             </Card>
             <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-amber-500" /> Smart Saving Tips
+                <Lightbulb className="h-4 w-4 text-amber-500" /> Smart Recommendations
               </h3>
               <div className="space-y-3">
-                {structuredInsights.tips.map((tip, i) => <TipCard key={i} tip={tip} index={i} />)}
+                {(structuredInsights.recommendations && structuredInsights.recommendations.length > 0
+                  ? structuredInsights.recommendations.map((r) => ({ title: r.title, description: r.description, savingsEstimate: r.monthlySavings || 0 }))
+                  : structuredInsights.tips
+                ).map((tip, i) => <TipCard key={i} tip={tip} index={i} />)}
               </div>
             </Card>
           </div>
+
+          {/* Member-wise insights */}
+          {structuredInsights.memberInsights && structuredInsights.memberInsights.length > 0 && (
+            <Card className="p-5 shadow-medium border-0">
+              <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" /> Member-wise Insights
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {structuredInsights.memberInsights.map((m, i) => (
+                  <div key={i} className="p-3 rounded-xl border bg-primary/5 border-primary/15">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="text-[10px]">{m.member}</Badge>
+                      <p className="font-semibold text-xs">{m.title}</p>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">{m.description}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Goal insights */}
+          {structuredInsights.goalInsights && structuredInsights.goalInsights.length > 0 && (
+            <Card className="p-5 shadow-medium border-0">
+              <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                <Target className="h-4 w-4 text-info" /> Goal Tracking Insights
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {structuredInsights.goalInsights.map((g, i) => (
+                  <div key={i} className="p-3 rounded-xl border bg-info/5 border-info/15">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="secondary" className="text-[10px]">{g.goal}</Badge>
+                      <p className="font-semibold text-xs">{g.title}</p>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">{g.description}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           <MonthlyVerdictCard verdict={structuredInsights.monthlyVerdict} />
         </>
       )}
