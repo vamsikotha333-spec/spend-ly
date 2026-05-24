@@ -45,6 +45,12 @@ interface StructuredInsights {
     description: string;
     type: "positive" | "negative" | "warning" | "info";
   }>;
+  positiveTrends?: Array<{ icon: string; title: string; description: string }>;
+  warnings?: Array<{ icon: string; title: string; description: string }>;
+  recommendations?: Array<{ title: string; description: string; monthlySavings: number; yearlyImpact: number }>;
+  categoryTrends?: Array<{ category: string; amount: number; percentage: number; trend: "up" | "down" | "stable"; deltaPct?: number; note?: string }>;
+  memberInsights?: Array<{ member: string; title: string; description: string }>;
+  goalInsights?: Array<{ goal: string; title: string; description: string }>;
   topCategories: Array<{
     category: string;
     amount: number;
