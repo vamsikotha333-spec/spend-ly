@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import { PeriodComparison } from "./PeriodComparison";
+import { useSavingsGoals } from "@/hooks/useSavingsGoals";
 
 interface AIInsightsProps {
   transactions: Transaction[];
