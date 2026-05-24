@@ -174,11 +174,11 @@ export default function Home() {
   const getGoalEmoji = (name: string) =>
     Object.entries(goalEmojis).find(([k]) => name.toLowerCase().includes(k.toLowerCase()))?.[1] || "🎯";
 
-  // Overview percentages for standout section
-  const overviewTotal = stats.income + stats.expenses + stats.savings;
-  const incomePct = overviewTotal > 0 ? (stats.income / overviewTotal) * 100 : 0;
-  const expensePct = overviewTotal > 0 ? (stats.expenses / overviewTotal) * 100 : 0;
-  const savingsPct = overviewTotal > 0 ? (stats.savings / overviewTotal) * 100 : 0;
+  // Net Cashflow ratios — expressed as % of income (mathematically meaningful).
+  // Income is shown as the base amount (not a percentage).
+  const expenseRatio = stats.income > 0 ? (stats.expenses / stats.income) * 100 : 0;
+  const savingsRatio = stats.income > 0 ? (stats.savings / stats.income) * 100 : 0;
+  const remainingRatio = Math.max(0, 100 - expenseRatio - savingsRatio);
   const netCashflow = stats.income - stats.expenses;
 
   return (
