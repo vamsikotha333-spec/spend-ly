@@ -406,7 +406,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
 
   const aggregatedData = useMemo(() => buildAggregatedData(transactions), [transactions, buildAggregatedData]);
 
-  const callInsightsAPI = async (data: ReturnType<typeof buildAggregatedData>) => {
+  const callInsightsAPI = async (data: Record<string, unknown>) => {
     const { data: result, error } = await supabase.functions.invoke("ai-insights", { body: data });
     if (error) throw error;
     if (result?.error) throw new Error(result.error);
