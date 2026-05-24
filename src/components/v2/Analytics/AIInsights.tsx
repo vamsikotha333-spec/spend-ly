@@ -425,14 +425,17 @@ export function AIInsights({ transactions }: AIInsightsProps) {
         const dataA = buildAggregatedData(txnsA);
         const dataB = buildAggregatedData(txnsB);
 
-        const [resultA, resultB] = await Promise.all([callInsightsAPI(dataA), callInsightsAPI(dataB)]);
+        const [resultA, resultB] = await Promise.all([
+          callInsightsAPI({ ...dataA, goalData }),
+          callInsightsAPI({ ...dataB, goalData }),
+        ]);
 
         if (resultA?.structured) setStructuredInsights(resultA.insights);
         else if (resultA?.insights) setLegacyInsights(resultA.insights);
 
         if (resultB?.structured) setCompareInsights(resultB.insights);
       } else {
-        const result = await callInsightsAPI(aggregatedData);
+        const result = await callInsightsAPI({ ...aggregatedData, goalData });
         if (result?.structured) setStructuredInsights(result.insights);
         else if (result?.insights) setLegacyInsights(result.insights);
       }
