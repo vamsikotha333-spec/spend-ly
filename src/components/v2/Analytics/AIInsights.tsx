@@ -300,32 +300,88 @@ export function AIInsights({ transactions }: AIInsightsProps) {
   const [periodB, setPeriodB] = useState<PeriodType>("last-month");
 
   const buildAggregatedData = useCallback((txns: Transaction[]) => {
-    const startDate = new Date(2025, 9, 1);
-    const endDate = new Date(2026, 11, 31);
-    const months = eachMonthOfInterval({ start: startDate, end: endDate });
+    const getT = (t: Transaction) => t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
+    const memberOf = (t: Transaction) => (t.applicable_to && t.applicable_to.trim()) || t.addedBy || "Unassigned";
+
+    // Month range derived from actual data
+    let startDate = new Date();
+    let endDate = new Date();
+    if (txns.length > 0) {
+      startDate = txns.reduce((min, t) => (t.date < min ? t.date : min), txns[0].date);
+      endDate = txns.reduce((max, t) => (t.date > max ? t.date : max), txns[0].date);
+    }
+    const months = txns.length > 0 ? eachMonthOfInterval({ start: startOfMonth(startDate), end: endOfMonth(endDate) }) : [];
 
     const monthlyData = months
       .map((month) => {
         const mt = txns.filter((t) => isSameMonth(t.date, month));
         return {
           month: format(month, "MMM yyyy"),
-          income: mt.filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Income").reduce((s, t) => s + t.amount, 0),
-          expenses: mt.filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense").reduce((s, t) => s + t.amount, 0),
-          savings: mt.filter((t) => t.transaction_type === "Savings").reduce((s, t) => s + t.amount, 0),
+          income: mt.filter((t) => getT(t) === "Income").reduce((s, t) => s + t.amount, 0),
+          expenses: mt.filter((t) => getT(t) === "Expense").reduce((s, t) => s + t.amount, 0),
+          savings: mt.filter((t) => getT(t) === "Savings").reduce((s, t) => s + t.amount, 0),
         };
       })
       .filter((m) => m.income > 0 || m.expenses > 0 || m.savings > 0);
 
     const categoryMap: Record<string, number> = {};
-    txns
-      .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense")
-      .forEach((t) => { categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount; });
-
+    txns.filter((t) => getT(t) === "Expense").forEach((t) => {
+      categoryMap[t.category] = (categoryMap[t.category] || 0) + t.amount;
+    });
     const categoryData = Object.entries(categoryMap)
       .sort(([, a], [, b]) => b - a)
       .map(([category, amount]) => ({ category, amount }));
 
-    return { monthlyData, categoryData };
+    // Member-wise contribution (dynamic — no hardcoded names)
+    const memberAgg: Record<string, { name: string; expense: number; savings: number; income: number; topCategory?: string; topCategoryAmount: number }> = {};
+    for (const t of txns) {
+      const m = memberOf(t);
+      if (!memberAgg[m]) memberAgg[m] = { name: m, expense: 0, savings: 0, income: 0, topCategoryAmount: 0 };
+      const ty = getT(t);
+      if (ty === "Expense") memberAgg[m].expense += t.amount;
+      else if (ty === "Savings") memberAgg[m].savings += t.amount;
+      else if (ty === "Income") memberAgg[m].income += t.amount;
+    }
+    // Compute top category per member
+    for (const m of Object.keys(memberAgg)) {
+      const catMap: Record<string, number> = {};
+      txns.filter((t) => memberOf(t) === m && getT(t) === "Expense").forEach((t) => {
+        catMap[t.category] = (catMap[t.category] || 0) + t.amount;
+      });
+      const top = Object.entries(catMap).sort(([, a], [, b]) => b - a)[0];
+      if (top) {
+        memberAgg[m].topCategory = top[0];
+        memberAgg[m].topCategoryAmount = top[1];
+      }
+    }
+    const totalExp = Object.values(memberAgg).reduce((s, x) => s + x.expense, 0);
+    const totalSav = Object.values(memberAgg).reduce((s, x) => s + x.savings, 0);
+    const memberData = Object.values(memberAgg).map((x) => ({
+      member: x.name,
+      expense: x.expense,
+      savings: x.savings,
+      income: x.income,
+      expensePct: totalExp > 0 ? Math.round((x.expense / totalExp) * 100) : 0,
+      savingsPct: totalSav > 0 ? Math.round((x.savings / totalSav) * 100) : 0,
+      topCategory: x.topCategory,
+      topCategoryAmount: x.topCategoryAmount,
+    }));
+
+    // Category MoM trend deltas (latest vs previous month)
+    const trendData: Array<{ category: string; latest: number; previous: number; deltaPct: number }> = [];
+    if (months.length >= 2) {
+      const lastM = months[months.length - 1];
+      const prevM = months[months.length - 2];
+      const catSet = new Set(categoryData.slice(0, 8).map((c) => c.category));
+      for (const cat of catSet) {
+        const latest = txns.filter((t) => getT(t) === "Expense" && t.category === cat && isSameMonth(t.date, lastM)).reduce((s, t) => s + t.amount, 0);
+        const previous = txns.filter((t) => getT(t) === "Expense" && t.category === cat && isSameMonth(t.date, prevM)).reduce((s, t) => s + t.amount, 0);
+        const deltaPct = previous > 0 ? Math.round(((latest - previous) / previous) * 100) : 0;
+        trendData.push({ category: cat, latest, previous, deltaPct });
+      }
+    }
+
+    return { monthlyData, categoryData, memberData, trendData };
   }, []);
 
   const filterByPeriod = useCallback((txns: Transaction[], period: PeriodType) => {
