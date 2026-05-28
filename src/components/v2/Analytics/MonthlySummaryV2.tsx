@@ -19,13 +19,21 @@ export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
   const memberOptions = useMemberOptions(transactions);
 
   const startDate = new Date(2025, 9, 1);
-  const endDate = new Date(2026, 11, 31);
-  const allMonths = eachMonthOfInterval({ start: startDate, end: endDate });
+  const allMonths = useMemo(() => {
+    if (transactions.length === 0) return [];
+    const min = transactions.reduce((m, t) => (t.date < m ? t.date : m), transactions[0].date);
+    const max = transactions.reduce((m, t) => (t.date > m ? t.date : m), transactions[0].date);
+    return eachMonthOfInterval({ start: new Date(min.getFullYear(), min.getMonth(), 1), end: max });
+  }, [transactions]);
+
+  const availableYears = useMemo(
+    () => Array.from(new Set(allMonths.map((m) => getYear(m)))).sort(),
+    [allMonths]
+  );
 
   const visibleMonths = selectedYear === "all"
     ? allMonths
     : allMonths.filter((m) => getYear(m) === Number(selectedYear));
-
   const filteredTransactions = paidByFilter === "all"
     ? transactions
     : transactions.filter(t => (t.applicable_to || "Central") === paidByFilter);
