@@ -110,8 +110,9 @@ export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Years</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2026">2026</SelectItem>
+              {availableYears.map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={paidByFilter} onValueChange={setPaidByFilter}>
