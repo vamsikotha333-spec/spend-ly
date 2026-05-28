@@ -37,6 +37,21 @@ const navGroups: NavGroup[] = [
     label: "Overview",
     items: [
       { title: "Home", icon: Home, path: "/" },
+      { title: "Monthly Summary", icon: BarChart3, path: "/summary" },
+    ],
+  },
+  {
+    label: "Analytics",
+    items: [
+      { title: "Category Analytics", icon: Table2, path: "/spending" },
+      { title: "Savings Goals", icon: Target, path: "/goals" },
+      { title: "Budget vs Actual", icon: PieChart, path: "/budget" },
+    ],
+  },
+  {
+    label: "AI Advisor",
+    items: [
+      { title: "AI Insights", icon: Sparkles, path: "/insights" },
     ],
   },
   {
@@ -44,19 +59,9 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Transactions", icon: ArrowLeftRight, path: "/transactions" },
       { title: "Add Transaction", icon: PlusCircle, path: "/add" },
-      { title: "Budget vs Actual", icon: PieChart, path: "/budget" },
       { title: "Recurring", icon: Repeat, path: "/recurring" },
       { title: "Categories", icon: Tag, path: "/categories" },
       { title: "Members", icon: Users, path: "/members" },
-    ],
-  },
-  {
-    label: "Insights",
-    items: [
-      { title: "AI Insights", icon: Sparkles, path: "/insights" },
-      { title: "Category Analytics", icon: Table2, path: "/spending" },
-      { title: "Monthly Summary", icon: BarChart3, path: "/summary" },
-      { title: "Savings Goals", icon: Target, path: "/goals" },
     ],
   },
 ];
