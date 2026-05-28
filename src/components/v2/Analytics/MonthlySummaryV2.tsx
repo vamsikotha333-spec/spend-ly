@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,42 +19,52 @@ export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
   const memberOptions = useMemberOptions(transactions);
 
   const startDate = new Date(2025, 9, 1);
-  const endDate = new Date(2026, 11, 31);
-  const allMonths = eachMonthOfInterval({ start: startDate, end: endDate });
+  const allMonths = useMemo(() => {
+    if (transactions.length === 0) return [];
+    const min = transactions.reduce((m, t) => (t.date < m ? t.date : m), transactions[0].date);
+    const max = transactions.reduce((m, t) => (t.date > m ? t.date : m), transactions[0].date);
+    return eachMonthOfInterval({ start: new Date(min.getFullYear(), min.getMonth(), 1), end: max });
+  }, [transactions]);
+
+  const availableYears = useMemo(
+    () => Array.from(new Set(allMonths.map((m) => getYear(m)))).sort(),
+    [allMonths]
+  );
 
   const visibleMonths = selectedYear === "all"
     ? allMonths
     : allMonths.filter((m) => getYear(m) === Number(selectedYear));
-
   const filteredTransactions = paidByFilter === "all"
     ? transactions
     : transactions.filter(t => (t.applicable_to || "Central") === paidByFilter);
 
-  const monthlyData = visibleMonths.map((month) => {
-    const monthTransactions = filteredTransactions.filter((t) => isSameMonth(t.date, month));
+  const monthlyData = visibleMonths
+    .map((month) => {
+      const monthTransactions = filteredTransactions.filter((t) => isSameMonth(t.date, month));
 
-    const income = monthTransactions
-      .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Income")
-      .reduce((sum, t) => sum + t.amount, 0);
+      const income = monthTransactions
+        .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Income")
+        .reduce((sum, t) => sum + t.amount, 0);
 
-    const expenses = monthTransactions
-      .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense")
-      .reduce((sum, t) => sum + t.amount, 0);
+      const expenses = monthTransactions
+        .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense")
+        .reduce((sum, t) => sum + t.amount, 0);
 
-    const savings = monthTransactions
-      .filter((t) => t.transaction_type === "Savings")
-      .reduce((sum, t) => sum + t.amount, 0);
+      const savings = monthTransactions
+        .filter((t) => t.transaction_type === "Savings")
+        .reduce((sum, t) => sum + t.amount, 0);
 
-    const profit = income - expenses;
+      const profit = income - expenses;
 
-    return {
-      month: format(month, "MMM yyyy"),
-      Income: income,
-      Expenses: expenses,
-      Savings: savings,
-      "Profit/Loss": profit,
-    };
-  });
+      return {
+        month: format(month, "MMM yyyy"),
+        Income: income,
+        Expenses: expenses,
+        Savings: savings,
+        "Profit/Loss": profit,
+      };
+    })
+    .filter((row) => row.Income > 0 || row.Expenses > 0 || row.Savings > 0);
 
   const totals = monthlyData.reduce(
     (acc, row) => ({
@@ -100,8 +110,9 @@ export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Years</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2026">2026</SelectItem>
+              {availableYears.map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={paidByFilter} onValueChange={setPaidByFilter}>
