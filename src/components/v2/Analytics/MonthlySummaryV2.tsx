@@ -38,31 +38,33 @@ export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
     ? transactions
     : transactions.filter(t => (t.applicable_to || "Central") === paidByFilter);
 
-  const monthlyData = visibleMonths.map((month) => {
-    const monthTransactions = filteredTransactions.filter((t) => isSameMonth(t.date, month));
+  const monthlyData = visibleMonths
+    .map((month) => {
+      const monthTransactions = filteredTransactions.filter((t) => isSameMonth(t.date, month));
 
-    const income = monthTransactions
-      .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Income")
-      .reduce((sum, t) => sum + t.amount, 0);
+      const income = monthTransactions
+        .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Income")
+        .reduce((sum, t) => sum + t.amount, 0);
 
-    const expenses = monthTransactions
-      .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense")
-      .reduce((sum, t) => sum + t.amount, 0);
+      const expenses = monthTransactions
+        .filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense")
+        .reduce((sum, t) => sum + t.amount, 0);
 
-    const savings = monthTransactions
-      .filter((t) => t.transaction_type === "Savings")
-      .reduce((sum, t) => sum + t.amount, 0);
+      const savings = monthTransactions
+        .filter((t) => t.transaction_type === "Savings")
+        .reduce((sum, t) => sum + t.amount, 0);
 
-    const profit = income - expenses;
+      const profit = income - expenses;
 
-    return {
-      month: format(month, "MMM yyyy"),
-      Income: income,
-      Expenses: expenses,
-      Savings: savings,
-      "Profit/Loss": profit,
-    };
-  });
+      return {
+        month: format(month, "MMM yyyy"),
+        Income: income,
+        Expenses: expenses,
+        Savings: savings,
+        "Profit/Loss": profit,
+      };
+    })
+    .filter((row) => row.Income > 0 || row.Expenses > 0 || row.Savings > 0);
 
   const totals = monthlyData.reduce(
     (acc, row) => ({
