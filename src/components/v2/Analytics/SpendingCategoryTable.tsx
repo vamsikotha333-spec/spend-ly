@@ -60,9 +60,21 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
     [allMonths]
   );
 
-  const yearFilteredMonths = selectedYear === "all"
-    ? allMonths
-    : allMonths.filter(m => getYear(m) === Number(selectedYear));
+  const yearFilteredMonths = useMemo(
+    () => (selectedYear === "all" ? allMonths : allMonths.filter((m) => getYear(m) === Number(selectedYear))),
+    [allMonths, selectedYear]
+  );
+
+  // Hide months that have no activity for the active type
+  const months = useMemo(
+    () =>
+      yearFilteredMonths.filter((m) =>
+        transactions.some(
+          (t) => getTxnType(t) === activeType && isSameMonth(t.date, m)
+        )
+      ),
+    [yearFilteredMonths, transactions, activeType]
+  );
 
   const scoped = useMemo(
     () => transactions.filter((t) => getTxnType(t) === activeType),
