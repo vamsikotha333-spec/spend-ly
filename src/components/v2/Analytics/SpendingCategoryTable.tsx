@@ -60,7 +60,7 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
     [allMonths]
   );
 
-  const months = selectedYear === "all"
+  const yearFilteredMonths = selectedYear === "all"
     ? allMonths
     : allMonths.filter(m => getYear(m) === Number(selectedYear));
 
