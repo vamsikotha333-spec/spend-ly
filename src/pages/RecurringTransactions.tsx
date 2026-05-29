@@ -14,6 +14,8 @@ import { format } from "date-fns";
 import { TRANSACTION_TYPES } from "@/types/transaction";
 import { useMembers } from "@/hooks/useMembers";
 import { useCategories, categoryDisplay, type CategoryType } from "@/hooks/useCategories";
+import { PageSkeleton } from "@/components/common/PageSkeleton";
+import { EmptyState } from "@/components/common/EmptyState";
 
 export default function RecurringTransactionsPage() {
   const { recurring, isLoading, addRecurring, updateRecurring, deleteRecurring } = useRecurringTransactions();
@@ -91,11 +93,7 @@ export default function RecurringTransactionsPage() {
   const categories = dynamicCats.map((c) => categoryDisplay(c));
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
+    return <PageSkeleton rows={4} />;
   }
 
   return (
@@ -189,11 +187,13 @@ export default function RecurringTransactionsPage() {
 
         {/* List */}
         {recurring.length === 0 ? (
-          <Card className="p-12 text-center border-0 shadow-soft">
-            <Repeat className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-lg font-medium text-muted-foreground">No recurring transactions</p>
-            <Button className="mt-4" onClick={() => setShowForm(true)}><PlusCircle className="h-4 w-4 mr-1" /> Add One</Button>
-          </Card>
+          <EmptyState
+            illustration="recurring"
+            title="No recurring transactions yet"
+            description="Add subscriptions, salaries, EMIs and rent so they're tracked automatically each cycle."
+            actionLabel="Add your first one"
+            onAction={() => setShowForm(true)}
+          />
         ) : (
           <div className="space-y-3">
             {recurring.map((r, i) => {

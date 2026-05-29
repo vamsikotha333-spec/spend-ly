@@ -142,11 +142,16 @@
   }
 
   body {
-    @apply text-foreground antialiased;
+    @apply text-foreground antialiased font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     /* Spec: linear-gradient(180deg, #F8FAFC, #EFF6FF) */
     background: linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(214 100% 97%) 100%);
     background-attachment: fixed;
     min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans tracking-tight;
   }
 
   .dark body {
@@ -161,6 +166,12 @@
   }
   .card-premium:hover {
     @apply shadow-hover -translate-y-0.5;
+  }
+  .hover-lift {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-hover;
+  }
+  .press {
+    @apply transition-transform duration-100 active:scale-95;
   }
   .bg-page-gradient {
     background: linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(214 100% 97%) 100%);

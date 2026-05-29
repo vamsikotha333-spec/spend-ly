@@ -13,6 +13,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useFilters } from "@/contexts/FilterContext";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Home",
@@ -253,6 +254,8 @@ export function GlobalHeader() {
             <X className="h-4 w-4" />
           </Button>
         )}
+
+        <ThemeToggle />
       </div>
 
       {isActive && (
