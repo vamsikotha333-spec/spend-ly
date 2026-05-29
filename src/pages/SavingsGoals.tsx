@@ -13,7 +13,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useMembers } from "@/hooks/useMembers";
-
+import { PageSkeleton } from "@/components/common/PageSkeleton";
+import { EmptyState } from "@/components/common/EmptyState";
 function ContributionsDialog({ goal, onClose }: { goal: SavingsGoal; onClose: () => void }) {
   const { contributions, addContribution, updateContribution, deleteContribution } = useSavingsContributions(goal.id);
   const { updateGoal } = useSavingsGoals();
@@ -218,11 +219,7 @@ export default function SavingsGoals() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
+    return <PageSkeleton rows={4} />;
   }
 
   const totalTarget = goals.reduce((s, g) => s + g.target_amount, 0);
@@ -305,12 +302,13 @@ export default function SavingsGoals() {
         )}
 
         {goals.length === 0 ? (
-          <Card className="p-12 text-center border-0 shadow-soft">
-            <Target className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-lg font-medium text-muted-foreground">No savings goals yet</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">Create your first goal to start tracking!</p>
-            <Button className="mt-4" onClick={() => setShowForm(true)}><PlusCircle className="h-4 w-4 mr-1" /> Create Goal</Button>
-          </Card>
+          <EmptyState
+            illustration="goals"
+            title="No savings goals yet"
+            description="Create your first goal to start tracking progress toward what matters most."
+            actionLabel="Create your first goal"
+            onAction={() => setShowForm(true)}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {goals.map((goal, i) => {
