@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search, Tag, Loader2 } from "lucide-react";
