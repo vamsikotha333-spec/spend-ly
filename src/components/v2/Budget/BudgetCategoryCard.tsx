@@ -11,18 +11,30 @@ interface Props {
   index: number;
   onEdit: (budget: Budget) => void;
   onDelete: (id: string) => void;
+  variant?: "expense" | "savings";
 }
 
-export function BudgetCategoryCard({ item, index, onEdit, onDelete }: Props) {
+export function BudgetCategoryCard({ item, index, onEdit, onDelete, variant = "expense" }: Props) {
   const [expanded, setExpanded] = useState(false);
 
+  const isSavings = variant === "savings";
   const remaining = item.budget_amount - item.actual;
   const noBudget = item.hasBudget === false;
-  const statusConfig = {
-    over: { emoji: "🔴", label: noBudget ? "No Budget Set" : "Over Budget", cls: "text-destructive", progressCls: "[&>div]:bg-destructive" },
-    warning: { emoji: "⚠️", label: "Near Limit", cls: "text-warning", progressCls: "[&>div]:bg-warning" },
-    good: { emoji: "✅", label: "On Track", cls: "text-success", progressCls: "[&>div]:bg-success" },
-  };
+  const spentLabel = isSavings ? "Saved" : "Spent";
+  const remainingLabel = isSavings ? "to go" : "remaining";
+  const exceededLabel = isSavings ? "Reached, +" : "Exceeded by ";
+  // Status semantics flip for savings: high % = good (closer to target)
+  const statusConfig = isSavings
+    ? {
+        over: { emoji: "🏆", label: noBudget ? "No Target Set" : "Target Reached", cls: "text-success", progressCls: "[&>div]:bg-success" },
+        warning: { emoji: "📈", label: "Almost There", cls: "text-success", progressCls: "[&>div]:bg-success" },
+        good: { emoji: "💰", label: "In Progress", cls: "text-primary", progressCls: "[&>div]:bg-primary" },
+      }
+    : {
+        over: { emoji: "🔴", label: noBudget ? "No Budget Set" : "Over Budget", cls: "text-destructive", progressCls: "[&>div]:bg-destructive" },
+        warning: { emoji: "⚠️", label: "Near Limit", cls: "text-warning", progressCls: "[&>div]:bg-warning" },
+        good: { emoji: "✅", label: "On Track", cls: "text-success", progressCls: "[&>div]:bg-success" },
+      };
   const cfg = statusConfig[item.status];
 
   return (
