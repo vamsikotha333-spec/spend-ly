@@ -67,9 +67,11 @@ export function useCategories(type?: CategoryType) {
     mutationFn: async ({
       name,
       type,
+      budget_tracking = true,
     }: {
       name: string;
       type: CategoryType;
+      budget_tracking?: boolean;
     }): Promise<Category> => {
       const clean = normalizeName(stripLeadingEmoji(name));
       if (!clean) throw new Error("Category name is required");
@@ -82,7 +84,7 @@ export function useCategories(type?: CategoryType) {
 
       const { data, error } = await supabase
         .from("categories")
-        .insert({ name: clean, type })
+        .insert({ name: clean, type, budget_tracking, is_default: false })
         .select()
         .single();
 
@@ -101,7 +103,7 @@ export function useCategories(type?: CategoryType) {
       }
       return data as Category;
     },
-    onMutate: async ({ name, type }) => {
+    onMutate: async ({ name, type, budget_tracking = true }) => {
       const clean = normalizeName(stripLeadingEmoji(name));
       await qc.cancelQueries({ queryKey: ["categories"] });
 
@@ -119,6 +121,8 @@ export function useCategories(type?: CategoryType) {
             type,
             emoji: null,
             created_at: new Date().toISOString(),
+            budget_tracking,
+            is_default: false,
           },
         ]);
       }
@@ -142,6 +146,70 @@ export function useCategories(type?: CategoryType) {
       qc.invalidateQueries({ queryKey: ["categories"] });
     },
   });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({
+      category,
+      changes,
+    }: {
+      category: Category;
+      changes: Partial<Pick<Category, "name" | "type" | "budget_tracking">>;
+    }): Promise<Category> => {
+      const patch: Record<string, any> = {};
+      let newName = category.name;
+      if (changes.name !== undefined) {
+        const clean = normalizeName(stripLeadingEmoji(changes.name));
+        if (!clean) throw new Error("Category name is required");
+        const all = qc.getQueryData<Category[]>(["categories"]) ?? [];
+        const targetType = changes.type ?? category.type;
+        const dup = all.find(
+          (c) =>
+            c.id !== category.id &&
+            c.type === targetType &&
+            c.name.toLowerCase() === clean.toLowerCase(),
+        );
+        if (dup) throw new Error("A category with this name already exists");
+        if (clean !== category.name) patch.name = clean;
+        newName = clean;
+      }
+      if (changes.type !== undefined && changes.type !== category.type) {
+        patch.type = changes.type;
+      }
+      if (
+        changes.budget_tracking !== undefined &&
+        changes.budget_tracking !== category.budget_tracking
+      ) {
+        patch.budget_tracking = changes.budget_tracking;
+      }
+      if (Object.keys(patch).length === 0) return category;
+
+      const oldDisplay = categoryDisplay(category);
+      const newDisplay = category.emoji ? `${category.emoji} ${newName}` : newName;
+
+      const { data, error } = await supabase
+        .from("categories")
+        .update(patch)
+        .eq("id", category.id)
+        .select()
+        .single();
+      if (error) throw error;
+
+      if (patch.name && oldDisplay !== newDisplay) {
+        const { error: tErr } = await supabase
+          .from("transactions")
+          .update({ category: newDisplay })
+          .eq("category", oldDisplay);
+        if (tErr) throw tErr;
+      }
+      return data as Category;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["categories"] });
+      qc.invalidateQueries({ queryKey: ["transactions"] });
+    },
+  });
+
+
 
   const renameMutation = useMutation({
     mutationFn: async ({
