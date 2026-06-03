@@ -13,6 +13,8 @@ export interface Category {
   type: CategoryType;
   emoji: string | null;
   created_at: string;
+  budget_tracking: boolean;
+  is_default: boolean;
 }
 
 export function categoryDisplay(c: Pick<Category, "name" | "emoji">): string {
