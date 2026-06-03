@@ -87,17 +87,17 @@ export function BudgetCategoryCard({ item, index, onEdit, onDelete, variant = "e
         <div className="px-4 pb-4 pt-1 border-t border-border/30 space-y-2">
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Budget</p>
+              <p className="text-[10px] uppercase text-muted-foreground">{isSavings ? "Target" : "Budget"}</p>
               <p className="text-sm font-bold tabular-nums">{noBudget ? "—" : `₹${item.budget_amount.toLocaleString("en-IN")}`}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Spent</p>
-              <p className="text-sm font-bold tabular-nums text-destructive">₹{item.actual.toLocaleString("en-IN")}</p>
+              <p className="text-[10px] uppercase text-muted-foreground">{spentLabel}</p>
+              <p className={`text-sm font-bold tabular-nums ${isSavings ? "text-success" : "text-destructive"}`}>₹{item.actual.toLocaleString("en-IN")}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Left</p>
-              <p className={`text-sm font-bold tabular-nums ${noBudget ? "text-muted-foreground" : remaining < 0 ? "text-destructive" : "text-success"}`}>
-                {noBudget ? "—" : `₹${remaining.toLocaleString("en-IN")}`}
+              <p className="text-[10px] uppercase text-muted-foreground">{isSavings ? "To Go" : "Left"}</p>
+              <p className={`text-sm font-bold tabular-nums ${noBudget ? "text-muted-foreground" : remaining < 0 ? (isSavings ? "text-success" : "text-destructive") : "text-success"}`}>
+                {noBudget ? "—" : `₹${Math.max(remaining, 0).toLocaleString("en-IN")}`}
               </p>
             </div>
           </div>
