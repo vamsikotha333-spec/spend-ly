@@ -211,55 +211,6 @@ export function useCategories(type?: CategoryType) {
 
 
 
-  const renameMutation = useMutation({
-    mutationFn: async ({
-      category,
-      newName,
-    }: {
-      category: Category;
-      newName: string;
-    }): Promise<Category> => {
-      const clean = normalizeName(stripLeadingEmoji(newName));
-      if (!clean) throw new Error("Category name is required");
-
-      const all = qc.getQueryData<Category[]>(["categories"]) ?? [];
-      const dup = all.find(
-        (c) =>
-          c.id !== category.id &&
-          c.type === category.type &&
-          c.name.toLowerCase() === clean.toLowerCase(),
-      );
-      if (dup) throw new Error("A category with this name already exists");
-
-      if (clean === category.name) return category;
-
-      const oldDisplay = categoryDisplay(category);
-      const newDisplay = category.emoji ? `${category.emoji} ${clean}` : clean;
-
-      const { data, error } = await supabase
-        .from("categories")
-        .update({ name: clean })
-        .eq("id", category.id)
-        .select()
-        .single();
-      if (error) throw error;
-
-      // Cascade rename in transactions (exact match on stored display)
-      if (oldDisplay !== newDisplay) {
-        const { error: tErr } = await supabase
-          .from("transactions")
-          .update({ category: newDisplay })
-          .eq("category", oldDisplay);
-        if (tErr) throw tErr;
-      }
-
-      return data as Category;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      qc.invalidateQueries({ queryKey: ["transactions"] });
-    },
-  });
 
   const deleteMutation = useMutation({
     mutationFn: async ({
