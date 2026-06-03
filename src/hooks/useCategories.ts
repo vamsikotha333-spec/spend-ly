@@ -155,7 +155,7 @@ export function useCategories(type?: CategoryType) {
       category: Category;
       changes: Partial<Pick<Category, "name" | "type" | "budget_tracking">>;
     }): Promise<Category> => {
-      const patch: Record<string, any> = {};
+      const patch: { name?: string; type?: CategoryType; budget_tracking?: boolean } = {};
       let newName = category.name;
       if (changes.name !== undefined) {
         const clean = normalizeName(stripLeadingEmoji(changes.name));
