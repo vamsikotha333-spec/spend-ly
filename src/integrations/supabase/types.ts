@@ -46,25 +46,31 @@ export type Database = {
       }
       categories: {
         Row: {
+          budget_tracking: boolean
           created_at: string
           emoji: string | null
           id: string
+          is_default: boolean
           name: string
           type: string
           user_id: string
         }
         Insert: {
+          budget_tracking?: boolean
           created_at?: string
           emoji?: string | null
           id?: string
+          is_default?: boolean
           name: string
           type: string
           user_id?: string
         }
         Update: {
+          budget_tracking?: boolean
           created_at?: string
           emoji?: string | null
           id?: string
+          is_default?: boolean
           name?: string
           type?: string
           user_id?: string

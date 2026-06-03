@@ -11,18 +11,30 @@ interface Props {
   index: number;
   onEdit: (budget: Budget) => void;
   onDelete: (id: string) => void;
+  variant?: "expense" | "savings";
 }
 
-export function BudgetCategoryCard({ item, index, onEdit, onDelete }: Props) {
+export function BudgetCategoryCard({ item, index, onEdit, onDelete, variant = "expense" }: Props) {
   const [expanded, setExpanded] = useState(false);
 
+  const isSavings = variant === "savings";
   const remaining = item.budget_amount - item.actual;
   const noBudget = item.hasBudget === false;
-  const statusConfig = {
-    over: { emoji: "🔴", label: noBudget ? "No Budget Set" : "Over Budget", cls: "text-destructive", progressCls: "[&>div]:bg-destructive" },
-    warning: { emoji: "⚠️", label: "Near Limit", cls: "text-warning", progressCls: "[&>div]:bg-warning" },
-    good: { emoji: "✅", label: "On Track", cls: "text-success", progressCls: "[&>div]:bg-success" },
-  };
+  const spentLabel = isSavings ? "Saved" : "Spent";
+  const remainingLabel = isSavings ? "to go" : "remaining";
+  const exceededLabel = isSavings ? "Reached, +" : "Exceeded by ";
+  // Status semantics flip for savings: high % = good (closer to target)
+  const statusConfig = isSavings
+    ? {
+        over: { emoji: "🏆", label: noBudget ? "No Target Set" : "Target Reached", cls: "text-success", progressCls: "[&>div]:bg-success" },
+        warning: { emoji: "📈", label: "Almost There", cls: "text-success", progressCls: "[&>div]:bg-success" },
+        good: { emoji: "💰", label: "In Progress", cls: "text-primary", progressCls: "[&>div]:bg-primary" },
+      }
+    : {
+        over: { emoji: "🔴", label: noBudget ? "No Budget Set" : "Over Budget", cls: "text-destructive", progressCls: "[&>div]:bg-destructive" },
+        warning: { emoji: "⚠️", label: "Near Limit", cls: "text-warning", progressCls: "[&>div]:bg-warning" },
+        good: { emoji: "✅", label: "On Track", cls: "text-success", progressCls: "[&>div]:bg-success" },
+      };
   const cfg = statusConfig[item.status];
 
   return (
@@ -60,10 +72,10 @@ export function BudgetCategoryCard({ item, index, onEdit, onDelete }: Props) {
           <span className={`text-[11px] font-medium ${cfg.cls}`}>{cfg.label}</span>
           <span className="text-[11px] text-muted-foreground tabular-nums">
             {noBudget
-              ? `₹${item.actual.toLocaleString("en-IN")} spent`
+              ? `₹${item.actual.toLocaleString("en-IN")} ${spentLabel.toLowerCase()}`
               : remaining >= 0
-                ? `₹${remaining.toLocaleString("en-IN")} remaining`
-                : `Exceeded by ₹${Math.abs(remaining).toLocaleString("en-IN")}`}
+                ? `₹${remaining.toLocaleString("en-IN")} ${remainingLabel}`
+                : `${exceededLabel}₹${Math.abs(remaining).toLocaleString("en-IN")}`}
           </span>
         </div>
       </div>
@@ -75,17 +87,17 @@ export function BudgetCategoryCard({ item, index, onEdit, onDelete }: Props) {
         <div className="px-4 pb-4 pt-1 border-t border-border/30 space-y-2">
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Budget</p>
+              <p className="text-[10px] uppercase text-muted-foreground">{isSavings ? "Target" : "Budget"}</p>
               <p className="text-sm font-bold tabular-nums">{noBudget ? "—" : `₹${item.budget_amount.toLocaleString("en-IN")}`}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Spent</p>
-              <p className="text-sm font-bold tabular-nums text-destructive">₹{item.actual.toLocaleString("en-IN")}</p>
+              <p className="text-[10px] uppercase text-muted-foreground">{spentLabel}</p>
+              <p className={`text-sm font-bold tabular-nums ${isSavings ? "text-success" : "text-destructive"}`}>₹{item.actual.toLocaleString("en-IN")}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Left</p>
-              <p className={`text-sm font-bold tabular-nums ${noBudget ? "text-muted-foreground" : remaining < 0 ? "text-destructive" : "text-success"}`}>
-                {noBudget ? "—" : `₹${remaining.toLocaleString("en-IN")}`}
+              <p className="text-[10px] uppercase text-muted-foreground">{isSavings ? "To Go" : "Left"}</p>
+              <p className={`text-sm font-bold tabular-nums ${noBudget ? "text-muted-foreground" : remaining < 0 ? (isSavings ? "text-success" : "text-destructive") : "text-success"}`}>
+                {noBudget ? "—" : `₹${Math.max(remaining, 0).toLocaleString("en-IN")}`}
               </p>
             </div>
           </div>
