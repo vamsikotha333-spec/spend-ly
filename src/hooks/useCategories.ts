@@ -268,12 +268,18 @@ export function useCategories(type?: CategoryType) {
     categories,
     allCategories: all,
     isLoading: query.isLoading,
-    addCategory: (name: string, type: CategoryType) =>
-      addMutation.mutateAsync({ name, type }),
+    addCategory: (name: string, type: CategoryType, budget_tracking = true) =>
+      addMutation.mutateAsync({ name, type, budget_tracking }),
     isAdding: addMutation.isPending,
+    updateCategory: (
+      category: Category,
+      changes: Partial<Pick<Category, "name" | "type" | "budget_tracking">>,
+    ) => updateMutation.mutateAsync({ category, changes }),
+    isUpdating: updateMutation.isPending,
+    // Back-compat wrapper — name-only rename.
     renameCategory: (category: Category, newName: string) =>
-      renameMutation.mutateAsync({ category, newName }),
-    isRenaming: renameMutation.isPending,
+      updateMutation.mutateAsync({ category, changes: { name: newName } }),
+    isRenaming: updateMutation.isPending,
     deleteCategory: (
       category: Category,
       mode: "empty" | "reassign" | "uncategorized",
