@@ -103,18 +103,65 @@ export default function ManageCategories() {
                     : "No categories match your search."}
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {visible.map((c) => (
-                    <CategoryRow
-                      key={c.id}
-                      category={c}
-                      count={counts[c.id] ?? 0}
-                      onRequestDelete={(cat, cnt) => {
-                        setDeleteTarget(cat);
-                        setDeleteCount(cnt);
-                      }}
-                    />
-                  ))}
+                <div className="space-y-6">
+                  {(() => {
+                    const defaults = visible.filter((c) => c.is_default);
+                    const custom = visible.filter((c) => !c.is_default);
+                    return (
+                      <>
+                        {defaults.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 px-1">
+                              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                🌍 Default Categories
+                              </h3>
+                              <Badge variant="outline" className="h-5 text-[10px]">
+                                {defaults.length}
+                              </Badge>
+                            </div>
+                            <div className="space-y-2">
+                              {defaults.map((c) => (
+                                <CategoryRow
+                                  key={c.id}
+                                  category={c}
+                                  count={counts[c.id] ?? 0}
+                                  onRequestDelete={(cat, cnt) => {
+                                    setDeleteTarget(cat);
+                                    setDeleteCount(cnt);
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {custom.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 px-1">
+                              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                👤 My Categories
+                              </h3>
+                              <Badge variant="outline" className="h-5 text-[10px]">
+                                {custom.length}
+                              </Badge>
+                            </div>
+                            <div className="space-y-2">
+                              {custom.map((c) => (
+                                <CategoryRow
+                                  key={c.id}
+                                  category={c}
+                                  count={counts[c.id] ?? 0}
+                                  onRequestDelete={(cat, cnt) => {
+                                    setDeleteTarget(cat);
+                                    setDeleteCount(cnt);
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </TabsContent>
