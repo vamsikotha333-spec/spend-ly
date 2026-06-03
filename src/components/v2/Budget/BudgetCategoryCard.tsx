@@ -72,10 +72,10 @@ export function BudgetCategoryCard({ item, index, onEdit, onDelete, variant = "e
           <span className={`text-[11px] font-medium ${cfg.cls}`}>{cfg.label}</span>
           <span className="text-[11px] text-muted-foreground tabular-nums">
             {noBudget
-              ? `₹${item.actual.toLocaleString("en-IN")} spent`
+              ? `₹${item.actual.toLocaleString("en-IN")} ${spentLabel.toLowerCase()}`
               : remaining >= 0
-                ? `₹${remaining.toLocaleString("en-IN")} remaining`
-                : `Exceeded by ₹${Math.abs(remaining).toLocaleString("en-IN")}`}
+                ? `₹${remaining.toLocaleString("en-IN")} ${remainingLabel}`
+                : `${exceededLabel}₹${Math.abs(remaining).toLocaleString("en-IN")}`}
           </span>
         </div>
       </div>
