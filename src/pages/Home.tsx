@@ -13,11 +13,15 @@ import {
 } from "lucide-react";
 import {
   format, isSameMonth, isSameDay, startOfWeek, endOfWeek, isWithinInterval,
-  subDays, subWeeks,
+  subDays, subWeeks, subMonths,
 } from "date-fns";
 import { cn } from "@/lib/utils";
 import { canonicalDisplay } from "@/utils/categoryNormalize";
 import { SmartInsightsRail } from "@/components/v2/Insights/SmartInsightsRail";
+import { AnimatedCounter } from "@/components/common/AnimatedCounter";
+import { Sparkline } from "@/components/common/Sparkline";
+import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
+import { HealthScore } from "@/components/v2/Home/HealthScore";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
