@@ -13,11 +13,15 @@ import {
 } from "lucide-react";
 import {
   format, isSameMonth, isSameDay, startOfWeek, endOfWeek, isWithinInterval,
-  subDays, subWeeks,
+  subDays, subWeeks, subMonths,
 } from "date-fns";
 import { cn } from "@/lib/utils";
 import { canonicalDisplay } from "@/utils/categoryNormalize";
 import { SmartInsightsRail } from "@/components/v2/Insights/SmartInsightsRail";
+import { AnimatedCounter } from "@/components/common/AnimatedCounter";
+import { Sparkline } from "@/components/common/Sparkline";
+import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
+import { HealthScore } from "@/components/v2/Home/HealthScore";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
@@ -141,12 +145,48 @@ export default function Home() {
       insights.push({ emoji: "📈", title: "Keep tracking", body: "Add a few transactions to unlock smart insights.", type: "info" });
     }
 
+    // 7-day daily series for sparklines
+    const series7 = Array.from({ length: 7 }).map((_, i) => {
+      const day = subDays(now, 6 - i);
+      const dayTx = transactions.filter((t) => isSameDay(t.date, day));
+      const inc = dayTx.filter((t) => getType(t) === "Income").reduce((s, t) => s + t.amount, 0);
+      const exp = dayTx.filter((t) => getType(t) === "Expense").reduce((s, t) => s + t.amount, 0);
+      const sav = dayTx.filter((t) => getType(t) === "Savings").reduce((s, t) => s + t.amount, 0);
+      return { income: inc, expenses: exp, savings: sav, remaining: inc - exp - sav };
+    });
+    const sparkIncome = series7.map((d) => d.income);
+    const sparkExpenses = series7.map((d) => d.expenses);
+    const sparkSavings = series7.map((d) => d.savings);
+    const sparkRemaining = series7.map((d) => d.remaining);
+
+    // Month-over-month %
+    const lastMonthDate = subMonths(now, 1);
+    const lmTx = transactions.filter((t) => isSameMonth(t.date, lastMonthDate));
+    const lmIncome = lmTx.filter((t) => getType(t) === "Income").reduce((s, t) => s + t.amount, 0);
+    const lmExpenses = lmTx.filter((t) => getType(t) === "Expense").reduce((s, t) => s + t.amount, 0);
+    const lmSavings = lmTx.filter((t) => getType(t) === "Savings").reduce((s, t) => s + t.amount, 0);
+    const lmRemaining = lmIncome - lmExpenses - lmSavings;
+    const remaining = income - expenses - savings;
+    const pct = (cur: number, prev: number) => {
+      if (prev === 0 && cur === 0) return null;
+      if (prev === 0) return cur > 0 ? 100 : -100;
+      return ((cur - prev) / Math.abs(prev)) * 100;
+    };
+    const deltas = {
+      income: pct(income, lmIncome),
+      expenses: pct(expenses, lmExpenses),
+      savings: pct(savings, lmSavings),
+      remaining: pct(remaining, lmRemaining),
+    };
+
     return {
       income, expenses, savings, savingsRate,
       today, todayDelta, thisWeek, weekDelta,
       topCategory, topCatPct,
       lastIncome, lastExpense, lastSavings,
       insights: insights.slice(0, 3),
+      sparkIncome, sparkExpenses, sparkSavings, sparkRemaining,
+      deltas,
     };
   }, [transactions, scopedTransactions]);
 
@@ -196,69 +236,69 @@ export default function Home() {
         {/* 1. Premium Summary Cards */}
         <section className="animate-fade-in">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            {/* Income */}
-            <Card className="relative overflow-hidden p-5 border card-sheen-success shadow-medium hover:-translate-y-1 hover:shadow-large transition-all duration-200">
-              <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-success/10 blur-2xl" />
-              <div className="relative flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-success/20 flex items-center justify-center ring-1 ring-success/30 shadow-sm">
-                  <TrendingUp className="h-[18px] w-[18px] text-success" />
-                </div>
-                <span className="text-lg">💰</span>
-              </div>
-              <p className="relative text-[11px] font-semibold text-success/80 uppercase tracking-wider mb-1">Income</p>
-              <p className="relative text-2xl md:text-3xl font-bold text-success tabular-nums tracking-tight">{formatCompactINR(stats.income)}</p>
-            </Card>
-
-            {/* Expenses */}
-            <Card className="relative overflow-hidden p-5 border card-sheen-danger shadow-medium hover:-translate-y-1 hover:shadow-large transition-all duration-200">
-              <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-destructive/10 blur-2xl" />
-              <div className="relative flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center ring-1 ring-destructive/30 shadow-sm">
-                  <TrendingDown className="h-[18px] w-[18px] text-destructive" />
-                </div>
-                <span className="text-lg">💸</span>
-              </div>
-              <p className="relative text-[11px] font-semibold text-destructive/80 uppercase tracking-wider mb-1">Expenses</p>
-              <p className="relative text-2xl md:text-3xl font-bold text-destructive tabular-nums tracking-tight">{formatCompactINR(stats.expenses)}</p>
-            </Card>
-
-            {/* Savings */}
-            <Card className="relative overflow-hidden p-5 border card-sheen-info shadow-medium hover:-translate-y-1 hover:shadow-large transition-all duration-200">
-              <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-info/10 blur-2xl" />
-              <div className="relative flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-info/20 flex items-center justify-center ring-1 ring-info/30 shadow-sm">
-                  <PiggyBank className="h-[18px] w-[18px] text-info" />
-                </div>
-                <span className="text-lg">🏦</span>
-              </div>
-              <p className="relative text-[11px] font-semibold text-info/80 uppercase tracking-wider mb-1">Savings</p>
-              <p className="relative text-2xl md:text-3xl font-bold text-info tabular-nums tracking-tight">{formatCompactINR(stats.savings)}</p>
-            </Card>
-
-            {/* Remaining Balance */}
             {(() => {
               const remaining = stats.income - stats.expenses - stats.savings;
-              const tone =
-                remaining > 0
-                  ? { ring: "ring-success/30", icon: "bg-success/20 text-success", text: "text-success", label: "text-success/80", glow: "bg-success/10" }
-                  : remaining < 0
-                  ? { ring: "ring-destructive/30", icon: "bg-destructive/20 text-destructive", text: "text-destructive", label: "text-destructive/80", glow: "bg-destructive/10" }
-                  : { ring: "ring-muted-foreground/20", icon: "bg-muted text-muted-foreground", text: "text-foreground", label: "text-muted-foreground", glow: "bg-muted/40" };
-              return (
-                <Card className="relative overflow-hidden p-5 border shadow-medium hover:-translate-y-1 hover:shadow-large transition-all duration-200">
-                  <div className={cn("absolute -top-8 -right-8 w-28 h-28 rounded-full blur-2xl", tone.glow)} />
-                  <div className="relative flex items-center justify-between mb-3">
-                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center ring-1 shadow-sm", tone.icon, tone.ring)}>
-                      <Wallet className="h-[18px] w-[18px]" />
+              const cards = [
+                {
+                  key: "income", label: "Income", emoji: "💰", value: stats.income, Icon: TrendingUp,
+                  tone: { ring: "ring-success/30", icon: "bg-success/20 text-success", text: "text-success", label: "text-success/80", glow: "bg-success/10", sheen: "card-sheen-success", spark: "text-success" },
+                  delta: stats.deltas.income, inverse: false, spark: stats.sparkIncome,
+                },
+                {
+                  key: "expenses", label: "Expenses", emoji: "💸", value: stats.expenses, Icon: TrendingDown,
+                  tone: { ring: "ring-destructive/30", icon: "bg-destructive/20 text-destructive", text: "text-destructive", label: "text-destructive/80", glow: "bg-destructive/10", sheen: "card-sheen-danger", spark: "text-destructive" },
+                  delta: stats.deltas.expenses, inverse: true, spark: stats.sparkExpenses,
+                },
+                {
+                  key: "savings", label: "Savings", emoji: "🏦", value: stats.savings, Icon: PiggyBank,
+                  tone: { ring: "ring-info/30", icon: "bg-info/20 text-info", text: "text-info", label: "text-info/80", glow: "bg-info/10", sheen: "card-sheen-info", spark: "text-info" },
+                  delta: stats.deltas.savings, inverse: false, spark: stats.sparkSavings,
+                },
+                {
+                  key: "remaining", label: "Remaining", emoji: remaining > 0 ? "🟢" : remaining < 0 ? "🔴" : "⚪", value: remaining, Icon: Wallet,
+                  tone: remaining >= 0
+                    ? { ring: "ring-success/30", icon: "bg-success/20 text-success", text: "text-success", label: "text-success/80", glow: "bg-success/10", sheen: "", spark: "text-success" }
+                    : { ring: "ring-destructive/30", icon: "bg-destructive/20 text-destructive", text: "text-destructive", label: "text-destructive/80", glow: "bg-destructive/10", sheen: "", spark: "text-destructive" },
+                  delta: stats.deltas.remaining, inverse: false, spark: stats.sparkRemaining,
+                },
+              ];
+              return cards.map((c) => {
+                const d = c.delta;
+                const positive = d !== null && d >= 0;
+                const goodDirection = d !== null && (c.inverse ? !positive : positive);
+                return (
+                  <Card key={c.key} className={cn("relative overflow-hidden p-5 border shadow-medium hover-lift transition-all duration-200", c.tone.sheen)}>
+                    <div className={cn("absolute -top-8 -right-8 w-28 h-28 rounded-full blur-2xl", c.tone.glow)} />
+                    <div className="relative flex items-center justify-between mb-3">
+                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center ring-1 shadow-sm", c.tone.icon, c.tone.ring)}>
+                        <c.Icon className="h-[18px] w-[18px]" />
+                      </div>
+                      <span className="text-lg">{c.emoji}</span>
                     </div>
-                    <span className="text-lg">{remaining > 0 ? "🟢" : remaining < 0 ? "🔴" : "⚪"}</span>
-                  </div>
-                  <p className={cn("relative text-[11px] font-semibold uppercase tracking-wider mb-1", tone.label)}>Remaining</p>
-                  <p className={cn("relative text-2xl md:text-3xl font-bold tabular-nums tracking-tight", tone.text)}>
-                    {remaining < 0 ? "-" : ""}{formatCompactINR(Math.abs(remaining))}
-                  </p>
-                </Card>
-              );
+                    <p className={cn("relative text-[11px] font-semibold uppercase tracking-wider mb-1", c.tone.label)}>{c.label}</p>
+                    <p className={cn("relative text-2xl md:text-3xl font-bold tabular-nums tracking-tight", c.tone.text)}>
+                      {c.value < 0 ? "-" : ""}
+                      <AnimatedCounter value={Math.abs(c.value)} prefix="₹" />
+                    </p>
+                    <div className="relative mt-2 flex items-center justify-between gap-2">
+                      {d !== null ? (
+                        <span className={cn(
+                          "inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+                          goodDirection ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
+                        )}>
+                          {positive ? <ArrowUp className="h-2.5 w-2.5" /> : <ArrowDown className="h-2.5 w-2.5" />}
+                          {Math.abs(d).toFixed(0)}% <span className="font-normal opacity-70 ml-0.5">vs last mo</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground">No prior data</span>
+                      )}
+                      <div className={cn("w-16 shrink-0", c.tone.spark)}>
+                        <Sparkline data={c.spark} height={22} />
+                      </div>
+                    </div>
+                  </Card>
+                );
+              });
             })()}
           </div>
 
@@ -302,6 +342,12 @@ export default function Home() {
             }
             return null;
           })()}
+        </section>
+
+        {/* Logging streak + Health score */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 animate-fade-in" style={{ animationDelay: "60ms", animationFillMode: "both" }}>
+          <LoggingStreak transactions={transactions} />
+          <HealthScore transactions={transactions} income={stats.income} expenses={stats.expenses} savings={stats.savings} />
         </section>
 
 
