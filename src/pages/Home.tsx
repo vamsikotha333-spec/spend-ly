@@ -145,12 +145,48 @@ export default function Home() {
       insights.push({ emoji: "📈", title: "Keep tracking", body: "Add a few transactions to unlock smart insights.", type: "info" });
     }
 
+    // 7-day daily series for sparklines
+    const series7 = Array.from({ length: 7 }).map((_, i) => {
+      const day = subDays(now, 6 - i);
+      const dayTx = transactions.filter((t) => isSameDay(t.date, day));
+      const inc = dayTx.filter((t) => getType(t) === "Income").reduce((s, t) => s + t.amount, 0);
+      const exp = dayTx.filter((t) => getType(t) === "Expense").reduce((s, t) => s + t.amount, 0);
+      const sav = dayTx.filter((t) => getType(t) === "Savings").reduce((s, t) => s + t.amount, 0);
+      return { income: inc, expenses: exp, savings: sav, remaining: inc - exp - sav };
+    });
+    const sparkIncome = series7.map((d) => d.income);
+    const sparkExpenses = series7.map((d) => d.expenses);
+    const sparkSavings = series7.map((d) => d.savings);
+    const sparkRemaining = series7.map((d) => d.remaining);
+
+    // Month-over-month %
+    const lastMonthDate = subMonths(now, 1);
+    const lmTx = transactions.filter((t) => isSameMonth(t.date, lastMonthDate));
+    const lmIncome = lmTx.filter((t) => getType(t) === "Income").reduce((s, t) => s + t.amount, 0);
+    const lmExpenses = lmTx.filter((t) => getType(t) === "Expense").reduce((s, t) => s + t.amount, 0);
+    const lmSavings = lmTx.filter((t) => getType(t) === "Savings").reduce((s, t) => s + t.amount, 0);
+    const lmRemaining = lmIncome - lmExpenses - lmSavings;
+    const remaining = income - expenses - savings;
+    const pct = (cur: number, prev: number) => {
+      if (prev === 0 && cur === 0) return null;
+      if (prev === 0) return cur > 0 ? 100 : -100;
+      return ((cur - prev) / Math.abs(prev)) * 100;
+    };
+    const deltas = {
+      income: pct(income, lmIncome),
+      expenses: pct(expenses, lmExpenses),
+      savings: pct(savings, lmSavings),
+      remaining: pct(remaining, lmRemaining),
+    };
+
     return {
       income, expenses, savings, savingsRate,
       today, todayDelta, thisWeek, weekDelta,
       topCategory, topCatPct,
       lastIncome, lastExpense, lastSavings,
       insights: insights.slice(0, 3),
+      sparkIncome, sparkExpenses, sparkSavings, sparkRemaining,
+      deltas,
     };
   }, [transactions, scopedTransactions]);
 
