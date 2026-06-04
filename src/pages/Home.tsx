@@ -291,9 +291,14 @@ export default function Home() {
                           {Math.abs(d).toFixed(0)}% <span className="font-normal opacity-70 ml-0.5">vs last mo</span>
                         </span>
                       ) : (
-                        <span className="text-[10px] text-muted-foreground">No prior data</span>
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                          New
+                        </span>
                       )}
-                      <div className={cn("w-16 shrink-0", c.tone.spark)}>
+                      <div
+                        className={cn("w-16 shrink-0 opacity-0 animate-fade-in", c.tone.spark)}
+                        style={{ animationDelay: "1600ms", animationFillMode: "forwards" }}
+                      >
                         <Sparkline data={c.spark} height={22} />
                       </div>
                     </div>
