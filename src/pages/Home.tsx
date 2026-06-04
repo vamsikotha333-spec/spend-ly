@@ -167,9 +167,10 @@ export default function Home() {
     const lmSavings = lmTx.filter((t) => getType(t) === "Savings").reduce((s, t) => s + t.amount, 0);
     const lmRemaining = lmIncome - lmExpenses - lmSavings;
     const remaining = income - expenses - savings;
+    // Returns null when there is no previous-month data to compare against.
+    // The UI renders a "New" badge in that case instead of a misleading %.
     const pct = (cur: number, prev: number) => {
-      if (prev === 0 && cur === 0) return null;
-      if (prev === 0) return cur > 0 ? 100 : -100;
+      if (prev === 0) return null;
       return ((cur - prev) / Math.abs(prev)) * 100;
     };
     const deltas = {
