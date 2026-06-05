@@ -136,6 +136,37 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
   const grandTotal = Object.values(columnTotals).reduce((sum, val) => sum + val, 0);
   const meta = TAB_META[activeType];
 
+  const trendColor =
+    activeType === "Expense" ? "hsl(0, 84%, 60%)" :
+    activeType === "Savings" ? "hsl(217, 91%, 60%)" :
+    "hsl(142, 71%, 45%)";
+
+  const topThree = new Set(data.slice(0, 3).filter((r) => r.total > 0).map((r) => r.category));
+
+  const handleExport = () => {
+    const header = ["Category", ...months.map((m) => format(m, "MMM yyyy")), "Total"];
+    const rows = data.map((r) => [
+      r.category,
+      ...months.map((m) => r.months[m.toISOString()].toFixed(2)),
+      r.total.toFixed(2),
+    ]);
+    const totalsRow = [
+      "Total",
+      ...months.map((m) => columnTotals[m.toISOString()].toFixed(2)),
+      grandTotal.toFixed(2),
+    ];
+    const csv = [header, ...rows, totalsRow]
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `fintracker-${activeType.toLowerCase()}-by-category-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Card className="p-3 md:p-5 shadow-medium">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -162,6 +193,10 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
               ))}
             </SelectContent>
           </Select>
+          <Button onClick={handleExport} variant="outline" size="sm" className="h-8 text-xs" disabled={data.length === 0 || months.length === 0}>
+            <Download className="h-3.5 w-3.5 mr-1.5" />
+            Export
+          </Button>
         </div>
       </div>
 
@@ -182,9 +217,10 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
           <Table className="text-xs">
             <TableHeader>
               <TableRow>
-                <TableHead className="font-bold sticky left-0 bg-background z-10 min-w-[160px] text-xs py-2">
+                <TableHead className="font-bold sticky left-0 bg-background z-10 min-w-[180px] text-xs py-2">
                   Category
                 </TableHead>
+                <TableHead className="font-bold min-w-[80px] text-xs py-2 px-2">Trend</TableHead>
                 {months.map((month) => (
                   <TableHead key={month.toISOString()} className="text-right font-bold min-w-[80px] text-xs py-2 px-2">
                     {format(month, "MMM ''yy")}
@@ -194,36 +230,53 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((row, index) => (
-                <TableRow key={row.category} className={index % 2 === 0 ? "bg-muted/30" : ""}>
-                  <TableCell className="font-medium sticky left-0 bg-background z-10">
-                    {row.category}
-                  </TableCell>
-                  {months.map((month) => {
-                    const monthKey = month.toISOString();
-                    const amount = row.months[monthKey];
-                    return (
-                      <TableCell key={monthKey} className="text-right">
-                        {amount > 0 ? `₹${amount.toFixed(2)}` : "-"}
-                      </TableCell>
-                    );
-                  })}
-                  <TableCell className="text-right font-bold bg-muted/30">
-                    {row.total > 0 ? `₹${row.total.toFixed(2)}` : "-"}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data.map((row, index) => {
+                const trend = months.map((m) => row.months[m.toISOString()] || 0);
+                const isTop = topThree.has(row.category);
+                return (
+                  <TableRow key={row.category} className={cn("transition-colors hover:bg-muted/40", index % 2 === 0 ? "bg-muted/30" : "", isTop && "bg-warning/5")}>
+                    <TableCell className="font-medium sticky left-0 bg-background z-10">
+                      <div className="flex items-center gap-1.5">
+                        {isTop && <Flame className="h-3 w-3 text-warning flex-shrink-0" />}
+                        <span className="truncate">{row.category}</span>
+                        {isTop && (
+                          <Badge variant="secondary" className="h-4 px-1 text-[9px] font-semibold">
+                            Top {[...topThree].indexOf(row.category) + 1}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-2 py-1 w-20">
+                      <div style={{ color: trendColor }}>
+                        <Sparkline data={trend} height={22} />
+                      </div>
+                    </TableCell>
+                    {months.map((month) => {
+                      const amount = row.months[month.toISOString()];
+                      return (
+                        <TableCell key={month.toISOString()} className="text-right tabular-nums">
+                          {amount > 0 ? `₹${amount.toFixed(2)}` : "-"}
+                        </TableCell>
+                      );
+                    })}
+                    <TableCell className="text-right font-bold bg-muted/30 tabular-nums">
+                      {row.total > 0 ? `₹${row.total.toFixed(2)}` : "-"}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
               <TableRow className="bg-muted font-bold border-t-2">
                 <TableCell className="sticky left-0 bg-muted z-10">Total</TableCell>
+                <TableCell />
                 {months.map((month) => {
                   const monthKey = month.toISOString();
                   return (
-                    <TableCell key={monthKey} className="text-right">
+                    <TableCell key={monthKey} className="text-right tabular-nums">
                       ₹{columnTotals[monthKey].toFixed(2)}
                     </TableCell>
                   );
                 })}
-                <TableCell className="text-right bg-muted">
+                <TableCell className="text-right bg-muted tabular-nums">
                   ₹{grandTotal.toFixed(2)}
                 </TableCell>
               </TableRow>
