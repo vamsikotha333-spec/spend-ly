@@ -167,16 +167,24 @@ export default function Transactions() {
           />
         )}
 
-        <Card className="shadow-medium border-0 overflow-hidden">
-          <div className="divide-y">
-            {filtered.length === 0 ? (
-              <p className="text-center text-muted-foreground py-12">No transactions found</p>
-            ) : (
-              filtered.map((t) => {
+        {filtered.length === 0 ? (
+          <Card className="shadow-medium border-0 overflow-hidden p-12 text-center animate-fade-in">
+            <Search className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
+            <p className="text-sm font-medium">No transactions found</p>
+            <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters or search term.</p>
+          </Card>
+        ) : (
+          <Card className="shadow-medium border-0 overflow-hidden">
+            <div className="divide-y">
+              {filtered.map((t, i) => {
                 const type = t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
                 const sign = type === "Income" ? "+" : type === "Savings" ? "" : "-";
                 return (
-                  <div key={t.id} className="flex items-center gap-4 px-4 py-3 hover:bg-muted/30 transition-colors">
+                  <div
+                    key={t.id}
+                    className="flex items-center gap-4 px-4 py-3 hover:bg-muted/40 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${Math.min(i, 20) * 25}ms`, animationFillMode: "both" }}
+                  >
                     <div className={cn(
                       "p-2 rounded-lg flex-shrink-0",
                       type === "Income" && "bg-success/10",
@@ -194,14 +202,14 @@ export default function Transactions() {
                       <p className="text-[10px] text-muted-foreground">{format(t.date, "MMM dd, yyyy")} • {t.addedBy}</p>
                     </div>
                     <p className={cn(
-                      "font-bold text-sm flex-shrink-0",
+                      "font-bold text-sm flex-shrink-0 tabular-nums",
                       type === "Income" && "text-success",
                       type === "Expense" && "text-destructive",
                       type === "Savings" && "text-info"
                     )}>
                       {sign}₹{t.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                     </p>
-                    <div className="flex gap-1 flex-shrink-0">
+                    <div className="flex gap-1 flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingTransaction(t)}>
                         <Edit className="h-3.5 w-3.5" />
                       </Button>
@@ -211,10 +219,10 @@ export default function Transactions() {
                     </div>
                   </div>
                 );
-              })
-            )}
-          </div>
-        </Card>
+              })}
+            </div>
+          </Card>
+        )}
       </div>
 
       <AlertDialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>

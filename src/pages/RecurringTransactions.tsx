@@ -7,7 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Repeat, PlusCircle, Trash2, Edit2, Calendar, IndianRupee } from "lucide-react";
+import { Repeat, PlusCircle, Trash2, Edit2, Calendar, IndianRupee, TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { differenceInDays } from "date-fns";
+import { Card as StatCard } from "@/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -96,6 +98,14 @@ export default function RecurringTransactionsPage() {
     return <PageSkeleton rows={4} />;
   }
 
+  const monthlyExpense = recurring
+    .filter((r) => r.is_active && (r.transaction_type === "Expense" || r.type === "debit"))
+    .reduce((s, r) => s + (r.frequency === "weekly" ? r.amount * 4 : r.frequency === "yearly" ? r.amount / 12 : r.amount), 0);
+  const monthlyIncome = recurring
+    .filter((r) => r.is_active && (r.transaction_type === "Income" || r.type === "credit"))
+    .reduce((s, r) => s + (r.frequency === "weekly" ? r.amount * 4 : r.frequency === "yearly" ? r.amount / 12 : r.amount), 0);
+  const activeCount = recurring.filter((r) => r.is_active).length;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
@@ -104,10 +114,36 @@ export default function RecurringTransactionsPage() {
             <Repeat className="h-4 w-4" />
             <span className="font-semibold text-foreground">Recurring Transactions</span>
           </div>
-          <Button size="sm" onClick={() => setShowForm(true)}>
+          <Button size="sm" onClick={() => setShowForm(true)} className="press">
             <PlusCircle className="h-4 w-4 mr-1" /> Add
           </Button>
         </div>
+
+        {recurring.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in">
+            <StatCard className="p-5 border-0 shadow-soft hover-lift">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground">Monthly Income</p>
+                <TrendingUp className="h-4 w-4 text-success" />
+              </div>
+              <p className="text-2xl font-bold text-success tabular-nums">₹{Math.round(monthlyIncome).toLocaleString("en-IN")}</p>
+            </StatCard>
+            <StatCard className="p-5 border-0 shadow-soft hover-lift">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground">Monthly Expense</p>
+                <TrendingDown className="h-4 w-4 text-destructive" />
+              </div>
+              <p className="text-2xl font-bold text-destructive tabular-nums">₹{Math.round(monthlyExpense).toLocaleString("en-IN")}</p>
+            </StatCard>
+            <StatCard className="p-5 border-0 shadow-soft hover-lift">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-muted-foreground">Active Schedules</p>
+                <Repeat className="h-4 w-4 text-primary" />
+              </div>
+              <p className="text-2xl font-bold tabular-nums">{activeCount}<span className="text-sm text-muted-foreground font-normal"> / {recurring.length}</span></p>
+            </StatCard>
+          </div>
+        )}
         {/* Form Dialog */}
         <Dialog open={showForm} onOpenChange={(open) => { if (!open) resetForm(); else setShowForm(true); }}>
           <DialogContent className="max-w-lg">
@@ -199,23 +235,37 @@ export default function RecurringTransactionsPage() {
             {recurring.map((r, i) => {
               const isExpense = r.transaction_type === "Expense" || r.type === "debit";
               const isIncome = r.transaction_type === "Income" || r.type === "credit";
+              const daysToNext = differenceInDays(new Date(r.next_run_date), new Date());
+              const dueSoon = r.is_active && daysToNext >= 0 && daysToNext <= 3;
               return (
                 <Card
                   key={r.id}
-                  className={cn("p-4 border-0 shadow-soft animate-slide-up", !r.is_active && "opacity-50")}
+                  className={cn(
+                    "p-4 border-0 shadow-soft animate-slide-up hover-lift",
+                    !r.is_active && "opacity-50",
+                    dueSoon && "ring-1 ring-warning/40"
+                  )}
                   style={{ animationDelay: `${i * 60}ms`, animationFillMode: "both" }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className={cn(
                         "p-2 rounded-lg",
                         isIncome ? "bg-success/10" : isExpense ? "bg-destructive/10" : "bg-info/10"
                       )}>
                         <Repeat className={cn("h-4 w-4", isIncome ? "text-success" : isExpense ? "text-destructive" : "text-info")} />
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">{r.category}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm">{r.category}</p>
+                          {dueSoon && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-warning/15 text-warning font-medium flex items-center gap-1">
+                              <Clock className="h-2.5 w-2.5" />
+                              {daysToNext === 0 ? "Today" : `${daysToNext}d`}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
                           <span className="capitalize">{r.frequency}</span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
