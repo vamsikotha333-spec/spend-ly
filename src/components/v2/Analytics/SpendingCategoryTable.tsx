@@ -1,11 +1,16 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Transaction } from "@/types/transaction";
 import { format, eachMonthOfInterval, isSameMonth, getYear } from "date-fns";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCategories, categoryDisplay } from "@/hooks/useCategories";
+import { Sparkline } from "@/components/common/Sparkline";
+import { Download, Flame } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type TxnType = "Expense" | "Savings" | "Income";
 
