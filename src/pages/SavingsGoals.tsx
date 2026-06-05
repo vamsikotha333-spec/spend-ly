@@ -15,6 +15,8 @@ import { format } from "date-fns";
 import { useMembers } from "@/hooks/useMembers";
 import { PageSkeleton } from "@/components/common/PageSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
+import { CircularProgress } from "@/components/common/CircularProgress";
+import { differenceInDays } from "date-fns";
 function ContributionsDialog({ goal, onClose }: { goal: SavingsGoal; onClose: () => void }) {
   const { contributions, addContribution, updateContribution, deleteContribution } = useSavingsContributions(goal.id);
   const { updateGoal } = useSavingsGoals();
@@ -314,28 +316,39 @@ export default function SavingsGoals() {
             {goals.map((goal, i) => {
               const pct = Math.min((goal.current_amount / goal.target_amount) * 100, 100);
               const isComplete = pct >= 100;
+              const daysLeft = goal.deadline ? differenceInDays(new Date(goal.deadline), new Date()) : null;
+              const remaining = Math.max(0, goal.target_amount - goal.current_amount);
               return (
                 <Card
                   key={goal.id}
-                  className={cn("p-5 border-0 shadow-soft animate-slide-up transition-all hover:shadow-medium", isComplete && "ring-2 ring-success/30")}
+                  className={cn(
+                    "p-5 border-0 shadow-soft animate-slide-up hover-lift",
+                    isComplete && "ring-2 ring-success/40"
+                  )}
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: "both" }}
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold">{goal.name}</h3>
-                      <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold truncate">{goal.name}</h3>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <User className="h-3 w-3" /> {goal.person}
                         </span>
                         {goal.deadline && (
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Calendar className="h-3 w-3" /> {format(new Date(goal.deadline), "MMM yyyy")}
+                          <span className={cn(
+                            "text-xs flex items-center gap-1",
+                            daysLeft !== null && daysLeft < 30 && !isComplete ? "text-destructive" : "text-muted-foreground"
+                          )}>
+                            <Calendar className="h-3 w-3" />
+                            {daysLeft !== null && daysLeft >= 0
+                              ? `${daysLeft}d left`
+                              : format(new Date(goal.deadline), "MMM yyyy")}
                           </span>
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Contribution history" onClick={() => setHistoryGoal(goal)}>
+                    <div className="flex gap-0.5">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="History" onClick={() => setHistoryGoal(goal)}>
                         <History className="h-3 w-3" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(goal)}>
@@ -347,20 +360,34 @@ export default function SavingsGoals() {
                     </div>
                   </div>
 
-                  <div className="mb-3">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium tabular-nums">₹{goal.current_amount.toLocaleString("en-IN")}</span>
-                      <span className="text-muted-foreground tabular-nums">₹{goal.target_amount.toLocaleString("en-IN")}</span>
+                  <div className="flex items-center gap-4 mb-4">
+                    <CircularProgress
+                      value={pct}
+                      size={84}
+                      stroke={8}
+                      colorClass={isComplete ? "text-success" : "text-primary"}
+                    />
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="text-xs text-muted-foreground">Saved</p>
+                      <p className="text-lg font-bold tabular-nums text-success leading-none">
+                        ₹{goal.current_amount.toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground tabular-nums">
+                        of ₹{goal.target_amount.toLocaleString("en-IN")}
+                      </p>
+                      {!isComplete && (
+                        <p className="text-[11px] text-muted-foreground">
+                          ₹{remaining.toLocaleString("en-IN")} to go
+                        </p>
+                      )}
                     </div>
-                    <Progress value={pct} className={cn("h-2.5", isComplete && "[&>div]:bg-success")} />
-                    <p className="text-xs text-muted-foreground mt-1 text-right">{pct.toFixed(1)}%</p>
                   </div>
 
-                  <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => setHistoryGoal(goal)}>
+                  <Button variant="outline" size="sm" className="w-full text-xs press" onClick={() => setHistoryGoal(goal)}>
                     <PlusCircle className="h-3 w-3 mr-1" /> Add / Manage Contributions
                   </Button>
                   {isComplete && (
-                    <div className="text-center py-1 mt-2">
+                    <div className="text-center py-1 mt-2 animate-fade-in">
                       <span className="text-sm font-medium text-success">🎉 Goal Achieved!</span>
                     </div>
                   )}
