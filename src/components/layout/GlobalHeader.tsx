@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Calendar as CalendarIcon, X, ChevronDown } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Calendar as CalendarIcon, X, ChevronDown, Plus } from "lucide-react";
 import { format, startOfMonth } from "date-fns";
 import { DateRange } from "react-day-picker";
 
@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useFilters } from "@/contexts/FilterContext";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { NotificationsBell } from "@/components/layout/NotificationsBell";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Home",
@@ -255,6 +256,17 @@ export function GlobalHeader() {
           </Button>
         )}
 
+        <Button
+          asChild
+          size="sm"
+          className="h-9 gap-1.5 rounded-lg hidden sm:inline-flex bg-gradient-primary text-primary-foreground shadow-soft hover:shadow-hover hover:opacity-95"
+        >
+          <Link to="/add" aria-label="Quick add transaction">
+            <Plus className="h-4 w-4" />
+            <span className="hidden md:inline text-xs font-semibold">Add</span>
+          </Link>
+        </Button>
+        <NotificationsBell />
         <ThemeToggle />
       </div>
 
