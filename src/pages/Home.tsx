@@ -248,7 +248,9 @@ export default function Home() {
         {/* Greeting Banner */}
         <div className="flex items-center justify-between flex-wrap gap-2 -mb-2">
           <div className="min-w-0">
-            <h2 className="text-lg md:text-xl font-bold text-foreground truncate">{greeting} 👋</h2>
+            <h2 className="text-lg md:text-xl font-bold text-foreground truncate">
+              {greeting}{displayName ? `, ${displayName}` : ""} 👋
+            </h2>
             <p className="text-xs text-muted-foreground truncate">
               {format(now, "EEE, MMM d, yyyy")} • Viewing <span className="font-semibold text-foreground">{dateFilterLabel}</span>
             </p>
