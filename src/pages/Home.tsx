@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useSavingsGoals } from "@/hooks/useSavingsGoals";
 import { useBudgets } from "@/hooks/useBudgets";
 import { useFilters } from "@/contexts/FilterContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -22,6 +23,7 @@ import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { Sparkline } from "@/components/common/Sparkline";
 import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
 import { HealthScore } from "@/components/v2/Home/HealthScore";
+import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
@@ -58,6 +60,24 @@ export default function Home() {
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+
+  // Display name from Supabase auth — falls back to email handle, then "there".
+  const [displayName, setDisplayName] = useState<string>("");
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!active) return;
+      const u = data.user;
+      const meta = (u?.user_metadata ?? {}) as Record<string, unknown>;
+      const name =
+        (meta.full_name as string) ||
+        (meta.name as string) ||
+        (meta.first_name as string) ||
+        (u?.email ? u.email.split("@")[0] : "");
+      setDisplayName(name || "");
+    });
+    return () => { active = false; };
+  }, []);
 
   // Use global date filter (month/range/all)
   const scopedTransactions = useMemo(
