@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useSavingsGoals } from "@/hooks/useSavingsGoals";
 import { useBudgets } from "@/hooks/useBudgets";
 import { useFilters } from "@/contexts/FilterContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -22,6 +23,7 @@ import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { Sparkline } from "@/components/common/Sparkline";
 import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
 import { HealthScore } from "@/components/v2/Home/HealthScore";
+import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
@@ -58,6 +60,24 @@ export default function Home() {
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+
+  // Display name from Supabase auth — falls back to email handle, then "there".
+  const [displayName, setDisplayName] = useState<string>("");
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!active) return;
+      const u = data.user;
+      const meta = (u?.user_metadata ?? {}) as Record<string, unknown>;
+      const name =
+        (meta.full_name as string) ||
+        (meta.name as string) ||
+        (meta.first_name as string) ||
+        (u?.email ? u.email.split("@")[0] : "");
+      setDisplayName(name || "");
+    });
+    return () => { active = false; };
+  }, []);
 
   // Use global date filter (month/range/all)
   const scopedTransactions = useMemo(
@@ -228,7 +248,9 @@ export default function Home() {
         {/* Greeting Banner */}
         <div className="flex items-center justify-between flex-wrap gap-2 -mb-2">
           <div className="min-w-0">
-            <h2 className="text-lg md:text-xl font-bold text-foreground truncate">{greeting} 👋</h2>
+            <h2 className="text-lg md:text-xl font-bold text-foreground truncate">
+              {greeting}{displayName ? `, ${displayName}` : ""} 👋
+            </h2>
             <p className="text-xs text-muted-foreground truncate">
               {format(now, "EEE, MMM d, yyyy")} • Viewing <span className="font-semibold text-foreground">{dateFilterLabel}</span>
             </p>
@@ -430,55 +452,8 @@ export default function Home() {
           budgets={budgets}
         />
 
-        {/* Recent Activity */}
-          <section className="animate-slide-up" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">🕐 Recent Activity</h2>
-              <Button variant="ghost" size="sm" asChild className="h-7 text-xs">
-                <Link to="/transactions">View All <ArrowRight className="h-3 w-3 ml-1" /></Link>
-              </Button>
-            </div>
-            <Card className="border divide-y divide-border">
-              {recentTxns.length === 0 ? (
-                <div className="text-center py-6">
-                  <span className="text-3xl block mb-2">📄</span>
-                  <p className="text-sm text-muted-foreground">No transactions yet</p>
-                </div>
-              ) : (
-                recentTxns.map((t) => {
-                  const type = getType(t);
-                  const isIncome = type === "Income";
-                  const isSavings = type === "Savings";
-                  const display = canonicalDisplay(t.category);
-                  const emojiPrefix = getCategoryEmoji(display);
-                  return (
-                    <div key={t.id} className="flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className={cn(
-                          "w-9 h-9 rounded-full flex items-center justify-center shrink-0 ring-1",
-                          isIncome ? "bg-[hsl(var(--success-soft))] ring-success/15" :
-                          isSavings ? "bg-[hsl(var(--info-soft))] ring-info/15" :
-                          "bg-[hsl(var(--destructive-soft))] ring-destructive/15"
-                        )}>
-                          <span className="text-sm leading-none">{emojiPrefix || (isIncome ? "💰" : isSavings ? "🏦" : "💸")}</span>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate text-foreground">{display}</p>
-                          <p className="text-[11px] text-muted-foreground">{format(t.date, "MMM d")} • {t.addedBy}</p>
-                        </div>
-                      </div>
-                      <span className={cn(
-                        "font-bold tabular-nums text-sm shrink-0 ml-2",
-                        isIncome ? "text-success" : isSavings ? "text-info" : "text-destructive"
-                      )}>
-                        {isIncome ? "+" : isSavings ? "" : "-"}{formatCompactINR(t.amount)}
-                      </span>
-                    </div>
-                  );
-                })
-              )}
-            </Card>
-          </section>
+        {/* Recent Activity — grouped timeline (Today / Yesterday / This Week / This Month) */}
+        <RecentActivityTimeline transactions={transactions} />
       </div>
     </div>
   );
