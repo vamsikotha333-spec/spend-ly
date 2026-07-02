@@ -1,6 +1,6 @@
 import {
   Home, ArrowLeftRight, PlusCircle, Table2, BarChart3,
-  Sparkles, Wallet, Target, Repeat, PieChart, Tag, Users, LogOut, type LucideIcon,
+  Sparkles, Wallet, Target, Repeat, PieChart, Tag, Users, LogOut, Landmark, type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ const navGroups: NavGroup[] = [
     label: "Overview",
     items: [
       { title: "Home", icon: Home, path: "/" },
+      { title: "Wealth", icon: Landmark, path: "/wealth" },
       { title: "Monthly Summary", icon: BarChart3, path: "/summary" },
     ],
   },
