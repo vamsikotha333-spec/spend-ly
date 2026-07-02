@@ -24,6 +24,8 @@ import { Sparkline } from "@/components/common/Sparkline";
 import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
 import { HealthScore } from "@/components/v2/Home/HealthScore";
 import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
+import { NetWorthCard } from "@/components/v2/Home/NetWorthCard";
+import { CashFlowForecast } from "@/components/v2/Home/CashFlowForecast";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
@@ -370,6 +372,12 @@ export default function Home() {
             }
             return null;
           })()}
+        </section>
+
+        {/* Net Worth + Cash Flow Forecast */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 animate-fade-in" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
+          <NetWorthCard />
+          <CashFlowForecast />
         </section>
 
         {/* Logging streak + Health score */}
