@@ -15,6 +15,7 @@ import BudgetVsActual from "./pages/BudgetVsActual";
 import RecurringTransactions from "./pages/RecurringTransactions";
 import ManageCategories from "./pages/ManageCategories";
 import ManageMembers from "./pages/ManageMembers";
+import Wealth from "./pages/Wealth";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="recurring" element={<RecurringTransactions />} />
             <Route path="categories" element={<ManageCategories />} />
             <Route path="members" element={<ManageMembers />} />
+            <Route path="wealth" element={<Wealth />} />
             <Route path="insights" element={<Insights />} />
           </Route>
           <Route path="*" element={<NotFound />} />
