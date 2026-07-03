@@ -21,7 +21,7 @@ export function useSavingsGoals() {
   useEffect(() => {
     fetchGoals();
     const channel = supabase
-      .channel("savings-goals")
+      .channel(`savings-goals-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "savings_goals" }, () => {
         fetchGoals();
       })

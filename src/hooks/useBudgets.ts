@@ -18,7 +18,7 @@ export function useBudgets() {
   useEffect(() => {
     fetchBudgets();
     const channel = supabase
-      .channel("budgets")
+      .channel(`budgets-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "budgets" }, () => {
         fetchBudgets();
       })

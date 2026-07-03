@@ -64,7 +64,7 @@ const Index = () => {
   // Real-time subscription for transactions
   useEffect(() => {
     const channel = supabase
-      .channel("transactions-changes")
+      .channel(`transactions-changes-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         {
