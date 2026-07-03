@@ -24,7 +24,7 @@ export function useRecurringTransactions() {
   useEffect(() => {
     fetchRecurring();
     const channel = supabase
-      .channel("recurring-txns")
+      .channel(`recurring-txns-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "recurring_transactions" }, () => {
         fetchRecurring();
       })
