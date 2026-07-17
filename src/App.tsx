@@ -16,6 +16,11 @@ import RecurringTransactions from "./pages/RecurringTransactions";
 import ManageCategories from "./pages/ManageCategories";
 import ManageMembers from "./pages/ManageMembers";
 import Wealth from "./pages/Wealth";
+import Investments from "./pages/wealth/Investments";
+import NetWorthPage from "./pages/wealth/NetWorth";
+import AssetAllocation from "./pages/wealth/AssetAllocation";
+import FinancialGoals from "./pages/wealth/FinancialGoals";
+import Insurance from "./pages/wealth/Insurance";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -44,6 +49,11 @@ const App = () => (
             <Route path="categories" element={<ManageCategories />} />
             <Route path="members" element={<ManageMembers />} />
             <Route path="wealth" element={<Wealth />} />
+            <Route path="wealth/investments" element={<Investments />} />
+            <Route path="wealth/net-worth" element={<NetWorthPage />} />
+            <Route path="wealth/allocation" element={<AssetAllocation />} />
+            <Route path="wealth/goals" element={<FinancialGoals />} />
+            <Route path="wealth/insurance" element={<Insurance />} />
             <Route path="insights" element={<Insights />} />
           </Route>
           <Route path="*" element={<NotFound />} />
