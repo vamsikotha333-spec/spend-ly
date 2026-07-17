@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/select";
 import { useAssets, Asset, AssetType } from "@/hooks/useAssets";
 import { useLiabilities, Liability, LiabilityType } from "@/hooks/useLiabilities";
-import { Wallet, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Scale } from "lucide-react";
+import { useInvestments, INVESTMENT_CATEGORIES } from "@/hooks/useInvestments";
+import { Wallet, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Scale, LineChart, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 function fmt(n: number) {
   const sign = n < 0 ? "-" : "";
