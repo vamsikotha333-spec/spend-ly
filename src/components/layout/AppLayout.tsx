@@ -26,5 +26,6 @@ export function AppLayout() {
         </div>
       </SidebarProvider>
     </FilterProvider>
+    </AppModeProvider>
   );
 }
