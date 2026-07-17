@@ -1,11 +1,12 @@
 import {
   Home, ArrowLeftRight, PlusCircle, Table2, BarChart3,
-  Sparkles, Wallet, Target, Repeat, PieChart, Tag, Users, LogOut, Landmark, type LucideIcon,
+  Sparkles, Wallet, Target, Repeat, PieChart, Tag, Users, LogOut, Landmark,
+  TrendingUp, Layers, Flag, ShieldCheck, LineChart, type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -20,24 +21,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAppMode, AppMode } from "@/contexts/AppModeContext";
 
-interface NavItem {
-  title: string;
-  icon: LucideIcon;
-  path: string;
-}
+interface NavItem { title: string; icon: LucideIcon; path: string; }
+interface NavGroup { label: string; items: NavItem[]; }
 
-interface NavGroup {
-  label: string;
-  items: NavItem[];
-}
-
-const navGroups: NavGroup[] = [
+const finTrackerGroups: NavGroup[] = [
   {
     label: "Overview",
     items: [
       { title: "Home", icon: Home, path: "/" },
-      { title: "Wealth", icon: Landmark, path: "/wealth" },
       { title: "Monthly Summary", icon: BarChart3, path: "/summary" },
     ],
   },
@@ -67,14 +60,72 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+const wealthGroups: NavGroup[] = [
+  {
+    label: "Wealth",
+    items: [
+      { title: "Wealth Dashboard", icon: Landmark, path: "/wealth" },
+      { title: "Investments", icon: TrendingUp, path: "/wealth/investments" },
+      { title: "Net Worth", icon: LineChart, path: "/wealth/net-worth" },
+      { title: "Asset Allocation", icon: Layers, path: "/wealth/allocation" },
+      { title: "Financial Goals", icon: Flag, path: "/wealth/goals" },
+      { title: "Insurance & Protection", icon: ShieldCheck, path: "/wealth/insurance" },
+    ],
+  },
+];
+
+function ModeSwitcher({ mode, onChange }: { mode: AppMode; onChange: (m: AppMode) => void }) {
+  const options: { value: AppMode; label: string; emoji: string }[] = [
+    { value: "fintracker", label: "FinTracker", emoji: "💰" },
+    { value: "wealth", label: "Wealth Tracker", emoji: "📈" },
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-1 rounded-xl bg-secondary/60 p-1">
+      {options.map((o) => {
+        const active = mode === o.value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onChange(o.value)}
+            className={cn(
+              "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11.5px] font-semibold transition-all",
+              active
+                ? "bg-gradient-primary text-primary-foreground shadow-[0_4px_14px_-4px_hsla(217,91%,60%,0.55)]"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            aria-pressed={active}
+          >
+            <span>{o.emoji}</span>
+            <span className="truncate">{o.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
+  const { mode, setMode } = useAppMode();
 
   const handleNavClick = () => {
     if (isMobile) setOpenMobile(false);
   };
+
+  const handleModeChange = (m: AppMode) => {
+    setMode(m);
+    if (isMobile) setOpenMobile(false);
+    // If current path doesn't belong to target mode, navigate to its home
+    const inWealth = location.pathname.startsWith("/wealth");
+    if (m === "wealth" && !inWealth) navigate("/wealth");
+    if (m === "fintracker" && inWealth) navigate("/");
+  };
+
+  const navGroups = mode === "wealth" ? wealthGroups : finTrackerGroups;
 
   return (
     <Sidebar
@@ -84,7 +135,7 @@ export function AppSidebar() {
           "linear-gradient(180deg, hsl(var(--sidebar-background)) 0%, hsl(210 40% 98%) 100%)",
       }}
     >
-      <SidebarHeader className="border-b border-sidebar-border p-5">
+      <SidebarHeader className="border-b border-sidebar-border p-4 space-y-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-primary shadow-soft ring-1 ring-primary/20">
             <Wallet className="h-5 w-5 text-primary-foreground" />
@@ -94,6 +145,7 @@ export function AppSidebar() {
             <span className="text-[10px] font-semibold text-primary uppercase tracking-widest">Pro</span>
           </div>
         </div>
+        <ModeSwitcher mode={mode} onChange={handleModeChange} />
       </SidebarHeader>
       <SidebarContent className="px-2 py-2">
         {navGroups.map((group, gIdx) => (
