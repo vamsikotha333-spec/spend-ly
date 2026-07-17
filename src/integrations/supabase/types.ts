@@ -137,6 +137,45 @@ export type Database = {
         }
         Relationships: []
       }
+      investments: {
+        Row: {
+          category: string
+          created_at: string
+          current_value: number
+          id: string
+          invested_amount: number
+          invested_on: string
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          current_value?: number
+          id?: string
+          invested_amount?: number
+          invested_on?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_value?: number
+          id?: string
+          invested_amount?: number
+          invested_on?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       liabilities: {
         Row: {
           amount: number
