@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/select";
 import { useAssets, Asset, AssetType } from "@/hooks/useAssets";
 import { useLiabilities, Liability, LiabilityType } from "@/hooks/useLiabilities";
-import { Wallet, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Scale } from "lucide-react";
+import { useInvestments, INVESTMENT_CATEGORIES } from "@/hooks/useInvestments";
+import { Wallet, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Scale, LineChart, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 function fmt(n: number) {
   const sign = n < 0 ? "-" : "";
@@ -186,6 +188,7 @@ function LiabilityDialog({
 export default function Wealth() {
   const { assets, total: assetsTotal, addAsset, updateAsset, deleteAsset, isLoading: aLoading } = useAssets();
   const { liabilities, total: liabilitiesTotal, addLiability, updateLiability, deleteLiability, isLoading: lLoading } = useLiabilities();
+  const { investments, totalCurrent: investmentsCurrent, gainLoss: invGainLoss } = useInvestments();
 
   const [assetOpen, setAssetOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | undefined>(undefined);
@@ -194,6 +197,7 @@ export default function Wealth() {
 
   const netWorth = assetsTotal - liabilitiesTotal;
   const positive = netWorth >= 0;
+  const recentInvestments = investments.slice(0, 5);
 
   return (
     <div className="min-h-screen">
@@ -203,35 +207,111 @@ export default function Wealth() {
             <Wallet className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Wealth</h1>
-            <p className="text-xs text-muted-foreground">Track assets and liabilities to see your true net worth.</p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Wealth Dashboard</h1>
+            <p className="text-xs text-muted-foreground">Overview of your assets, liabilities, and investment portfolio.</p>
           </div>
         </div>
 
-        {/* Net worth summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Summary */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Card className="p-4 border shadow-medium">
+            <div className="flex items-center gap-2 text-primary">
+              <Scale className="h-4 w-4" />
+              <p className="text-[10px] font-semibold uppercase tracking-wider">Net Worth</p>
+            </div>
+            <p className={cn("text-xl md:text-2xl font-bold tabular-nums mt-1", positive ? "text-success" : "text-destructive")}>{fmt(netWorth)}</p>
+          </Card>
           <Card className="p-4 border shadow-medium">
             <div className="flex items-center gap-2 text-success">
               <TrendingUp className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Total Assets</p>
             </div>
-            <p className="text-2xl font-bold text-success tabular-nums mt-1">{fmt(assetsTotal)}</p>
+            <p className="text-xl md:text-2xl font-bold text-success tabular-nums mt-1">{fmt(assetsTotal)}</p>
           </Card>
           <Card className="p-4 border shadow-medium">
             <div className="flex items-center gap-2 text-destructive">
               <TrendingDown className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Total Liabilities</p>
             </div>
-            <p className="text-2xl font-bold text-destructive tabular-nums mt-1">{fmt(liabilitiesTotal)}</p>
+            <p className="text-xl md:text-2xl font-bold text-destructive tabular-nums mt-1">{fmt(liabilitiesTotal)}</p>
           </Card>
           <Card className="p-4 border shadow-medium">
             <div className="flex items-center gap-2 text-primary">
-              <Scale className="h-4 w-4" />
-              <p className="text-[10px] font-semibold uppercase tracking-wider">Net Worth</p>
+              <LineChart className="h-4 w-4" />
+              <p className="text-[10px] font-semibold uppercase tracking-wider">Investments</p>
             </div>
-            <p className={cn("text-2xl font-bold tabular-nums mt-1", positive ? "text-success" : "text-destructive")}>{fmt(netWorth)}</p>
+            <p className="text-xl md:text-2xl font-bold text-primary tabular-nums mt-1">{fmt(investmentsCurrent)}</p>
+            <p className={cn("text-[11px] font-medium tabular-nums", invGainLoss >= 0 ? "text-success" : "text-destructive")}>
+              {invGainLoss >= 0 ? "+" : ""}{fmt(invGainLoss)} gain/loss
+            </p>
           </Card>
         </div>
+
+        {/* Assets vs Liabilities visual */}
+        <Card className="p-4 md:p-5 border shadow-medium">
+          <h2 className="text-base font-bold mb-3">Assets vs Liabilities</h2>
+          {(assetsTotal + liabilitiesTotal) === 0 ? (
+            <p className="text-sm text-muted-foreground">Add assets or liabilities to see the balance.</p>
+          ) : (
+            <>
+              <div className="flex h-3 rounded-full overflow-hidden bg-muted">
+                <div className="bg-success" style={{ width: `${(assetsTotal / (assetsTotal + liabilitiesTotal)) * 100}%` }} />
+                <div className="bg-destructive" style={{ width: `${(liabilitiesTotal / (assetsTotal + liabilitiesTotal)) * 100}%` }} />
+              </div>
+              <div className="flex justify-between mt-2 text-xs">
+                <span className="text-success font-medium">Assets {fmt(assetsTotal)}</span>
+                <span className="text-destructive font-medium">Liabilities {fmt(liabilitiesTotal)}</span>
+              </div>
+            </>
+          )}
+          <p className="text-[11px] text-muted-foreground mt-3">
+            Note: Investments are tracked separately in the Investments page. To include them in Net Worth,
+            add an Asset of type <span className="font-medium">Investment</span> with the current portfolio value.
+          </p>
+        </Card>
+
+        {/* Recent investments */}
+        <Card className="p-4 md:p-5 border shadow-medium">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-bold">Recent Investments</h2>
+            <Link to="/wealth/investments">
+              <Button variant="outline" size="sm">View All <ArrowRight className="h-3.5 w-3.5 ml-1" /></Button>
+            </Link>
+          </div>
+          {recentInvestments.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-6 text-center">
+              <p className="text-sm font-medium">No investments tracked yet</p>
+              <p className="text-xs text-muted-foreground mt-1 mb-3">Track your portfolio's performance over time.</p>
+              <Link to="/wealth/investments"><Button size="sm"><Plus className="h-4 w-4 mr-1" />Add Investment</Button></Link>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {recentInvestments.map((inv) => {
+                const meta = INVESTMENT_CATEGORIES.find((c) => c.value === inv.category)!;
+                const diff = Number(inv.current_value) - Number(inv.invested_amount);
+                const pos = diff >= 0;
+                return (
+                  <div key={inv.id} className="flex items-center justify-between py-2.5">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-xl">{meta.emoji}</span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold truncate">{inv.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{meta.label}</p>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-bold tabular-nums">{fmt(Number(inv.current_value))}</p>
+                      <p className={cn("text-[11px] tabular-nums font-medium", pos ? "text-success" : "text-destructive")}>
+                        {pos ? "+" : ""}{fmt(diff)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Card>
+
 
         {/* Assets */}
         <Card className="p-4 md:p-5 border shadow-medium">

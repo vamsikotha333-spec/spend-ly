@@ -1,12 +1,16 @@
 import { Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAppMode } from "@/contexts/AppModeContext";
 
 const HIDDEN_ROUTES = ["/add", "/auth", "/reset-password"];
 
 export function FloatingAddButton() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { mode } = useAppMode();
+
+  if (mode === "wealth") return null;
   if (HIDDEN_ROUTES.some((r) => location.pathname.startsWith(r))) return null;
 
   return (
