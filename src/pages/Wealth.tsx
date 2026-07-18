@@ -317,6 +317,66 @@ export default function Wealth() {
           )}
         </Card>
 
+        {/* Goals & Insurance summary */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Card className="p-4 md:p-5 border shadow-medium">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Flag className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-bold">Financial Goals</h2>
+              </div>
+              <Link to="/wealth/goals"><Button variant="outline" size="sm">View <ArrowRight className="h-3.5 w-3.5 ml-1" /></Button></Link>
+            </div>
+            {goals.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No goals yet. Set one to start tracking progress.</p>
+            ) : (
+              <>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-success tabular-nums font-medium">{fmt(goalsSaved)}</span>
+                  <span className="text-muted-foreground tabular-nums">{goalsPct.toFixed(0)}% of {fmt(goalsTarget)}</span>
+                </div>
+                <Progress value={goalsPct} className="h-2" />
+                <p className="text-[11px] text-muted-foreground mt-2">{goals.length} goal{goals.length === 1 ? "" : "s"} tracked</p>
+              </>
+            )}
+          </Card>
+
+          <Card className="p-4 md:p-5 border shadow-medium">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-bold">Insurance</h2>
+              </div>
+              <Link to="/wealth/insurance"><Button variant="outline" size="sm">View <ArrowRight className="h-3.5 w-3.5 ml-1" /></Button></Link>
+            </div>
+            {totalPolicies === 0 ? (
+              <p className="text-sm text-muted-foreground">No policies yet. Add one to track coverage.</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Policies</p>
+                  <p className="text-lg font-bold tabular-nums">{totalPolicies}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Coverage</p>
+                  <p className="text-lg font-bold tabular-nums text-success">{fmt(totalCoverage)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Annual</p>
+                  <p className="text-lg font-bold tabular-nums">{fmt(annualPremiumTotal)}</p>
+                </div>
+                {upcomingRenewals.length > 0 && (
+                  <p className="col-span-3 text-[11px] text-amber-600 font-medium mt-1">
+                    {upcomingRenewals.length} renewal{upcomingRenewals.length === 1 ? "" : "s"} in next 30 days
+                  </p>
+                )}
+              </div>
+            )}
+          </Card>
+        </div>
+
+
+
 
         {/* Assets */}
         <Card className="p-4 md:p-5 border shadow-medium">
