@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useFilters } from "@/contexts/FilterContext";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { NotificationsBell } from "@/components/layout/NotificationsBell";
+import { useAppMode } from "@/contexts/AppModeContext";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Home",
@@ -41,6 +42,7 @@ function buildMonthOptions() {
 
 export function GlobalHeader() {
   const location = useLocation();
+  const { mode } = useAppMode();
   const {
     filters,
     setDateMode,
@@ -256,16 +258,18 @@ export function GlobalHeader() {
           </Button>
         )}
 
-        <Button
-          asChild
-          size="sm"
-          className="h-9 gap-1.5 rounded-lg hidden sm:inline-flex bg-gradient-primary text-primary-foreground shadow-soft hover:shadow-hover hover:opacity-95"
-        >
-          <Link to="/add" aria-label="Quick add transaction">
-            <Plus className="h-4 w-4" />
-            <span className="hidden md:inline text-xs font-semibold">Add</span>
-          </Link>
-        </Button>
+        {mode !== "wealth" && (
+          <Button
+            asChild
+            size="sm"
+            className="h-9 gap-1.5 rounded-lg hidden sm:inline-flex bg-gradient-primary text-primary-foreground shadow-soft hover:shadow-hover hover:opacity-95"
+          >
+            <Link to="/add" aria-label="Quick add transaction">
+              <Plus className="h-4 w-4" />
+              <span className="hidden md:inline text-xs font-semibold">Add</span>
+            </Link>
+          </Button>
+        )}
         <NotificationsBell />
         <ThemeToggle />
       </div>
