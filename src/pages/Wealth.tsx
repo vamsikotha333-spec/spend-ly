@@ -192,6 +192,8 @@ export default function Wealth() {
   const { assets, total: assetsTotal, addAsset, updateAsset, deleteAsset, isLoading: aLoading } = useAssets();
   const { liabilities, total: liabilitiesTotal, addLiability, updateLiability, deleteLiability, isLoading: lLoading } = useLiabilities();
   const { investments, totalCurrent: investmentsCurrent, gainLoss: invGainLoss } = useInvestments();
+  const { goals, totalTarget: goalsTarget, totalSaved: goalsSaved, overallPct: goalsPct } = useFinancialGoals();
+  const { totalPolicies, totalCoverage, annualPremiumTotal, upcomingRenewals } = useInsurancePolicies();
 
   const [assetOpen, setAssetOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | undefined>(undefined);
