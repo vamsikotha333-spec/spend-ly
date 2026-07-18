@@ -137,6 +137,96 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_goals: {
+        Row: {
+          category: string
+          created_at: string
+          current_amount: number
+          id: string
+          name: string
+          notes: string | null
+          target_amount: number
+          target_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          current_amount?: number
+          id?: string
+          name: string
+          notes?: string | null
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_amount?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      insurance_policies: {
+        Row: {
+          coverage_amount: number
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          policy_number: string | null
+          premium_amount: number
+          premium_frequency: string
+          provider: string | null
+          renewal_date: string | null
+          start_date: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coverage_amount?: number
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          policy_number?: string | null
+          premium_amount?: number
+          premium_frequency?: string
+          provider?: string | null
+          renewal_date?: string | null
+          start_date?: string | null
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coverage_amount?: number
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          policy_number?: string | null
+          premium_amount?: number
+          premium_frequency?: string
+          provider?: string | null
+          renewal_date?: string | null
+          start_date?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       investments: {
         Row: {
           category: string
