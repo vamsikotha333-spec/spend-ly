@@ -13,7 +13,10 @@ import {
 import { useAssets, Asset, AssetType } from "@/hooks/useAssets";
 import { useLiabilities, Liability, LiabilityType } from "@/hooks/useLiabilities";
 import { useInvestments, INVESTMENT_CATEGORIES } from "@/hooks/useInvestments";
-import { Wallet, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Scale, LineChart, ArrowRight } from "lucide-react";
+import { useFinancialGoals } from "@/hooks/useFinancialGoals";
+import { useInsurancePolicies } from "@/hooks/useInsurancePolicies";
+import { Progress } from "@/components/ui/progress";
+import { Wallet, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Scale, LineChart, ArrowRight, Flag, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
