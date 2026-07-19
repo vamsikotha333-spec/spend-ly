@@ -16,10 +16,16 @@ import { useInvestments, INVESTMENT_CATEGORIES } from "@/hooks/useInvestments";
 import { useFinancialGoals } from "@/hooks/useFinancialGoals";
 import { useInsurancePolicies } from "@/hooks/useInsurancePolicies";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Scale, LineChart, ArrowRight, Flag, ShieldCheck } from "lucide-react";
+import { Wallet, Plus, Pencil, Trash2, ArrowRight, Flag, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { WealthHealthScore } from "@/components/v2/Wealth/WealthHealthScore";
+import { WealthSnapshot } from "@/components/v2/Wealth/WealthSnapshot";
+import { WealthActivityTimeline } from "@/components/v2/Wealth/WealthActivityTimeline";
+import { WealthReminders } from "@/components/v2/Wealth/WealthReminders";
+import { WealthQuickActions } from "@/components/v2/Wealth/WealthQuickActions";
+import { SmartWealthInsights } from "@/components/v2/Wealth/SmartWealthInsights";
 
 function fmt(n: number) {
   const sign = n < 0 ? "-" : "";
@@ -201,7 +207,6 @@ export default function Wealth() {
   const [editingLiab, setEditingLiab] = useState<Liability | undefined>(undefined);
 
   const netWorth = assetsTotal - liabilitiesTotal;
-  const positive = netWorth >= 0;
   const recentInvestments = investments.slice(0, 5);
 
   return (
@@ -213,44 +218,42 @@ export default function Wealth() {
           </div>
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-foreground">Wealth Dashboard</h1>
-            <p className="text-xs text-muted-foreground">Overview of your assets, liabilities, and investment portfolio.</p>
+            <p className="text-xs text-muted-foreground">Today's snapshot of your net worth, investments, goals & protection.</p>
           </div>
         </div>
 
-        {/* Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card className="p-4 border shadow-medium">
-            <div className="flex items-center gap-2 text-primary">
-              <Scale className="h-4 w-4" />
-              <p className="text-[10px] font-semibold uppercase tracking-wider">Net Worth</p>
-            </div>
-            <p className={cn("text-xl md:text-2xl font-bold tabular-nums mt-1", positive ? "text-success" : "text-destructive")}>{fmt(netWorth)}</p>
-          </Card>
-          <Card className="p-4 border shadow-medium">
-            <div className="flex items-center gap-2 text-success">
-              <TrendingUp className="h-4 w-4" />
-              <p className="text-[10px] font-semibold uppercase tracking-wider">Total Assets</p>
-            </div>
-            <p className="text-xl md:text-2xl font-bold text-success tabular-nums mt-1">{fmt(assetsTotal)}</p>
-          </Card>
-          <Card className="p-4 border shadow-medium">
-            <div className="flex items-center gap-2 text-destructive">
-              <TrendingDown className="h-4 w-4" />
-              <p className="text-[10px] font-semibold uppercase tracking-wider">Total Liabilities</p>
-            </div>
-            <p className="text-xl md:text-2xl font-bold text-destructive tabular-nums mt-1">{fmt(liabilitiesTotal)}</p>
-          </Card>
-          <Card className="p-4 border shadow-medium">
-            <div className="flex items-center gap-2 text-primary">
-              <LineChart className="h-4 w-4" />
-              <p className="text-[10px] font-semibold uppercase tracking-wider">Investments</p>
-            </div>
-            <p className="text-xl md:text-2xl font-bold text-primary tabular-nums mt-1">{fmt(investmentsCurrent)}</p>
-            <p className={cn("text-[11px] font-medium tabular-nums", invGainLoss >= 0 ? "text-success" : "text-destructive")}>
-              {invGainLoss >= 0 ? "+" : ""}{fmt(invGainLoss)} gain/loss
-            </p>
-          </Card>
+        {/* Today's Snapshot */}
+        <WealthSnapshot
+          netWorth={netWorth}
+          assets={assetsTotal}
+          liabilities={liabilitiesTotal}
+          investments={investmentsCurrent}
+          goalsSaved={goalsSaved}
+          goalsTarget={goalsTarget}
+          coverage={totalCoverage}
+        />
+
+        {/* Quick Actions */}
+        <WealthQuickActions
+          onAddAsset={() => { setEditingAsset(undefined); setAssetOpen(true); }}
+          onAddLiability={() => { setEditingLiab(undefined); setLiabOpen(true); }}
+        />
+
+        {/* Health Score + Reminders */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <WealthHealthScore />
+          </div>
+          <div>
+            <WealthReminders />
+          </div>
         </div>
+
+        {/* Smart Insights */}
+        <SmartWealthInsights />
+
+        {/* Recent Activity Timeline */}
+        <WealthActivityTimeline />
 
         {/* Assets vs Liabilities visual */}
         <Card className="p-4 md:p-5 border shadow-medium">
