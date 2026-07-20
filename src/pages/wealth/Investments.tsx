@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,7 +105,7 @@ function InvestmentDialog({
   const [saving, setSaving] = useState(false);
 
   // Reset when opening
-  useMemo(() => {
+  useEffect(() => {
     if (open) setForm(initial ? fromInvestment(initial) : emptyForm());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initial?.id]);
