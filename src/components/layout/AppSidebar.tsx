@@ -1,7 +1,7 @@
 import {
   Home, ArrowLeftRight, PlusCircle, Table2, BarChart3,
   Sparkles, Wallet, Target, Repeat, PieChart, Tag, Users, LogOut, Landmark,
-  TrendingUp, Layers, Flag, ShieldCheck, LineChart, type LucideIcon,
+  TrendingUp, Layers, Flag, ShieldCheck, LineChart, Database, type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -70,6 +70,12 @@ const wealthGroups: NavGroup[] = [
       { title: "Asset Allocation", icon: Layers, path: "/wealth/allocation" },
       { title: "Financial Goals", icon: Flag, path: "/wealth/goals" },
       { title: "Insurance & Protection", icon: ShieldCheck, path: "/wealth/insurance" },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
+      { title: "Master Data", icon: Database, path: "/settings/master-data" },
     ],
   },
 ];
