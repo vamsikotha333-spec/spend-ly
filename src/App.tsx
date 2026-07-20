@@ -21,6 +21,7 @@ import NetWorthPage from "./pages/wealth/NetWorth";
 import AssetAllocation from "./pages/wealth/AssetAllocation";
 import FinancialGoals from "./pages/wealth/FinancialGoals";
 import Insurance from "./pages/wealth/Insurance";
+import MasterData from "./pages/settings/MasterData";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="wealth/goals" element={<FinancialGoals />} />
             <Route path="wealth/insurance" element={<Insurance />} />
             <Route path="insights" element={<Insights />} />
+            <Route path="settings/master-data" element={<MasterData />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
