@@ -229,38 +229,77 @@ export type Database = {
       }
       investments: {
         Row: {
+          bank_name: string | null
+          borrower_name: string | null
           category: string
           created_at: string
           current_value: number
+          due_date: string | null
           id: string
+          interest_frequency: string | null
+          interest_rate: number | null
+          interest_received: number
+          interest_type: string | null
           invested_amount: number
           invested_on: string
           name: string
           notes: string | null
+          principal_amount: number | null
+          purpose: string | null
+          start_date: string | null
+          status: string
+          tags: string[]
+          type_name: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          bank_name?: string | null
+          borrower_name?: string | null
           category: string
           created_at?: string
           current_value?: number
+          due_date?: string | null
           id?: string
+          interest_frequency?: string | null
+          interest_rate?: number | null
+          interest_received?: number
+          interest_type?: string | null
           invested_amount?: number
           invested_on?: string
           name: string
           notes?: string | null
+          principal_amount?: number | null
+          purpose?: string | null
+          start_date?: string | null
+          status?: string
+          tags?: string[]
+          type_name?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          bank_name?: string | null
+          borrower_name?: string | null
           category?: string
           created_at?: string
           current_value?: number
+          due_date?: string | null
           id?: string
+          interest_frequency?: string | null
+          interest_rate?: number | null
+          interest_received?: number
+          interest_type?: string | null
           invested_amount?: number
           invested_on?: string
           name?: string
           notes?: string | null
+          principal_amount?: number | null
+          purpose?: string | null
+          start_date?: string | null
+          status?: string
+          tags?: string[]
+          type_name?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -297,6 +336,39 @@ export type Database = {
           name?: string
           notes?: string | null
           type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_data_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean
+          kind: string
+          name: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          kind: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          kind?: string
+          name?: string
+          sort_order?: number
           updated_at?: string
           user_id?: string
         }
@@ -495,7 +567,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      seed_master_data_for_user: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
