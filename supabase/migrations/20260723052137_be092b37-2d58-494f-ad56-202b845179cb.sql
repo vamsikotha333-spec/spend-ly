@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.handle_new_user_seed_members() FROM PUBLIC, anon, authenticated;
