@@ -232,6 +232,76 @@ export default function ManageCategories() {
         category={deleteTarget}
         count={deleteCount}
       />
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Category</DialogTitle>
+            <DialogDescription>
+              Saved permanently to your account and available in every category
+              selector across the app.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name">Category name</Label>
+              <Input
+                id="cat-name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="e.g. Coconut Water"
+                maxLength={60}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCreate();
+                  }
+                }}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Type</Label>
+              <Tabs
+                value={newType}
+                onValueChange={(v) => setNewType(v as CategoryType)}
+              >
+                <TabsList className="grid grid-cols-3 w-full">
+                  {TYPES.map((t) => (
+                    <TabsTrigger key={t} value={t}>
+                      {t}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {newType === "Expense" && (
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <p className="text-sm font-medium">Track in budgets</p>
+                  <p className="text-xs text-muted-foreground">
+                    Include this category in Budget vs Actual.
+                  </p>
+                </div>
+                <Switch checked={newBudget} onCheckedChange={setNewBudget} />
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={isAdding}>
+              {isAdding && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save Category
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
