@@ -101,13 +101,18 @@ export default function ManageCategories() {
         <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-soft">
           <Tag className="h-5 w-5 text-primary-foreground" />
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">Categories</h1>
           <p className="text-sm text-muted-foreground">
             Manage categories used across transactions, budgets, and reports.
           </p>
         </div>
+        <Button onClick={openAdd} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Category
+        </Button>
       </div>
+
 
       <Card className="p-4 md:p-6 space-y-4">
         <Tabs
