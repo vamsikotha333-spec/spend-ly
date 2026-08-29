@@ -76,11 +76,16 @@ export function useCategories(type?: CategoryType) {
       const clean = normalizeName(stripLeadingEmoji(name));
       if (!clean) throw new Error("Category name is required");
 
+      // NOTE: ignore optimistic ("temp-") rows added by onMutate — otherwise the
+      // insert would be skipped and the category would never persist.
       const existing = (qc.getQueryData<Category[]>(["categories"]) ?? []).find(
         (c) =>
-          c.type === type && c.name.toLowerCase() === clean.toLowerCase(),
+          !c.id.startsWith("temp-") &&
+          c.type === type &&
+          c.name.toLowerCase() === clean.toLowerCase(),
       );
       if (existing) return existing;
+
 
       const { data, error } = await supabase
         .from("categories")

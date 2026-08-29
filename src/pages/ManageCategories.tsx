@@ -1,9 +1,21 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Search, Tag, Loader2 } from "lucide-react";
+import { Search, Tag, Loader2, Plus } from "lucide-react";
+import { toast } from "sonner";
 import {
   useCategories,
   useCategoryUsageCounts,
@@ -18,7 +30,7 @@ import { CategoryCombobox } from "@/components/v2/Categories/CategoryCombobox";
 const TYPES: CategoryType[] = ["Expense", "Income", "Savings"];
 
 export default function ManageCategories() {
-  const { allCategories, isLoading, addCategory } = useCategories();
+  const { allCategories, isLoading, addCategory, isAdding } = useCategories();
   const { transactions } = useTransactions();
   const counts = useCategoryUsageCounts(allCategories, transactions);
 
@@ -28,6 +40,42 @@ export default function ManageCategories() {
   const [deleteCount, setDeleteCount] = useState(0);
   // controlled placeholder to drive CategoryCombobox quick-add — clears after add
   const [quickAdd, setQuickAdd] = useState("");
+
+  // "+ Add Category" dialog
+  const [addOpen, setAddOpen] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState<CategoryType>("Expense");
+  const [newBudget, setNewBudget] = useState(true);
+
+  const openAdd = () => {
+    setNewName("");
+    setNewType(activeType);
+    setNewBudget(true);
+    setAddOpen(true);
+  };
+
+  const handleCreate = async () => {
+    const name = newName.trim();
+    if (name.length < 2) {
+      toast.error("Enter a category name (at least 2 characters).");
+      return;
+    }
+    const dup = allCategories.some(
+      (c) => c.type === newType && c.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (dup) {
+      toast.error(`"${name}" already exists in ${newType} categories.`);
+      return;
+    }
+    try {
+      const created = await addCategory(name, newType, newBudget);
+      toast.success(`Category "${created.name}" saved.`);
+      setActiveType(newType);
+      setAddOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save category");
+    }
+  };
 
   const filteredByType = useMemo(
     () => allCategories.filter((c) => c.type === activeType),
@@ -46,19 +94,25 @@ export default function ManageCategories() {
     setQuickAdd("");
   };
 
+
   return (
     <div className="container max-w-3xl mx-auto p-4 md:p-6 space-y-4">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-soft">
           <Tag className="h-5 w-5 text-primary-foreground" />
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">Categories</h1>
           <p className="text-sm text-muted-foreground">
             Manage categories used across transactions, budgets, and reports.
           </p>
         </div>
+        <Button onClick={openAdd} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Category
+        </Button>
       </div>
+
 
       <Card className="p-4 md:p-6 space-y-4">
         <Tabs
@@ -178,6 +232,76 @@ export default function ManageCategories() {
         category={deleteTarget}
         count={deleteCount}
       />
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Category</DialogTitle>
+            <DialogDescription>
+              Saved permanently to your account and available in every category
+              selector across the app.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-name">Category name</Label>
+              <Input
+                id="cat-name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="e.g. Coconut Water"
+                maxLength={60}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCreate();
+                  }
+                }}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Type</Label>
+              <Tabs
+                value={newType}
+                onValueChange={(v) => setNewType(v as CategoryType)}
+              >
+                <TabsList className="grid grid-cols-3 w-full">
+                  {TYPES.map((t) => (
+                    <TabsTrigger key={t} value={t}>
+                      {t}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {newType === "Expense" && (
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <p className="text-sm font-medium">Track in budgets</p>
+                  <p className="text-xs text-muted-foreground">
+                    Include this category in Budget vs Actual.
+                  </p>
+                </div>
+                <Switch checked={newBudget} onCheckedChange={setNewBudget} />
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={isAdding}>
+              {isAdding && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save Category
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
