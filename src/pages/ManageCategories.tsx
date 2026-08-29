@@ -1,9 +1,21 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Search, Tag, Loader2 } from "lucide-react";
+import { Search, Tag, Loader2, Plus } from "lucide-react";
+import { toast } from "sonner";
 import {
   useCategories,
   useCategoryUsageCounts,
@@ -18,7 +30,7 @@ import { CategoryCombobox } from "@/components/v2/Categories/CategoryCombobox";
 const TYPES: CategoryType[] = ["Expense", "Income", "Savings"];
 
 export default function ManageCategories() {
-  const { allCategories, isLoading, addCategory } = useCategories();
+  const { allCategories, isLoading, addCategory, isAdding } = useCategories();
   const { transactions } = useTransactions();
   const counts = useCategoryUsageCounts(allCategories, transactions);
 
@@ -28,6 +40,42 @@ export default function ManageCategories() {
   const [deleteCount, setDeleteCount] = useState(0);
   // controlled placeholder to drive CategoryCombobox quick-add — clears after add
   const [quickAdd, setQuickAdd] = useState("");
+
+  // "+ Add Category" dialog
+  const [addOpen, setAddOpen] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState<CategoryType>("Expense");
+  const [newBudget, setNewBudget] = useState(true);
+
+  const openAdd = () => {
+    setNewName("");
+    setNewType(activeType);
+    setNewBudget(true);
+    setAddOpen(true);
+  };
+
+  const handleCreate = async () => {
+    const name = newName.trim();
+    if (name.length < 2) {
+      toast.error("Enter a category name (at least 2 characters).");
+      return;
+    }
+    const dup = allCategories.some(
+      (c) => c.type === newType && c.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (dup) {
+      toast.error(`"${name}" already exists in ${newType} categories.`);
+      return;
+    }
+    try {
+      const created = await addCategory(name, newType, newBudget);
+      toast.success(`Category "${created.name}" saved.`);
+      setActiveType(newType);
+      setAddOpen(false);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save category");
+    }
+  };
 
   const filteredByType = useMemo(
     () => allCategories.filter((c) => c.type === activeType),
@@ -45,6 +93,7 @@ export default function ManageCategories() {
     // selection here just confirms the category exists in the list.
     setQuickAdd("");
   };
+
 
   return (
     <div className="container max-w-3xl mx-auto p-4 md:p-6 space-y-4">
