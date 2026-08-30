@@ -21,11 +21,7 @@ import { canonicalDisplay } from "@/utils/categoryNormalize";
 import { SmartInsightsRail } from "@/components/v2/Insights/SmartInsightsRail";
 import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { Sparkline } from "@/components/common/Sparkline";
-import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
-import { HealthScore } from "@/components/v2/Home/HealthScore";
 import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
-import { NetWorthCard } from "@/components/v2/Home/NetWorthCard";
-import { CashFlowForecast } from "@/components/v2/Home/CashFlowForecast";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
@@ -374,21 +370,9 @@ export default function Home() {
           })()}
         </section>
 
-        {/* Net Worth + Cash Flow Forecast */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 animate-fade-in" style={{ animationDelay: "50ms", animationFillMode: "both" }}>
-          <NetWorthCard />
-          <CashFlowForecast />
-        </section>
-
-        {/* Logging streak + Health score */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 animate-fade-in" style={{ animationDelay: "60ms", animationFillMode: "both" }}>
-          <LoggingStreak transactions={transactions} />
-          <HealthScore transactions={transactions} income={stats.income} expenses={stats.expenses} savings={stats.savings} />
-        </section>
-
-
-        {/* ✨ This Month Overview — Standout */}
+        {/* Net Cashflow / Savings Rate — the "how am I doing right now" band */}
         <section className="animate-fade-in" style={{ animationDelay: "40ms", animationFillMode: "both" }}>
+
           <Card className="relative overflow-hidden border-0 shadow-medium p-4 md:p-5" style={{ background: "var(--gradient-primary)" }}>
             <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-16 -left-8 w-56 h-56 rounded-full bg-white/5 blur-3xl pointer-events-none" />

@@ -7,6 +7,9 @@ import { IncomeExpenseChart } from "@/components/v2/Dashboard/IncomeExpenseChart
 import { SpendingDonutChart } from "@/components/v2/Dashboard/SpendingDonutChart";
 import { SpendingByPerson } from "@/components/v2/Dashboard/SpendingByPerson";
 import { RecentTransactions } from "@/components/v2/Transactions/RecentTransactions";
+import { NetWorthCard } from "@/components/v2/Home/NetWorthCard";
+import { CashFlowForecast } from "@/components/v2/Home/CashFlowForecast";
+import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
 import { TransactionFormV2 } from "@/components/v2/Transactions/TransactionFormV2";
 import { TransactionDialog } from "@/components/v2/Transactions/TransactionDialog";
 import { AdvancedFilter } from "@/components/v2/Dashboard/AdvancedFilter";
@@ -68,7 +71,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+      <div className="mx-auto w-full max-w-[1600px] p-4 md:p-6 space-y-8">
         {/* Page Toolbar */}
         <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
           <div className="flex-1 relative max-w-md">
@@ -101,29 +104,52 @@ export default function Dashboard() {
           />
         )}
 
-        {/* Stats */}
-        <StatsCards transactions={filteredTransactions} />
+        {/* 1 — Financial KPIs */}
+        <section className="space-y-3">
+          <SectionTitle title="Financial KPIs" hint="Totals for the selected period" />
+          <StatsCards transactions={filteredTransactions} />
+        </section>
 
-        {/* Monthly Snapshot */}
-        <MonthlySnapshot transactions={filteredTransactions} />
+        {/* 2 — Monthly Snapshot */}
+        <section className="space-y-3">
+          <SectionTitle title="Monthly Snapshot" hint="Spend, savings rate and top category" />
+          <MonthlySnapshot transactions={filteredTransactions} />
+        </section>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 3 — Financial Performance */}
+        <section className="space-y-3">
+          <SectionTitle title="Financial Performance" hint="Income vs Expenses vs Savings" />
           <IncomeExpenseChart transactions={filteredTransactions} />
-          <SpendingDonutChart transactions={filteredTransactions} />
-        </div>
+        </section>
 
-        {/* Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <RecentTransactions
-              transactions={filteredTransactions}
-              onViewAll={() => setShowAllTransactions(true)}
-              onEdit={(t) => { setEditingTransaction(t); setShowQuickAdd(true); }}
-            />
+        {/* 4 — Spending Analysis + 5 — Applicable To Analysis */}
+        <section className="space-y-3">
+          <SectionTitle title="Spending Analysis" hint="Where the money goes, and who it applies to" />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 items-start">
+            <SpendingDonutChart transactions={filteredTransactions} />
+            <SpendingByPerson transactions={filteredTransactions} />
           </div>
-          <SpendingByPerson transactions={filteredTransactions} />
-        </div>
+        </section>
+
+        {/* 6 — Planning: Net Worth + Cash Flow Forecast (moved off Home) */}
+        <section className="space-y-3">
+          <SectionTitle title="Position & Planning" hint="Net worth and projected cash flow" />
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 items-start">
+            <NetWorthCard />
+            <CashFlowForecast />
+            <LoggingStreak transactions={transactions} />
+          </div>
+        </section>
+
+        {/* 7 — Recent Transactions */}
+        <section className="space-y-3">
+          <SectionTitle title="Recent Transactions" hint="Latest activity for this period" />
+          <RecentTransactions
+            transactions={filteredTransactions}
+            onViewAll={() => setShowAllTransactions(true)}
+            onEdit={(t) => { setEditingTransaction(t); setShowQuickAdd(true); }}
+          />
+        </section>
 
         <TransactionDialog
           open={showAllTransactions}
@@ -132,6 +158,15 @@ export default function Dashboard() {
           onEdit={(t) => { setEditingTransaction(t); setShowQuickAdd(true); }}
         />
       </div>
+    </div>
+  );
+}
+
+function SectionTitle({ title, hint }: { title: string; hint?: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b pb-2">
+      <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">{title}</h2>
+      {hint && <p className="text-xs text-muted-foreground truncate">{hint}</p>}
     </div>
   );
 }
