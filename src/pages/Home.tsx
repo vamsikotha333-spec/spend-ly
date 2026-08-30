@@ -21,11 +21,7 @@ import { canonicalDisplay } from "@/utils/categoryNormalize";
 import { SmartInsightsRail } from "@/components/v2/Insights/SmartInsightsRail";
 import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { Sparkline } from "@/components/common/Sparkline";
-import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
-import { HealthScore } from "@/components/v2/Home/HealthScore";
 import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
-import { NetWorthCard } from "@/components/v2/Home/NetWorthCard";
-import { CashFlowForecast } from "@/components/v2/Home/CashFlowForecast";
 
 const CATEGORY_EMOJIS: Record<string, string> = {
   "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
