@@ -7,6 +7,9 @@ import { IncomeExpenseChart } from "@/components/v2/Dashboard/IncomeExpenseChart
 import { SpendingDonutChart } from "@/components/v2/Dashboard/SpendingDonutChart";
 import { SpendingByPerson } from "@/components/v2/Dashboard/SpendingByPerson";
 import { RecentTransactions } from "@/components/v2/Transactions/RecentTransactions";
+import { NetWorthCard } from "@/components/v2/Home/NetWorthCard";
+import { CashFlowForecast } from "@/components/v2/Home/CashFlowForecast";
+import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
 import { TransactionFormV2 } from "@/components/v2/Transactions/TransactionFormV2";
 import { TransactionDialog } from "@/components/v2/Transactions/TransactionDialog";
 import { AdvancedFilter } from "@/components/v2/Dashboard/AdvancedFilter";
