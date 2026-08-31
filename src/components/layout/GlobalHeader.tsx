@@ -18,7 +18,7 @@ import { NotificationsBell } from "@/components/layout/NotificationsBell";
 import { useAppMode } from "@/contexts/AppModeContext";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/": "Home",
+  "/": "Dashboard",
   "/dashboard": "Dashboard",
   "/transactions": "Transactions",
   "/add": "Add Transaction",

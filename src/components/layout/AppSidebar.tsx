@@ -222,7 +222,10 @@ export function AppSidebar() {
                 <NavLinkItem
                   key={item.path}
                   item={item}
-                  active={location.pathname === item.path}
+                  active={
+                    location.pathname === item.path ||
+                    (item.path === "/" && location.pathname === "/dashboard")
+                  }
                   onClick={handleNavClick}
                 />
               ))}
