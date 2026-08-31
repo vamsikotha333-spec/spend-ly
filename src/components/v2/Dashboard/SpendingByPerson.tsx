@@ -52,7 +52,8 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
   const start = subMonths(now, 5);
   const months = eachMonthOfInterval({ start, end: now });
 
-  const activePeople = Object.keys(personMap);
+  // Ranked by actual spend (highest first) — rankings are always derived, never hardcoded.
+  const activePeople = pieData.map((d) => d.name);
   const monthlyData = months.map((month) => {
     const mt = expenses.filter((t) => isSameMonth(t.date, month));
     const row: Record<string, any> = { month: format(month, "MMM") };

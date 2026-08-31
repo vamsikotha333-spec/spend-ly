@@ -30,30 +30,35 @@ interface NavSection { label: string; key: string; items: NavItem[]; }
 
 /* ---------- FinTracker mode ---------- */
 const finPrimary: NavItem[] = [
-  { title: "Home", icon: Home, path: "/" },
-  { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-  { title: "Transactions", icon: ArrowLeftRight, path: "/transactions" },
-  { title: "Add Transaction", icon: PlusCircle, path: "/add" },
-  { title: "Budget vs Actual", icon: PieChart, path: "/budget" },
-  { title: "AI Insights", icon: Sparkles, path: "/insights" },
+  { title: "Dashboard", icon: LayoutDashboard, path: "/" },
 ];
 
 const finSections: NavSection[] = [
   {
+    label: "Finance",
+    key: "finance",
+    items: [
+      { title: "Transactions", icon: ArrowLeftRight, path: "/transactions" },
+      { title: "Add Transaction", icon: PlusCircle, path: "/add" },
+      { title: "Budget vs Actual", icon: PieChart, path: "/budget" },
+      { title: "Recurring", icon: Repeat, path: "/recurring" },
+      { title: "Categories", icon: Tag, path: "/categories" },
+    ],
+  },
+  {
     label: "Insights",
     key: "insights",
     items: [
+      { title: "AI Insights", icon: Sparkles, path: "/insights" },
       { title: "Category Analytics", icon: Table2, path: "/spending" },
       { title: "Monthly Summary", icon: BarChart3, path: "/summary" },
       { title: "Savings Goals", icon: Target, path: "/goals" },
     ],
   },
   {
-    label: "Manage",
-    key: "manage",
+    label: "Family",
+    key: "family",
     items: [
-      { title: "Recurring", icon: Repeat, path: "/recurring" },
-      { title: "Categories", icon: Tag, path: "/categories" },
       { title: "Members", icon: Users, path: "/members" },
     ],
   },
