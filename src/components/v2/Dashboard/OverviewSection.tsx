@@ -50,7 +50,7 @@ function formatCompactINR(n: number) {
   return `₹${n.toLocaleString("en-IN")}`;
 }
 
-export default function Home() {
+export function OverviewSection() {
   const { transactions, isLoading } = useTransactions();
   const { goals } = useSavingsGoals();
   const { budgets } = useBudgets();
@@ -212,13 +212,7 @@ export default function Home() {
   const recentTxns = transactions.slice(0, 5);
   const topGoals = goals.slice(0, 3);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (isLoading) return null;
 
   const quickActions = [
     { label: "Add Expense", emoji: "💸", color: "bg-[hsl(var(--destructive-soft))] text-destructive ring-1 ring-destructive/10", path: "/add?type=Expense", context: stats.lastExpense > 0 ? `Last: ${formatCompactINR(stats.lastExpense)}` : "Tap to add" },
