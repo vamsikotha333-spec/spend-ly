@@ -50,7 +50,7 @@ function formatCompactINR(n: number) {
   return `₹${n.toLocaleString("en-IN")}`;
 }
 
-export default function Home() {
+export function OverviewSection() {
   const { transactions, isLoading } = useTransactions();
   const { goals } = useSavingsGoals();
   const { budgets } = useBudgets();
@@ -212,13 +212,7 @@ export default function Home() {
   const recentTxns = transactions.slice(0, 5);
   const topGoals = goals.slice(0, 3);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (isLoading) return null;
 
   const quickActions = [
     { label: "Add Expense", emoji: "💸", color: "bg-[hsl(var(--destructive-soft))] text-destructive ring-1 ring-destructive/10", path: "/add?type=Expense", context: stats.lastExpense > 0 ? `Last: ${formatCompactINR(stats.lastExpense)}` : "Tap to add" },
@@ -241,8 +235,8 @@ export default function Home() {
   const netCashflow = stats.income - stats.expenses;
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6 md:space-y-8">
+    <>
+      <div className="space-y-6 md:space-y-8">
         {/* Greeting Banner */}
         <div className="flex items-center justify-between flex-wrap gap-2 -mb-2">
           <div className="min-w-0">
@@ -443,10 +437,7 @@ export default function Home() {
           filtered={scopedTransactions}
           budgets={budgets}
         />
-
-        {/* Recent Activity — grouped timeline (Today / Yesterday / This Week / This Month) */}
-        <RecentActivityTimeline transactions={transactions} />
       </div>
-    </div>
+    </>
   );
 }

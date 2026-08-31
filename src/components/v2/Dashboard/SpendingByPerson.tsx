@@ -52,7 +52,8 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
   const start = subMonths(now, 5);
   const months = eachMonthOfInterval({ start, end: now });
 
-  const activePeople = Object.keys(personMap);
+  // Ranked by actual spend (highest first) — rankings are always derived, never hardcoded.
+  const activePeople = pieData.map((d) => d.name);
   const monthlyData = months.map((month) => {
     const mt = expenses.filter((t) => isSameMonth(t.date, month));
     const row: Record<string, any> = { month: format(month, "MMM") };
@@ -111,10 +112,11 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
                 const pct = total > 0 ? (value / total) * 100 : 0;
                 return (
                   <div key={name} className="space-y-1 animate-slide-up" style={{ animationDelay: `${i * 60}ms`, animationFillMode: "both" }}>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colorFor(name) }} />
-                        <span className="font-medium">{name}</span>
+                    <div className="flex items-center justify-between text-sm gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[11px] font-bold tabular-nums text-muted-foreground shrink-0">#{i + 1}</span>
+                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colorFor(name) }} />
+                        <span className="font-medium truncate">{name}</span>
                       </div>
                       <span className="text-muted-foreground tabular-nums">
                         ₹{value.toLocaleString("en-IN", { minimumFractionDigits: 2 })} ({pct.toFixed(0)}%)

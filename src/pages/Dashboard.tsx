@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useFilters } from "@/contexts/FilterContext";
-import { StatsCards } from "@/components/v2/Dashboard/StatsCards";
+import { OverviewSection } from "@/components/v2/Dashboard/OverviewSection";
 import { MonthlySnapshot } from "@/components/v2/Dashboard/MonthlySnapshot";
 import { IncomeExpenseChart } from "@/components/v2/Dashboard/IncomeExpenseChart";
 import { SpendingDonutChart } from "@/components/v2/Dashboard/SpendingDonutChart";
@@ -32,11 +32,12 @@ export default function Dashboard() {
     let result = getFilteredTransactions(transactions);
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
+      // People search uses "Applicable To" only — "Added By" stays audit-only data.
       result = result.filter(
         (t) =>
           t.category.toLowerCase().includes(term) ||
           t.description.toLowerCase().includes(term) ||
-          t.addedBy.toLowerCase().includes(term)
+          (t.applicable_to || "").toLowerCase().includes(term)
       );
     }
     return result;
@@ -104,11 +105,8 @@ export default function Dashboard() {
           />
         )}
 
-        {/* 1 — Financial KPIs */}
-        <section className="space-y-3">
-          <SectionTitle title="Financial KPIs" hint="Totals for the selected period" />
-          <StatsCards transactions={filteredTransactions} />
-        </section>
+        {/* 1 — Greeting, KPIs, Net Cashflow, Savings Rate & Smart Insights (merged from Home) */}
+        <OverviewSection />
 
         {/* 2 — Monthly Snapshot */}
         <section className="space-y-3">
@@ -122,7 +120,7 @@ export default function Dashboard() {
           <IncomeExpenseChart transactions={filteredTransactions} />
         </section>
 
-        {/* 4 — Spending Analysis + 5 — Applicable To Analysis */}
+        {/* 4 — Spending Analysis + Applicable To Analysis */}
         <section className="space-y-3">
           <SectionTitle title="Spending Analysis" hint="Where the money goes, and who it applies to" />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 items-start">
@@ -131,7 +129,7 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* 6 — Planning: Net Worth + Cash Flow Forecast (moved off Home) */}
+        {/* 5 — Position & Planning */}
         <section className="space-y-3">
           <SectionTitle title="Position & Planning" hint="Net worth and projected cash flow" />
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 items-start">
@@ -141,7 +139,7 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* 7 — Recent Transactions */}
+        {/* 6 — Recent Transactions */}
         <section className="space-y-3">
           <SectionTitle title="Recent Transactions" hint="Latest activity for this period" />
           <RecentTransactions
