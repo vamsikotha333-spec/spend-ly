@@ -225,25 +225,23 @@ export function OverviewSection() {
               const remaining = stats.income - stats.expenses - stats.savings;
               const cards = [
                 {
-                  key: "income", label: "Income", emoji: "💰", value: stats.income, Icon: TrendingUp,
-                  tone: { ring: "ring-success/30", icon: "bg-success/20 text-success", text: "text-success", label: "text-success/80", glow: "bg-success/10", sheen: "card-sheen-success", spark: "text-success" },
+                  key: "income", label: "Income", value: stats.income, Icon: TrendingUp,
+                  tone: "positive" as Tone,
                   delta: stats.deltas.income, inverse: false, spark: stats.sparkIncome,
                 },
                 {
-                  key: "expenses", label: "Expenses", emoji: "💸", value: stats.expenses, Icon: TrendingDown,
-                  tone: { ring: "ring-destructive/30", icon: "bg-destructive/20 text-destructive", text: "text-destructive", label: "text-destructive/80", glow: "bg-destructive/10", sheen: "card-sheen-danger", spark: "text-destructive" },
+                  key: "expenses", label: "Expenses", value: stats.expenses, Icon: TrendingDown,
+                  tone: "negative" as Tone,
                   delta: stats.deltas.expenses, inverse: true, spark: stats.sparkExpenses,
                 },
                 {
-                  key: "savings", label: "Savings", emoji: "🏦", value: stats.savings, Icon: PiggyBank,
-                  tone: { ring: "ring-info/30", icon: "bg-info/20 text-info", text: "text-info", label: "text-info/80", glow: "bg-info/10", sheen: "card-sheen-info", spark: "text-info" },
+                  key: "savings", label: "Savings", value: stats.savings, Icon: PiggyBank,
+                  tone: "savings" as Tone,
                   delta: stats.deltas.savings, inverse: false, spark: stats.sparkSavings,
                 },
                 {
-                  key: "remaining", label: "Remaining", emoji: remaining > 0 ? "🟢" : remaining < 0 ? "🔴" : "⚪", value: remaining, Icon: Wallet,
-                  tone: remaining >= 0
-                    ? { ring: "ring-success/30", icon: "bg-success/20 text-success", text: "text-success", label: "text-success/80", glow: "bg-success/10", sheen: "", spark: "text-success" }
-                    : { ring: "ring-destructive/30", icon: "bg-destructive/20 text-destructive", text: "text-destructive", label: "text-destructive/80", glow: "bg-destructive/10", sheen: "", spark: "text-destructive" },
+                  key: "remaining", label: "Remaining", value: remaining, Icon: Wallet,
+                  tone: (remaining >= 0 ? "positive" : "negative") as Tone,
                   delta: stats.deltas.remaining, inverse: false, spark: stats.sparkRemaining,
                 },
               ];
@@ -252,35 +250,27 @@ export function OverviewSection() {
                 const positive = d !== null && d >= 0;
                 const goodDirection = d !== null && (c.inverse ? !positive : positive);
                 return (
-                  <Card key={c.key} className={cn("relative overflow-hidden p-5 border shadow-soft hover-lift transition-all duration-200", c.tone.sheen)}>
-                    <div className={cn("absolute -top-8 -right-8 w-28 h-28 rounded-full blur-2xl", c.tone.glow)} />
-                    <div className="relative flex items-center justify-between mb-3">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center ring-1 shadow-sm", c.tone.icon, c.tone.ring)}>
-                        <c.Icon className="h-[18px] w-[18px]" />
+                  <Card key={c.key} className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", TONE_SOFT[c.tone])}>
+                        <c.Icon className="h-4 w-4" />
                       </div>
-                      <span className="text-lg">{c.emoji}</span>
                     </div>
-                    <p className={cn("relative text-[11px] font-semibold uppercase tracking-wider mb-1", c.tone.label)}>{c.label}</p>
-                    <p className={cn("relative text-2xl md:text-3xl font-bold tabular-nums tracking-tight", c.tone.text)}>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{c.label}</p>
+                    <p className={cn("text-2xl md:text-3xl font-bold tabular-nums tracking-tight", TONE_TEXT[c.tone])}>
                       {c.value < 0 ? "-" : ""}
                       <AnimatedCounter value={Math.abs(c.value)} prefix="₹" />
                     </p>
-                    <div className="relative mt-2 flex items-center justify-between gap-2">
+                    <div className="mt-2 flex items-center justify-between gap-2">
                       {d !== null ? (
-                        <span className={cn(
-                          "inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full",
-                          goodDirection ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
-                        )}>
-                          {positive ? <ArrowUp className="h-2.5 w-2.5" /> : <ArrowDown className="h-2.5 w-2.5" />}
-                          {Math.abs(d).toFixed(0)}% <span className="font-normal opacity-70 ml-0.5">vs last mo</span>
-                        </span>
+                        <StatusBadge tone={goodDirection ? "positive" : "negative"} icon={positive ? ArrowUp : ArrowDown}>
+                          {Math.abs(d).toFixed(0)}% <span className="font-normal opacity-70">vs last mo</span>
+                        </StatusBadge>
                       ) : (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                          New
-                        </span>
+                        <StatusBadge tone="neutral">New</StatusBadge>
                       )}
                       <div
-                        className={cn("w-16 shrink-0 opacity-0 animate-fade-in", c.tone.spark)}
+                        className={cn("w-16 shrink-0 opacity-0 animate-fade-in", TONE_STROKE[c.tone])}
                         style={{ animationDelay: "1600ms", animationFillMode: "forwards" }}
                       >
                         <Sparkline data={c.spark} height={22} />
@@ -290,6 +280,7 @@ export function OverviewSection() {
                 );
               });
             })()}
+
           </div>
 
           {/* Remaining balance alert */}
