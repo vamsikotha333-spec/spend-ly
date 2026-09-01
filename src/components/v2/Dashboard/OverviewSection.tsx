@@ -113,10 +113,9 @@ export function OverviewSection() {
     const lastSavings = transactions.find((t) => getType(t) === "Savings")?.amount || 0;
 
     // Insights with action
-    const insights: { emoji: string; title: string; body: string; type: "good" | "warn" | "info"; action?: { label: string; to: string } }[] = [];
+    const insights: { title: string; body: string; type: "good" | "warn" | "info"; action?: { label: string; to: string } }[] = [];
     if (income > 0 && expenses < income * 0.6) {
       insights.push({
-        emoji: "🏆",
         title: "Strong spending discipline",
         body: `Spending is **${((expenses / income) * 100).toFixed(0)}%** of income — well below 60%.`,
         type: "good",
@@ -124,7 +123,6 @@ export function OverviewSection() {
     }
     if (topCategory) {
       insights.push({
-        emoji: "📊",
         title: `Top category: ${topCategory[0]}`,
         body: `**${formatCompactINR(topCategory[1])}** spent — that's **${topCatPct.toFixed(0)}%** of monthly expenses.`,
         type: topCatPct > 40 ? "warn" : "info",
@@ -133,14 +131,12 @@ export function OverviewSection() {
     }
     if (savingsRate >= 30) {
       insights.push({
-        emoji: "💪",
         title: `Savings rate ${savingsRate.toFixed(0)}%`,
         body: `Saving **${formatCompactINR(savings)}** this month — keep it up!`,
         type: "good",
       });
     } else if (savingsRate > 0 && savingsRate < 15 && income > 0) {
       insights.push({
-        emoji: "📉",
         title: `Low savings rate (${savingsRate.toFixed(0)}%)`,
         body: `Aim for at least 20%. Try to save **${formatCompactINR(income * 0.2 - savings)}** more.`,
         type: "warn",
@@ -148,7 +144,7 @@ export function OverviewSection() {
       });
     }
     if (insights.length === 0) {
-      insights.push({ emoji: "📈", title: "Keep tracking", body: "Add a few transactions to unlock smart insights.", type: "info" });
+      insights.push({ title: "Keep tracking", body: "Add a few transactions to unlock smart insights.", type: "info" });
     }
 
     // 7-day daily series for sparklines
