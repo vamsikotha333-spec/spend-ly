@@ -23,20 +23,8 @@ import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { Sparkline } from "@/components/common/Sparkline";
 import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
 
-const CATEGORY_EMOJIS: Record<string, string> = {
-  "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
-  "Health": "🏥", "Shopping": "🛍️", "Utilities": "💡", "Education": "📚", "Entertainment": "🎬",
-  "Fuel": "⛽", "Insurance": "🛡️", "EMI": "🏦", "Subscriptions": "📱", "Clothing": "👕",
-  "Personal Care": "💇", "Gifts": "🎁", "Travel": "✈️", "Home Maintenance": "🔧",
-  "Phone": "📞", "Internet": "🌐", "Salary": "💼", "Freelance": "💻", "Investment": "📈",
-  "Other": "📦",
-};
 
-function getCategoryEmoji(cat: string) {
-  // If category already starts with an emoji (canonical), return empty since we'll show name as-is
-  if (cat && /\p{Extended_Pictographic}/u.test(cat.charAt(0))) return "";
-  return CATEGORY_EMOJIS[cat] || "📦";
-}
+
 
 function getType(t: any) {
   return t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
