@@ -80,7 +80,7 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
   const highest = pieData[0];
 
   return (
-    <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
+    <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
         Spending by Applicable To
       </h3>

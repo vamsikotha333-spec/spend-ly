@@ -143,28 +143,28 @@ export default function Insurance() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-primary">
               <Shield className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Total Policies</p>
             </div>
             <p className="text-xl md:text-2xl font-bold tabular-nums mt-1">{totalPolicies}</p>
           </Card>
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-success">
               <ShieldCheck className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Total Coverage</p>
             </div>
             <p className="text-xl md:text-2xl font-bold text-success tabular-nums mt-1">{fmt(totalCoverage)}</p>
           </Card>
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-destructive">
               <IndianRupee className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Annual Premium</p>
             </div>
             <p className="text-xl md:text-2xl font-bold text-destructive tabular-nums mt-1">{fmt(annualPremiumTotal)}</p>
           </Card>
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-primary">
               <CalendarClock className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Renewals (30d)</p>
@@ -173,7 +173,7 @@ export default function Insurance() {
           </Card>
         </div>
 
-        <Card className="p-4 md:p-5 border shadow-medium">
+        <Card className="p-4 md:p-5 border shadow-soft">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : policies.length === 0 ? (

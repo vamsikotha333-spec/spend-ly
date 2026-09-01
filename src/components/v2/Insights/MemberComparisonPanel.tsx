@@ -55,7 +55,7 @@ export function MemberComparisonPanel({ transactions }: Props) {
   const topSaver = [...data.rows].sort((a, b) => b.savings - a.savings)[0];
 
   return (
-    <Card className="p-5 shadow-medium border-0 animate-fade-in">
+    <Card className="p-5 shadow-soft animate-fade-in">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-lg bg-primary/10">

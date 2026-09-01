@@ -50,7 +50,7 @@ export function CashflowTrendChart({ transactions }: Props) {
 
   if (data.length === 0) {
     return (
-      <Card className="p-6 border-0 shadow-soft text-center">
+      <Card className="p-6 shadow-soft text-center">
         <LineIcon className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
         <p className="text-sm text-muted-foreground">No cashflow data yet.</p>
       </Card>
@@ -58,7 +58,7 @@ export function CashflowTrendChart({ transactions }: Props) {
   }
 
   return (
-    <Card className="p-4 md:p-5 border-0 shadow-soft">
+    <Card className="p-4 md:p-5 shadow-soft">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <LineIcon className="h-4 w-4 text-primary" />

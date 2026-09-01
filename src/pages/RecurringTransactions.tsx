@@ -121,21 +121,21 @@ export default function RecurringTransactionsPage() {
 
         {recurring.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in">
-            <StatCard className="p-5 border-0 shadow-soft hover-lift">
+            <StatCard className="p-5 shadow-soft hover-lift">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs text-muted-foreground">Monthly Income</p>
                 <TrendingUp className="h-4 w-4 text-success" />
               </div>
               <p className="text-2xl font-bold text-success tabular-nums">₹{Math.round(monthlyIncome).toLocaleString("en-IN")}</p>
             </StatCard>
-            <StatCard className="p-5 border-0 shadow-soft hover-lift">
+            <StatCard className="p-5 shadow-soft hover-lift">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs text-muted-foreground">Monthly Expense</p>
                 <TrendingDown className="h-4 w-4 text-destructive" />
               </div>
               <p className="text-2xl font-bold text-destructive tabular-nums">₹{Math.round(monthlyExpense).toLocaleString("en-IN")}</p>
             </StatCard>
-            <StatCard className="p-5 border-0 shadow-soft hover-lift">
+            <StatCard className="p-5 shadow-soft hover-lift">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs text-muted-foreground">Active Schedules</p>
                 <Repeat className="h-4 w-4 text-primary" />
@@ -241,7 +241,7 @@ export default function RecurringTransactionsPage() {
                 <Card
                   key={r.id}
                   className={cn(
-                    "p-4 border-0 shadow-soft animate-slide-up hover-lift",
+                    "p-4 shadow-soft animate-slide-up hover-lift",
                     !r.is_active && "opacity-50",
                     dueSoon && "ring-1 ring-warning/40"
                   )}

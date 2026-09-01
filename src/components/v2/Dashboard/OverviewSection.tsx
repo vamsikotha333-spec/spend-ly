@@ -282,7 +282,7 @@ export function OverviewSection() {
                 const positive = d !== null && d >= 0;
                 const goodDirection = d !== null && (c.inverse ? !positive : positive);
                 return (
-                  <Card key={c.key} className={cn("relative overflow-hidden p-5 border shadow-medium hover-lift transition-all duration-200", c.tone.sheen)}>
+                  <Card key={c.key} className={cn("relative overflow-hidden p-5 border shadow-soft hover-lift transition-all duration-200", c.tone.sheen)}>
                     <div className={cn("absolute -top-8 -right-8 w-28 h-28 rounded-full blur-2xl", c.tone.glow)} />
                     <div className="relative flex items-center justify-between mb-3">
                       <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center ring-1 shadow-sm", c.tone.icon, c.tone.ring)}>
@@ -367,7 +367,7 @@ export function OverviewSection() {
         {/* Net Cashflow / Savings Rate — the "how am I doing right now" band */}
         <section className="animate-fade-in" style={{ animationDelay: "40ms", animationFillMode: "both" }}>
 
-          <Card className="relative overflow-hidden border-0 shadow-medium p-4 md:p-5" style={{ background: "var(--gradient-primary)" }}>
+          <Card className="relative overflow-hidden shadow-soft p-4 md:p-5" style={{ background: "var(--gradient-primary)" }}>
             <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-16 -left-8 w-56 h-56 rounded-full bg-white/5 blur-3xl pointer-events-none" />
             <div className="relative">

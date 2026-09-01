@@ -168,7 +168,7 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
   };
 
   return (
-    <Card className="p-3 md:p-5 shadow-medium">
+    <Card className="p-3 md:p-5 shadow-soft">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h2 className="text-base md:text-lg font-bold">{meta.heading}</h2>
         <div className="flex items-center gap-2 flex-wrap">

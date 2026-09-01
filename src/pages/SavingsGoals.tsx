@@ -241,15 +241,15 @@ export default function SavingsGoals() {
           </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide-up">
-          <Card className="p-5 border-0 shadow-soft">
+          <Card className="p-5 shadow-soft">
             <p className="text-xs text-muted-foreground mb-1">Total Goals</p>
             <p className="text-2xl font-bold">{goals.length}</p>
           </Card>
-          <Card className="p-5 border-0 shadow-soft">
+          <Card className="p-5 shadow-soft">
             <p className="text-xs text-muted-foreground mb-1">Total Saved</p>
             <p className="text-2xl font-bold text-success tabular-nums">₹{totalSaved.toLocaleString("en-IN")}</p>
           </Card>
-          <Card className="p-5 border-0 shadow-soft">
+          <Card className="p-5 shadow-soft">
             <p className="text-xs text-muted-foreground mb-1">Overall Progress</p>
             <p className="text-2xl font-bold tabular-nums">{overallPct.toFixed(1)}%</p>
             <Progress value={overallPct} className="h-2 mt-2" />
@@ -322,7 +322,7 @@ export default function SavingsGoals() {
                 <Card
                   key={goal.id}
                   className={cn(
-                    "p-5 border-0 shadow-soft animate-slide-up hover-lift",
+                    "p-5 shadow-soft animate-slide-up hover-lift",
                     isComplete && "ring-2 ring-success/40"
                   )}
                   style={{ animationDelay: `${i * 80}ms`, animationFillMode: "both" }}

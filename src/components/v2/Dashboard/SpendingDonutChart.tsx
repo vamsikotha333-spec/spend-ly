@@ -28,7 +28,7 @@ export function SpendingDonutChart({ transactions }: SpendingDonutChartProps) {
   const total = data.reduce((s, d) => s + d.value, 0);
 
   return (
-    <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
+    <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Spending by Category</h3>
       {data.length === 0 ? (
         <div className="flex items-center justify-center h-[220px] text-muted-foreground">No expense data available</div>

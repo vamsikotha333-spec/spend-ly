@@ -58,7 +58,7 @@ export function StatsCards({ transactions }: StatsCardsProps) {
         return (
           <Card
             key={card.title}
-            className="relative overflow-hidden border-0 shadow-medium hover:shadow-large transition-all duration-300 animate-slide-up"
+            className="relative overflow-hidden shadow-soft hover:shadow-soft transition-all duration-300 animate-slide-up"
             style={{ animationDelay: `${index * 80}ms`, animationFillMode: "both" }}
           >
             <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 transition-opacity duration-500", style.bg)} />

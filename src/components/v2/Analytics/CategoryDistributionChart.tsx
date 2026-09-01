@@ -50,7 +50,7 @@ export function CategoryDistributionChart({ transactions }: Props) {
   const total = data.reduce((s, d) => s + d.value, 0);
 
   return (
-    <Card className="p-4 md:p-5 border-0 shadow-soft">
+    <Card className="p-4 md:p-5 shadow-soft">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <PieIcon className="h-4 w-4 text-primary" />

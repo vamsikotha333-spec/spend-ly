@@ -10,7 +10,7 @@ export function WealthHealthScore() {
   const dash = (score / 100) * circumference;
 
   return (
-    <Card className="p-4 md:p-5 border shadow-medium">
+    <Card className="p-4 md:p-5 border shadow-soft">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
           <Heart className="h-4 w-4" />

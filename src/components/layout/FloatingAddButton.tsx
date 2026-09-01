@@ -18,7 +18,7 @@ export function FloatingAddButton() {
       onClick={() => navigate("/add")}
       className={cn(
         "fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full",
-        "bg-gradient-primary text-primary-foreground shadow-large",
+        "bg-gradient-primary text-primary-foreground shadow-soft",
         "flex items-center justify-center",
         "transition-all duration-200 hover:scale-110 active:scale-95",
         "hover:shadow-hover focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
