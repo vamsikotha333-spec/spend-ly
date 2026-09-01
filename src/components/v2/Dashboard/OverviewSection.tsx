@@ -193,23 +193,9 @@ export function OverviewSection() {
     };
   }, [transactions, scopedTransactions]);
 
-  const recentTxns = transactions.slice(0, 5);
-  const topGoals = goals.slice(0, 3);
-
   if (isLoading) return null;
 
-  const quickActions = [
-    { label: "Add Expense", emoji: "💸", color: "bg-[hsl(var(--destructive-soft))] text-destructive ring-1 ring-destructive/10", path: "/add?type=Expense", context: stats.lastExpense > 0 ? `Last: ${formatCompactINR(stats.lastExpense)}` : "Tap to add" },
-    { label: "Add Income", emoji: "💰", color: "bg-[hsl(var(--success-soft))] text-success ring-1 ring-success/10", path: "/add?type=Income", context: stats.lastIncome > 0 ? `Last: ${formatCompactINR(stats.lastIncome)}` : "Tap to add" },
-    { label: "Add Savings", emoji: "🏦", color: "bg-[hsl(var(--info-soft))] text-info ring-1 ring-info/10", path: "/add?type=Savings", context: stats.lastSavings > 0 ? `Last: ${formatCompactINR(stats.lastSavings)}` : "Tap to add" },
-    { label: "Transactions", emoji: "📄", color: "bg-secondary text-foreground ring-1 ring-border", path: "/transactions", context: `${transactions.length} total` },
-    { label: "Reports", emoji: "📊", color: "bg-[hsl(var(--accent-soft))] text-accent ring-1 ring-accent/10", path: "/summary", context: "Monthly breakdown" },
-    { label: "AI Insights", emoji: "🤖", color: "bg-primary/10 text-primary ring-1 ring-primary/10", path: "/insights", context: "Smart analysis" },
-  ];
 
-  const goalEmojis: Record<string, string> = { "Home": "🏡", "Baby": "👶", "Business": "💼", "Emergency": "🛟", "Car": "🚗", "Wedding": "💍", "Travel": "✈️" };
-  const getGoalEmoji = (name: string) =>
-    Object.entries(goalEmojis).find(([k]) => name.toLowerCase().includes(k.toLowerCase()))?.[1] || "🎯";
 
   // Net Cashflow ratios — expressed as % of income (mathematically meaningful).
   // Income is shown as the base amount (not a percentage).
