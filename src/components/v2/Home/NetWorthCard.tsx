@@ -37,7 +37,7 @@ export function NetWorthCard() {
   const isEmpty = !aLoading && !lLoading && assets.length === 0 && liabilitiesTotal === 0;
 
   return (
-    <Card className="p-4 md:p-5 border shadow-medium hover-lift">
+    <Card className="p-4 md:p-5 border shadow-soft hover-lift">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">

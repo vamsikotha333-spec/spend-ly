@@ -28,7 +28,7 @@ export function MonthlySnapshot({ transactions }: MonthlySnapshotProps) {
   ];
 
   return (
-    <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
+    <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">This Month's Snapshot</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {items.map((item, i) => {

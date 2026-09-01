@@ -186,7 +186,7 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
   return (
     <div className="space-y-4">
       {/* Header with person filter */}
-      <Card className="p-4 md:p-5 border-0 shadow-medium" style={{ background: "var(--gradient-primary)" }}>
+      <Card className="p-4 md:p-5 shadow-soft" style={{ background: "var(--gradient-primary)" }}>
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold text-primary-foreground/70 uppercase tracking-widest mb-1">

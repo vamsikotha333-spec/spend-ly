@@ -168,13 +168,13 @@ export default function Transactions() {
         )}
 
         {filtered.length === 0 ? (
-          <Card className="shadow-medium border-0 overflow-hidden p-12 text-center animate-fade-in">
+          <Card className="shadow-soft overflow-hidden p-12 text-center animate-fade-in">
             <Search className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
             <p className="text-sm font-medium">No transactions found</p>
             <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters or search term.</p>
           </Card>
         ) : (
-          <Card className="shadow-medium border-0 overflow-hidden">
+          <Card className="shadow-soft overflow-hidden">
             <div className="divide-y">
               {filtered.map((t, i) => {
                 const type = t.transaction_type || (t.type === "credit" ? "Income" : "Expense");

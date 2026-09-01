@@ -119,7 +119,7 @@ export function SmartMonthlyBreakdown({ transactions }: SmartMonthlyBreakdownPro
       </div>
 
       {monthTxns.length === 0 ? (
-        <Card className="p-12 text-center border-0 shadow-soft">
+        <Card className="p-12 text-center shadow-soft">
           <BarChart3 className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
           <p className="text-lg font-medium text-muted-foreground">No data available</p>
           <p className="text-sm text-muted-foreground/70 mt-1">
@@ -138,7 +138,7 @@ export function SmartMonthlyBreakdown({ transactions }: SmartMonthlyBreakdownPro
             ].map((item, i) => (
               <Card
                 key={item.label}
-                className="p-4 border-0 shadow-soft animate-slide-up"
+                className="p-4 shadow-soft animate-slide-up"
                 style={{ animationDelay: `${i * 80}ms`, animationFillMode: "both" }}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -155,7 +155,7 @@ export function SmartMonthlyBreakdown({ transactions }: SmartMonthlyBreakdownPro
           </div>
 
           {/* Category Breakdown */}
-          <Card className="p-5 border-0 shadow-soft animate-slide-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
+          <Card className="p-5 shadow-soft animate-slide-up" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
             <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">
               Category Breakdown
             </h3>
@@ -200,7 +200,7 @@ export function SmartMonthlyBreakdown({ transactions }: SmartMonthlyBreakdownPro
           {/* Highlights */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide-up" style={{ animationDelay: "500ms", animationFillMode: "both" }}>
             {highest && (
-              <Card className="p-4 border-0 shadow-soft border-l-4 border-l-destructive">
+              <Card className="p-4 shadow-soft border-l-4 border-l-destructive">
                 <div className="flex items-center gap-2 mb-2">
                   <Flame className="h-4 w-4 text-destructive" />
                   <span className="text-xs font-semibold text-muted-foreground uppercase">Highest Spending</span>
@@ -212,7 +212,7 @@ export function SmartMonthlyBreakdown({ transactions }: SmartMonthlyBreakdownPro
               </Card>
             )}
             {lowest && categoryBreakdown.length > 1 && (
-              <Card className="p-4 border-0 shadow-soft border-l-4 border-l-success">
+              <Card className="p-4 shadow-soft border-l-4 border-l-success">
                 <div className="flex items-center gap-2 mb-2">
                   <ArrowDown className="h-4 w-4 text-success" />
                   <span className="text-xs font-semibold text-muted-foreground uppercase">Lowest Spending</span>
@@ -224,7 +224,7 @@ export function SmartMonthlyBreakdown({ transactions }: SmartMonthlyBreakdownPro
               </Card>
             )}
             {highest && (
-              <Card className="p-4 border-0 shadow-soft border-l-4 border-l-primary">
+              <Card className="p-4 shadow-soft border-l-4 border-l-primary">
                 <div className="flex items-center gap-2 mb-2">
                   <Lightbulb className="h-4 w-4 text-primary" />
                   <span className="text-xs font-semibold text-muted-foreground uppercase">Insight</span>
@@ -243,7 +243,7 @@ export function SmartMonthlyBreakdown({ transactions }: SmartMonthlyBreakdownPro
 
           {/* Month-over-month comparison */}
           {categoryBreakdown.some((c) => c.change !== null) && (
-            <Card className="p-5 border-0 shadow-soft animate-slide-up" style={{ animationDelay: "600ms", animationFillMode: "both" }}>
+            <Card className="p-5 shadow-soft animate-slide-up" style={{ animationDelay: "600ms", animationFillMode: "both" }}>
               <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                 vs {format(prevDate, "MMMM yyyy")}
               </h3>

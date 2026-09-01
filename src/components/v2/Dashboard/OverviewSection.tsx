@@ -23,20 +23,8 @@ import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { Sparkline } from "@/components/common/Sparkline";
 import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
 
-const CATEGORY_EMOJIS: Record<string, string> = {
-  "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
-  "Health": "🏥", "Shopping": "🛍️", "Utilities": "💡", "Education": "📚", "Entertainment": "🎬",
-  "Fuel": "⛽", "Insurance": "🛡️", "EMI": "🏦", "Subscriptions": "📱", "Clothing": "👕",
-  "Personal Care": "💇", "Gifts": "🎁", "Travel": "✈️", "Home Maintenance": "🔧",
-  "Phone": "📞", "Internet": "🌐", "Salary": "💼", "Freelance": "💻", "Investment": "📈",
-  "Other": "📦",
-};
 
-function getCategoryEmoji(cat: string) {
-  // If category already starts with an emoji (canonical), return empty since we'll show name as-is
-  if (cat && /\p{Extended_Pictographic}/u.test(cat.charAt(0))) return "";
-  return CATEGORY_EMOJIS[cat] || "📦";
-}
+
 
 function getType(t: any) {
   return t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
@@ -125,10 +113,9 @@ export function OverviewSection() {
     const lastSavings = transactions.find((t) => getType(t) === "Savings")?.amount || 0;
 
     // Insights with action
-    const insights: { emoji: string; title: string; body: string; type: "good" | "warn" | "info"; action?: { label: string; to: string } }[] = [];
+    const insights: { title: string; body: string; type: "good" | "warn" | "info"; action?: { label: string; to: string } }[] = [];
     if (income > 0 && expenses < income * 0.6) {
       insights.push({
-        emoji: "🏆",
         title: "Strong spending discipline",
         body: `Spending is **${((expenses / income) * 100).toFixed(0)}%** of income — well below 60%.`,
         type: "good",
@@ -136,7 +123,6 @@ export function OverviewSection() {
     }
     if (topCategory) {
       insights.push({
-        emoji: "📊",
         title: `Top category: ${topCategory[0]}`,
         body: `**${formatCompactINR(topCategory[1])}** spent — that's **${topCatPct.toFixed(0)}%** of monthly expenses.`,
         type: topCatPct > 40 ? "warn" : "info",
@@ -145,14 +131,12 @@ export function OverviewSection() {
     }
     if (savingsRate >= 30) {
       insights.push({
-        emoji: "💪",
         title: `Savings rate ${savingsRate.toFixed(0)}%`,
         body: `Saving **${formatCompactINR(savings)}** this month — keep it up!`,
         type: "good",
       });
     } else if (savingsRate > 0 && savingsRate < 15 && income > 0) {
       insights.push({
-        emoji: "📉",
         title: `Low savings rate (${savingsRate.toFixed(0)}%)`,
         body: `Aim for at least 20%. Try to save **${formatCompactINR(income * 0.2 - savings)}** more.`,
         type: "warn",
@@ -160,7 +144,7 @@ export function OverviewSection() {
       });
     }
     if (insights.length === 0) {
-      insights.push({ emoji: "📈", title: "Keep tracking", body: "Add a few transactions to unlock smart insights.", type: "info" });
+      insights.push({ title: "Keep tracking", body: "Add a few transactions to unlock smart insights.", type: "info" });
     }
 
     // 7-day daily series for sparklines
@@ -209,23 +193,9 @@ export function OverviewSection() {
     };
   }, [transactions, scopedTransactions]);
 
-  const recentTxns = transactions.slice(0, 5);
-  const topGoals = goals.slice(0, 3);
-
   if (isLoading) return null;
 
-  const quickActions = [
-    { label: "Add Expense", emoji: "💸", color: "bg-[hsl(var(--destructive-soft))] text-destructive ring-1 ring-destructive/10", path: "/add?type=Expense", context: stats.lastExpense > 0 ? `Last: ${formatCompactINR(stats.lastExpense)}` : "Tap to add" },
-    { label: "Add Income", emoji: "💰", color: "bg-[hsl(var(--success-soft))] text-success ring-1 ring-success/10", path: "/add?type=Income", context: stats.lastIncome > 0 ? `Last: ${formatCompactINR(stats.lastIncome)}` : "Tap to add" },
-    { label: "Add Savings", emoji: "🏦", color: "bg-[hsl(var(--info-soft))] text-info ring-1 ring-info/10", path: "/add?type=Savings", context: stats.lastSavings > 0 ? `Last: ${formatCompactINR(stats.lastSavings)}` : "Tap to add" },
-    { label: "Transactions", emoji: "📄", color: "bg-secondary text-foreground ring-1 ring-border", path: "/transactions", context: `${transactions.length} total` },
-    { label: "Reports", emoji: "📊", color: "bg-[hsl(var(--accent-soft))] text-accent ring-1 ring-accent/10", path: "/summary", context: "Monthly breakdown" },
-    { label: "AI Insights", emoji: "🤖", color: "bg-primary/10 text-primary ring-1 ring-primary/10", path: "/insights", context: "Smart analysis" },
-  ];
 
-  const goalEmojis: Record<string, string> = { "Home": "🏡", "Baby": "👶", "Business": "💼", "Emergency": "🛟", "Car": "🚗", "Wedding": "💍", "Travel": "✈️" };
-  const getGoalEmoji = (name: string) =>
-    Object.entries(goalEmojis).find(([k]) => name.toLowerCase().includes(k.toLowerCase()))?.[1] || "🎯";
 
   // Net Cashflow ratios — expressed as % of income (mathematically meaningful).
   // Income is shown as the base amount (not a percentage).
@@ -255,25 +225,23 @@ export function OverviewSection() {
               const remaining = stats.income - stats.expenses - stats.savings;
               const cards = [
                 {
-                  key: "income", label: "Income", emoji: "💰", value: stats.income, Icon: TrendingUp,
-                  tone: { ring: "ring-success/30", icon: "bg-success/20 text-success", text: "text-success", label: "text-success/80", glow: "bg-success/10", sheen: "card-sheen-success", spark: "text-success" },
+                  key: "income", label: "Income", value: stats.income, Icon: TrendingUp,
+                  tone: "positive" as Tone,
                   delta: stats.deltas.income, inverse: false, spark: stats.sparkIncome,
                 },
                 {
-                  key: "expenses", label: "Expenses", emoji: "💸", value: stats.expenses, Icon: TrendingDown,
-                  tone: { ring: "ring-destructive/30", icon: "bg-destructive/20 text-destructive", text: "text-destructive", label: "text-destructive/80", glow: "bg-destructive/10", sheen: "card-sheen-danger", spark: "text-destructive" },
+                  key: "expenses", label: "Expenses", value: stats.expenses, Icon: TrendingDown,
+                  tone: "negative" as Tone,
                   delta: stats.deltas.expenses, inverse: true, spark: stats.sparkExpenses,
                 },
                 {
-                  key: "savings", label: "Savings", emoji: "🏦", value: stats.savings, Icon: PiggyBank,
-                  tone: { ring: "ring-info/30", icon: "bg-info/20 text-info", text: "text-info", label: "text-info/80", glow: "bg-info/10", sheen: "card-sheen-info", spark: "text-info" },
+                  key: "savings", label: "Savings", value: stats.savings, Icon: PiggyBank,
+                  tone: "savings" as Tone,
                   delta: stats.deltas.savings, inverse: false, spark: stats.sparkSavings,
                 },
                 {
-                  key: "remaining", label: "Remaining", emoji: remaining > 0 ? "🟢" : remaining < 0 ? "🔴" : "⚪", value: remaining, Icon: Wallet,
-                  tone: remaining >= 0
-                    ? { ring: "ring-success/30", icon: "bg-success/20 text-success", text: "text-success", label: "text-success/80", glow: "bg-success/10", sheen: "", spark: "text-success" }
-                    : { ring: "ring-destructive/30", icon: "bg-destructive/20 text-destructive", text: "text-destructive", label: "text-destructive/80", glow: "bg-destructive/10", sheen: "", spark: "text-destructive" },
+                  key: "remaining", label: "Remaining", value: remaining, Icon: Wallet,
+                  tone: (remaining >= 0 ? "positive" : "negative") as Tone,
                   delta: stats.deltas.remaining, inverse: false, spark: stats.sparkRemaining,
                 },
               ];
@@ -282,35 +250,27 @@ export function OverviewSection() {
                 const positive = d !== null && d >= 0;
                 const goodDirection = d !== null && (c.inverse ? !positive : positive);
                 return (
-                  <Card key={c.key} className={cn("relative overflow-hidden p-5 border shadow-medium hover-lift transition-all duration-200", c.tone.sheen)}>
-                    <div className={cn("absolute -top-8 -right-8 w-28 h-28 rounded-full blur-2xl", c.tone.glow)} />
-                    <div className="relative flex items-center justify-between mb-3">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center ring-1 shadow-sm", c.tone.icon, c.tone.ring)}>
-                        <c.Icon className="h-[18px] w-[18px]" />
+                  <Card key={c.key} className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", TONE_SOFT[c.tone])}>
+                        <c.Icon className="h-4 w-4" />
                       </div>
-                      <span className="text-lg">{c.emoji}</span>
                     </div>
-                    <p className={cn("relative text-[11px] font-semibold uppercase tracking-wider mb-1", c.tone.label)}>{c.label}</p>
-                    <p className={cn("relative text-2xl md:text-3xl font-bold tabular-nums tracking-tight", c.tone.text)}>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{c.label}</p>
+                    <p className={cn("text-2xl md:text-3xl font-bold tabular-nums tracking-tight", TONE_TEXT[c.tone])}>
                       {c.value < 0 ? "-" : ""}
                       <AnimatedCounter value={Math.abs(c.value)} prefix="₹" />
                     </p>
-                    <div className="relative mt-2 flex items-center justify-between gap-2">
+                    <div className="mt-2 flex items-center justify-between gap-2">
                       {d !== null ? (
-                        <span className={cn(
-                          "inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full",
-                          goodDirection ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
-                        )}>
-                          {positive ? <ArrowUp className="h-2.5 w-2.5" /> : <ArrowDown className="h-2.5 w-2.5" />}
-                          {Math.abs(d).toFixed(0)}% <span className="font-normal opacity-70 ml-0.5">vs last mo</span>
-                        </span>
+                        <StatusBadge tone={goodDirection ? "positive" : "negative"} icon={positive ? ArrowUp : ArrowDown}>
+                          {Math.abs(d).toFixed(0)}% <span className="font-normal opacity-70">vs last mo</span>
+                        </StatusBadge>
                       ) : (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                          New
-                        </span>
+                        <StatusBadge tone="neutral">New</StatusBadge>
                       )}
                       <div
-                        className={cn("w-16 shrink-0 opacity-0 animate-fade-in", c.tone.spark)}
+                        className={cn("w-16 shrink-0 opacity-0 animate-fade-in", TONE_STROKE[c.tone])}
                         style={{ animationDelay: "1600ms", animationFillMode: "forwards" }}
                       >
                         <Sparkline data={c.spark} height={22} />
@@ -320,6 +280,7 @@ export function OverviewSection() {
                 );
               });
             })()}
+
           </div>
 
           {/* Remaining balance alert */}
@@ -367,7 +328,7 @@ export function OverviewSection() {
         {/* Net Cashflow / Savings Rate — the "how am I doing right now" band */}
         <section className="animate-fade-in" style={{ animationDelay: "40ms", animationFillMode: "both" }}>
 
-          <Card className="relative overflow-hidden border-0 shadow-medium p-4 md:p-5" style={{ background: "var(--gradient-primary)" }}>
+          <Card className="relative overflow-hidden shadow-soft p-4 md:p-5" style={{ background: "var(--gradient-primary)" }}>
             <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-16 -left-8 w-56 h-56 rounded-full bg-white/5 blur-3xl pointer-events-none" />
             <div className="relative">

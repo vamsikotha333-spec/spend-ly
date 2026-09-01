@@ -256,7 +256,7 @@ export default function Wealth() {
         <WealthActivityTimeline />
 
         {/* Assets vs Liabilities visual */}
-        <Card className="p-4 md:p-5 border shadow-medium">
+        <Card className="p-4 md:p-5 border shadow-soft">
           <h2 className="text-base font-bold mb-3">Assets vs Liabilities</h2>
           {(assetsTotal + liabilitiesTotal) === 0 ? (
             <p className="text-sm text-muted-foreground">Add assets or liabilities to see the balance.</p>
@@ -279,7 +279,7 @@ export default function Wealth() {
         </Card>
 
         {/* Recent investments */}
-        <Card className="p-4 md:p-5 border shadow-medium">
+        <Card className="p-4 md:p-5 border shadow-soft">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold">Recent Investments</h2>
             <Link to="/wealth/investments">
@@ -322,7 +322,7 @@ export default function Wealth() {
 
         {/* Goals & Insurance summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Card className="p-4 md:p-5 border shadow-medium">
+          <Card className="p-4 md:p-5 border shadow-soft">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Flag className="h-4 w-4 text-primary" />
@@ -344,7 +344,7 @@ export default function Wealth() {
             )}
           </Card>
 
-          <Card className="p-4 md:p-5 border shadow-medium">
+          <Card className="p-4 md:p-5 border shadow-soft">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-primary" />
@@ -382,7 +382,7 @@ export default function Wealth() {
 
 
         {/* Assets */}
-        <Card className="p-4 md:p-5 border shadow-medium">
+        <Card className="p-4 md:p-5 border shadow-soft">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold text-foreground">Assets</h2>
             <Button size="sm" onClick={() => { setEditingAsset(undefined); setAssetOpen(true); }}>
@@ -430,7 +430,7 @@ export default function Wealth() {
         </Card>
 
         {/* Liabilities */}
-        <Card className="p-4 md:p-5 border shadow-medium">
+        <Card className="p-4 md:p-5 border shadow-soft">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold text-foreground">Liabilities</h2>
             <Button size="sm" onClick={() => { setEditingLiab(undefined); setLiabOpen(true); }}>

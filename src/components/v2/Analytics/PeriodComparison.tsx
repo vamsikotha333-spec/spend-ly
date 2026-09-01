@@ -346,7 +346,7 @@ export function PeriodComparison({ txnsA, txnsB, labelA, labelB }: PeriodCompari
   return (
     <div className="space-y-6">
       {/* Smart Summary */}
-      <Card className="p-5 shadow-medium border-0 bg-gradient-to-br from-primary/5 to-info/5 animate-fade-in">
+      <Card className="p-5 shadow-soft bg-gradient-to-br from-primary/5 to-info/5 animate-fade-in">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-lg bg-primary/10 text-primary flex-shrink-0">
             <Sparkles className="h-5 w-5" />
@@ -361,7 +361,7 @@ export function PeriodComparison({ txnsA, txnsB, labelA, labelB }: PeriodCompari
       </Card>
 
       {/* Headline Metrics */}
-      <Card className="p-5 shadow-medium border-0 animate-fade-in">
+      <Card className="p-5 shadow-soft animate-fade-in">
         <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
           <Activity className="h-4 w-4 text-primary" /> Key Metrics — {labelA} vs {labelB}
         </h3>
@@ -407,7 +407,7 @@ export function PeriodComparison({ txnsA, txnsB, labelA, labelB }: PeriodCompari
 
       {/* Top 3 Increases & Improvements */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-5 shadow-medium border-0 animate-fade-in">
+        <Card className="p-5 shadow-soft animate-fade-in">
           <h3 className="font-bold text-sm uppercase tracking-wider text-destructive mb-3 flex items-center gap-2">
             <ArrowUpRight className="h-4 w-4" /> Top Increases
           </h3>
@@ -431,7 +431,7 @@ export function PeriodComparison({ txnsA, txnsB, labelA, labelB }: PeriodCompari
           )}
         </Card>
 
-        <Card className="p-5 shadow-medium border-0 animate-fade-in">
+        <Card className="p-5 shadow-soft animate-fade-in">
           <h3 className="font-bold text-sm uppercase tracking-wider text-success mb-3 flex items-center gap-2">
             <ArrowDownRight className="h-4 w-4" /> Top Improvements
           </h3>
@@ -458,7 +458,7 @@ export function PeriodComparison({ txnsA, txnsB, labelA, labelB }: PeriodCompari
 
       {/* Full category-wise change list */}
       {allDiffsSorted.length > 0 && (
-        <Card className="p-5 shadow-medium border-0 animate-fade-in">
+        <Card className="p-5 shadow-soft animate-fade-in">
           <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
             <Target className="h-4 w-4 text-primary" /> Category-wise Spending Changes
           </h3>
@@ -536,7 +536,7 @@ export function PeriodComparison({ txnsA, txnsB, labelA, labelB }: PeriodCompari
 
       {/* Action plan */}
       {suggestions.length > 0 && (
-        <Card className="p-5 shadow-medium border-0 bg-gradient-to-br from-amber-500/5 to-primary/5 animate-fade-in">
+        <Card className="p-5 shadow-soft bg-gradient-to-br from-amber-500/5 to-primary/5 animate-fade-in">
           <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-amber-500" /> What You Should Do Next Period
           </h3>

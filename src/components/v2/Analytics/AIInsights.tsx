@@ -125,7 +125,7 @@ function HealthGauge({ score, label, summary, compact }: { score: number; label:
   const getTrackColor = (s: number) => s >= 80 ? "bg-success" : s >= 60 ? "bg-amber-500" : s >= 40 ? "bg-orange-500" : "bg-destructive";
 
   return (
-    <Card className={cn("shadow-medium border-0 animate-scale-in text-center", compact ? "p-4" : "p-6")}>
+    <Card className={cn("shadow-soft animate-scale-in text-center", compact ? "p-4" : "p-6")}>
       <div className="flex flex-col items-center gap-2">
         <Heart className={cn(compact ? "h-6 w-6" : "h-8 w-8", getColor(score))} />
         <div className="relative w-full max-w-[180px]">
@@ -202,7 +202,7 @@ function TipCard({ tip, index }: { tip: StructuredInsights["tips"][0]; index: nu
 
 function MonthlyVerdictCard({ verdict }: { verdict: StructuredInsights["monthlyVerdict"] }) {
   return (
-    <Card className="p-5 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "500ms", animationFillMode: "both" }}>
+    <Card className="p-5 shadow-soft animate-fade-in" style={{ animationDelay: "500ms", animationFillMode: "both" }}>
       <div className="flex items-center gap-2 mb-3">
         <Calendar className="h-4 w-4 text-primary" />
         <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Monthly Verdict</h3>
@@ -268,7 +268,7 @@ function InsightsPanel({ insights, label, compact }: { insights: StructuredInsig
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {insights.highlights.map((h, i) => <HighlightCard key={i} highlight={h} index={i} />)}
       </div>
-      <Card className="p-4 shadow-medium border-0">
+      <Card className="p-4 shadow-soft">
         <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
           <Target className="h-3.5 w-3.5 text-primary" /> Top Categories
         </h3>
@@ -278,7 +278,7 @@ function InsightsPanel({ insights, label, compact }: { insights: StructuredInsig
           ))}
         </div>
       </Card>
-      <Card className="p-4 shadow-medium border-0">
+      <Card className="p-4 shadow-soft">
         <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
           <Lightbulb className="h-3.5 w-3.5 text-amber-500" /> Tips
         </h3>
@@ -452,7 +452,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="p-6 shadow-medium border-0">
+      <Card className="p-6 shadow-soft">
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -515,7 +515,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
 
       {/* Empty state — only show when NOT in compare mode (compare mode renders its own data view) */}
       {!compareMode && !hasInsights && !isLoading && (
-        <Card className="p-12 shadow-medium border-0 text-center">
+        <Card className="p-12 shadow-soft text-center">
           <div className="max-w-md mx-auto">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-500/10 flex items-center justify-center">
               <Sparkles className="h-10 w-10 text-amber-500/40" />
@@ -534,7 +534,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
 
       {/* Compare mode call-to-action for optional AI deep dive */}
       {compareMode && !structuredInsights && !isLoading && (
-        <Card className="p-5 shadow-medium border-0 text-center bg-muted/30">
+        <Card className="p-5 shadow-soft text-center bg-muted/30">
           <p className="text-sm text-muted-foreground mb-3">
             Want a deeper AI-powered breakdown of each period?
           </p>
@@ -549,7 +549,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[...Array(compareMode ? 6 : 4)].map((_, i) => (
-            <Card key={i} className="p-6 shadow-medium border-0 animate-pulse">
+            <Card key={i} className="p-6 shadow-soft animate-pulse">
               <div className="h-4 bg-muted rounded w-1/3 mb-4" />
               <div className="h-3 bg-muted rounded w-full mb-2" />
               <div className="h-3 bg-muted rounded w-2/3" />
@@ -590,7 +590,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
           {(structuredInsights.positiveTrends?.length || structuredInsights.warnings?.length) ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {structuredInsights.positiveTrends && structuredInsights.positiveTrends.length > 0 && (
-                <Card className="p-5 shadow-medium border-0">
+                <Card className="p-5 shadow-soft">
                   <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
                     <TrendingDown className="h-4 w-4 text-success" /> Positive Trends
                   </h3>
@@ -610,7 +610,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
                 </Card>
               )}
               {structuredInsights.warnings && structuredInsights.warnings.length > 0 && (
-                <Card className="p-5 shadow-medium border-0">
+                <Card className="p-5 shadow-soft">
                   <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-destructive" /> Warnings & Overspending
                   </h3>
@@ -633,7 +633,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
           ) : null}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
+            <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
                 <Target className="h-4 w-4 text-primary" /> Top Spending Categories
               </h3>
@@ -643,7 +643,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
                 ))}
               </div>
             </Card>
-            <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
+            <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-amber-500" /> Smart Recommendations
               </h3>
@@ -658,7 +658,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
 
           {/* Member-wise insights */}
           {structuredInsights.memberInsights && structuredInsights.memberInsights.length > 0 && (
-            <Card className="p-5 shadow-medium border-0">
+            <Card className="p-5 shadow-soft">
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" /> Member-wise Insights
               </h3>
@@ -678,7 +678,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
 
           {/* Goal insights */}
           {structuredInsights.goalInsights && structuredInsights.goalInsights.length > 0 && (
-            <Card className="p-5 shadow-medium border-0">
+            <Card className="p-5 shadow-soft">
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
                 <Target className="h-4 w-4 text-info" /> Goal Tracking Insights
               </h3>
@@ -702,7 +702,7 @@ export function AIInsights({ transactions }: AIInsightsProps) {
 
       {/* Legacy markdown fallback */}
       {legacyInsights && !isLoading && (
-        <Card className="p-6 shadow-medium border-0">
+        <Card className="p-6 shadow-soft">
           <div className="prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{legacyInsights}</ReactMarkdown>
           </div>

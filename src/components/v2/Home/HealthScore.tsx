@@ -141,7 +141,7 @@ export function HealthScore({ transactions, income, expenses, savings }: Props) 
   const dash = (score / 100) * circumference;
 
   return (
-    <Card className="p-4 border shadow-medium hover-lift">
+    <Card className="p-4 border shadow-soft hover-lift">
       <div className="flex items-center gap-2 mb-3">
         <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
           <Heart className="h-4 w-4" />

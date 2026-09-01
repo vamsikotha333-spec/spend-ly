@@ -91,7 +91,7 @@ export function GlobalHeader() {
     <header
       className={cn(
         "sticky top-0 z-50 border-b border-border bg-card/85 backdrop-blur-md transition-shadow duration-200",
-        scrolled ? "shadow-medium" : "shadow-soft"
+        scrolled ? "shadow-soft" : "shadow-soft"
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center gap-2 md:gap-3 px-4 py-3">
@@ -139,7 +139,7 @@ export function GlobalHeader() {
               <ChevronDown className="h-3.5 w-3.5 opacity-60" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="w-[320px] p-0 rounded-xl shadow-large">
+          <PopoverContent align="end" className="w-[320px] p-0 rounded-xl shadow-soft">
             <div className="p-3 border-b border-border">
               <ToggleGroup
                 type="single"

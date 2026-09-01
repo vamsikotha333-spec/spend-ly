@@ -37,7 +37,7 @@ export function WealthSnapshot({
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {items.map((it) => (
-        <Card key={it.label} className="p-3 md:p-4 border shadow-medium hover-lift transition">
+        <Card key={it.label} className="p-3 md:p-4 border shadow-soft hover-lift transition">
           <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center mb-2", it.accent)}>
             <it.icon className="h-4 w-4" />
           </div>

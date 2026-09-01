@@ -70,7 +70,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ illustration = "generic", title, description, actionLabel, onAction, className }: EmptyStateProps) {
   return (
-    <Card className={cn("p-10 text-center border-0 shadow-soft animate-fade-in", className)}>
+    <Card className={cn("p-10 text-center shadow-soft animate-fade-in", className)}>
       <div className="mb-4">
         <Art kind={illustration} />
       </div>

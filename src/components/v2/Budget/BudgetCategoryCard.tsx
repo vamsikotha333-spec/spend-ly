@@ -39,7 +39,7 @@ export function BudgetCategoryCard({ item, index, onEdit, onDelete, variant = "e
 
   return (
     <Card
-      className="border border-border/50 shadow-soft hover:shadow-medium hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden animate-fade-in"
+      className="border border-border/50 shadow-soft hover:shadow-soft hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden animate-fade-in"
       style={{ animationDelay: `${index * 50}ms`, animationFillMode: "both" }}
       onClick={() => setExpanded(!expanded)}
     >

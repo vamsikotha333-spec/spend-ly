@@ -113,28 +113,28 @@ export default function FinancialGoals() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-primary">
               <Target className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Total Target</p>
             </div>
             <p className="text-xl md:text-2xl font-bold tabular-nums mt-1">{fmt(totalTarget)}</p>
           </Card>
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-success">
               <PiggyBank className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Total Saved</p>
             </div>
             <p className="text-xl md:text-2xl font-bold text-success tabular-nums mt-1">{fmt(totalSaved)}</p>
           </Card>
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-destructive">
               <TrendingUp className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Remaining</p>
             </div>
             <p className="text-xl md:text-2xl font-bold text-destructive tabular-nums mt-1">{fmt(remaining)}</p>
           </Card>
-          <Card className="p-4 border shadow-medium">
+          <Card className="p-4 border shadow-soft">
             <div className="flex items-center gap-2 text-primary">
               <Flag className="h-4 w-4" />
               <p className="text-[10px] font-semibold uppercase tracking-wider">Overall Progress</p>
@@ -144,7 +144,7 @@ export default function FinancialGoals() {
           </Card>
         </div>
 
-        <Card className="p-4 md:p-5 border shadow-medium">
+        <Card className="p-4 md:p-5 border shadow-soft">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : goals.length === 0 ? (

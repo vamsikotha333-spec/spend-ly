@@ -56,8 +56,8 @@
     --gradient-insight: linear-gradient(135deg, hsl(220 100% 98%), hsl(239 100% 96%));
 
     --shadow-soft: 0 1px 3px hsla(222, 47%, 11%, 0.04), 0 1px 2px hsla(222, 47%, 11%, 0.06);
-    --shadow-medium: 0 4px 12px hsla(222, 47%, 11%, 0.06);
-    --shadow-large: 0 8px 24px hsla(222, 47%, 11%, 0.08);
+    --shadow-soft: 0 4px 12px hsla(222, 47%, 11%, 0.06);
+    --shadow-soft: 0 8px 24px hsla(222, 47%, 11%, 0.08);
     --shadow-hover: 0 8px 24px hsla(217, 91%, 60%, 0.12);
 
     --sidebar-background: 0 0% 100%;
@@ -121,8 +121,8 @@
     --gradient-insight: linear-gradient(135deg, hsl(222 47% 12%), hsl(239 40% 14%));
 
     --shadow-soft: 0 1px 3px hsla(0, 0%, 0%, 0.2);
-    --shadow-medium: 0 4px 12px hsla(0, 0%, 0%, 0.3);
-    --shadow-large: 0 8px 24px hsla(0, 0%, 0%, 0.4);
+    --shadow-soft: 0 4px 12px hsla(0, 0%, 0%, 0.3);
+    --shadow-soft: 0 8px 24px hsla(0, 0%, 0%, 0.4);
     --shadow-hover: 0 8px 24px hsla(217, 91%, 60%, 0.2);
 
     --sidebar-background: 222 47% 10%;

@@ -54,7 +54,7 @@ export function WealthActivityTimeline() {
   }, [investments, goals, policies, assets]);
 
   return (
-    <Card className="p-4 md:p-5 border shadow-medium">
+    <Card className="p-4 md:p-5 border shadow-soft">
       <div className="flex items-center gap-2 mb-3">
         <Activity className="h-4 w-4 text-primary" />
         <h2 className="text-base font-bold">Recent Activity</h2>

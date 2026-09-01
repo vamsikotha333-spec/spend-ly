@@ -86,7 +86,7 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
   };
 
   return (
-    <Card className="p-5 border-0 shadow-soft bg-[var(--gradient-insight)] overflow-hidden">
+    <Card className="p-5 shadow-soft bg-[var(--gradient-insight)] overflow-hidden">
       <div className="flex items-center gap-2 mb-4">
         <Brain className="h-5 w-5 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">🤖 AI Budget Insights</h3>

@@ -356,7 +356,7 @@ export default function BudgetVsActual() {
         )}
 
         {!hasAnything ? (
-          <Card className="p-12 text-center border-0 shadow-soft">
+          <Card className="p-12 text-center shadow-soft">
             <BarChart3 className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
             <p className="text-lg font-medium text-muted-foreground">
               No budgets or targets for {format(monthDate, "MMMM yyyy")}

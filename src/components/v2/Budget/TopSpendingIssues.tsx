@@ -17,7 +17,7 @@ export function TopSpendingIssues({ comparison }: { comparison: BudgetComparison
   if (issues.length === 0) return null;
 
   return (
-    <Card className="p-4 border-0 shadow-soft">
+    <Card className="p-4 shadow-soft">
       <h3 className="text-sm font-semibold text-foreground mb-3">🔥 Top Spending Issues</h3>
       <div className="space-y-2">
         {issues.map((item, i) => (

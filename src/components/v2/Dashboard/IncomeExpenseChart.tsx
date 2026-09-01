@@ -25,7 +25,7 @@ export function IncomeExpenseChart({ transactions }: IncomeExpenseChartProps) {
   const hasData = data.some(d => d.Income > 0 || d.Expenses > 0 || d.Savings > 0);
 
   return (
-    <Card className="p-6 shadow-medium border-0 animate-fade-in" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
+    <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Income vs Expenses vs Savings</h3>
       {!hasData ? (
         <div className="flex items-center justify-center h-[300px] text-muted-foreground">No data available for this period</div>

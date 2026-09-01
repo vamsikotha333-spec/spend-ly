@@ -19,7 +19,7 @@ export function NotificationsBell() {
           <Bell className="h-[18px] w-[18px]" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[300px] p-0 rounded-xl shadow-large">
+      <PopoverContent align="end" className="w-[300px] p-0 rounded-xl shadow-soft">
         <div className="px-4 py-3 border-b border-border">
           <p className="text-sm font-bold text-foreground">Notifications</p>
           <p className="text-[11px] text-muted-foreground">Smart alerts about your money</p>

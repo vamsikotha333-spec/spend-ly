@@ -119,7 +119,7 @@ export function MonthlySummaryV2({ transactions }: MonthlySummaryV2Props) {
   };
 
   return (
-    <Card className="p-6 shadow-medium">
+    <Card className="p-6 shadow-soft">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <h2 className="text-xl font-bold">Monthly Summary</h2>
         <div className="flex items-center gap-4 flex-wrap">

@@ -78,7 +78,7 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
   
 
   return (
-    <Card className="p-6 shadow-medium">
+    <Card className="p-6 shadow-soft">
       <h2 className="text-xl font-bold mb-6">
         {editTransaction ? "Edit Transaction" : "Add Transaction"}
       </h2>
