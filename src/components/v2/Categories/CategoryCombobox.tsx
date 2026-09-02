@@ -264,7 +264,8 @@ export function CategoryCombobox({
                                   value === display ? "opacity-100" : "opacity-0",
                                 )}
                               />
-                              <span className="flex-1 truncate">{display}</span>
+                              <CategoryIcon category={display} className="h-4 w-4 shrink-0 text-muted-foreground" />
+                              <span className="flex-1 truncate">{categoryLabel(display)}</span>
                               <span className="text-[10px] text-muted-foreground tabular-nums opacity-60 group-hover/cat:opacity-100">
                                 {counts[c.id] ?? 0}
                               </span>
