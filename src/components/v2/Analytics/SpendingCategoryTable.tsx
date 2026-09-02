@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCategories, categoryDisplay } from "@/hooks/useCategories";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 import { Sparkline } from "@/components/common/Sparkline";
 import { Download, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -238,7 +239,8 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
                     <TableCell className="font-medium sticky left-0 bg-background z-10">
                       <div className="flex items-center gap-1.5">
                         {isTop && <Flame className="h-3 w-3 text-warning flex-shrink-0" />}
-                        <span className="truncate">{row.category}</span>
+                        <CategoryIcon category={row.category} className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="truncate">{categoryLabel(row.category)}</span>
                         {isTop && (
                           <Badge variant="secondary" className="h-4 px-1 text-[9px] font-semibold">
                             Top {[...topThree].indexOf(row.category) + 1}

@@ -24,6 +24,7 @@ import {
 import { useTransactions } from "@/hooks/useTransactions";
 import { DeleteCategoryDialog } from "./DeleteCategoryDialog";
 import { normalizeName } from "@/utils/categoryNormalize";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 
 interface CategoryComboboxProps {
   type: CategoryType;
@@ -129,7 +130,14 @@ export function CategoryCombobox({
             className,
           )}
         >
-          {value || "Select category"}
+          {value ? (
+            <span className="flex items-center gap-2 min-w-0">
+              <CategoryIcon category={value} className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="truncate">{categoryLabel(value)}</span>
+            </span>
+          ) : (
+            "Select category"
+          )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -202,7 +210,7 @@ export function CategoryCombobox({
                               onClick={(e) => e.stopPropagation()}
                               onMouseDown={(e) => e.stopPropagation()}
                             >
-                              {c.emoji && <span>{c.emoji}</span>}
+                              <CategoryIcon category={display} className="h-4 w-4 text-muted-foreground shrink-0" />
                               <Input
                                 autoFocus
                                 value={editDraft}
