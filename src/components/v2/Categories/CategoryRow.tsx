@@ -12,6 +12,7 @@ import {
   type Category,
 } from "@/hooks/useCategories";
 import { normalizeName } from "@/utils/categoryNormalize";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 
 interface CategoryRowProps {
   category: Category;
@@ -75,9 +76,7 @@ export function CategoryRow({ category, count, onRequestDelete }: CategoryRowPro
       {editing ? (
         <>
           <div className="flex-1 flex items-center gap-2">
-            {category.emoji && (
-              <span className="text-lg leading-none">{category.emoji}</span>
-            )}
+            <CategoryIcon category={categoryDisplay(category)} className="h-4 w-4 text-muted-foreground shrink-0" />
             <div className="flex-1">
               <Input
                 ref={inputRef}
@@ -121,8 +120,9 @@ export function CategoryRow({ category, count, onRequestDelete }: CategoryRowPro
       ) : (
         <>
           <div className="flex-1 flex items-center gap-2 min-w-0">
+            <CategoryIcon category={categoryDisplay(category)} className="h-4 w-4 text-muted-foreground shrink-0" />
             <span className="font-medium text-sm truncate">
-              {categoryDisplay(category)}
+              {categoryLabel(categoryDisplay(category))}
             </span>
             {category.is_default && (
               <Badge
