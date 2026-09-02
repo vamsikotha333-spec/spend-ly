@@ -22,6 +22,8 @@ import { SmartInsightsRail } from "@/components/v2/Insights/SmartInsightsRail";
 import { AnimatedCounter } from "@/components/common/AnimatedCounter";
 import { Sparkline } from "@/components/common/Sparkline";
 import { RecentActivityTimeline } from "@/components/v2/Home/RecentActivityTimeline";
+import { Tone, TONE_SOFT, TONE_TEXT, TONE_STROKE } from "@/lib/design";
+import { StatusBadge } from "@/components/common/StatusBadge";
 
 
 
