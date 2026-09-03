@@ -2,24 +2,12 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, FileText } from "lucide-react";
 import { format, isSameDay, isYesterday, startOfWeek, isWithinInterval, isSameMonth, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { canonicalDisplay } from "@/utils/categoryNormalize";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 
-const CATEGORY_EMOJIS: Record<string, string> = {
-  "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
-  "Health": "🏥", "Shopping": "🛍️", "Utilities": "💡", "Education": "📚", "Entertainment": "🎬",
-  "Fuel": "⛽", "Insurance": "🛡️", "EMI": "🏦", "Subscriptions": "📱", "Clothing": "👕",
-  "Personal Care": "💇", "Gifts": "🎁", "Travel": "✈️", "Home Maintenance": "🔧",
-  "Phone": "📞", "Internet": "🌐", "Salary": "💼", "Freelance": "💻", "Investment": "📈",
-  "Other": "📦",
-};
-
-function getCategoryEmoji(cat: string) {
-  if (cat && /\p{Extended_Pictographic}/u.test(cat.charAt(0))) return "";
-  return CATEGORY_EMOJIS[cat] || "📦";
-}
 
 function getType(t: any) {
   return t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
@@ -58,14 +46,14 @@ export function RecentActivityTimeline({ transactions }: { transactions: any[] }
   return (
     <section className="animate-slide-up" style={{ animationDelay: "400ms", animationFillMode: "both" }}>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">🕐 Recent Activity</h2>
+        <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5"><Clock className="h-4 w-4 text-muted-foreground" /> Recent Activity</h2>
         <Button variant="ghost" size="sm" asChild className="h-7 text-xs">
           <Link to="/transactions">View All <ArrowRight className="h-3 w-3 ml-1" /></Link>
         </Button>
       </div>
       {groups.length === 0 ? (
         <Card className="border p-8 text-center">
-          <span className="text-4xl block mb-2">📄</span>
+          <FileText className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
           <p className="text-sm font-semibold text-foreground">No transactions yet</p>
           <p className="text-xs text-muted-foreground mt-1">Tap the + button to add your first one.</p>
         </Card>
@@ -93,7 +81,6 @@ export function RecentActivityTimeline({ transactions }: { transactions: any[] }
                     const isIncome = type === "Income";
                     const isSavings = type === "Savings";
                     const display = canonicalDisplay(t.category);
-                    const emoji = getCategoryEmoji(display);
                     return (
                       <div
                         key={t.id}
@@ -106,10 +93,10 @@ export function RecentActivityTimeline({ transactions }: { transactions: any[] }
                             isSavings ? "bg-[hsl(var(--info-soft))] ring-info/15" :
                             "bg-[hsl(var(--destructive-soft))] ring-destructive/15"
                           )}>
-                            <span className="text-sm leading-none">{emoji || (isIncome ? "💰" : isSavings ? "🏦" : "💸")}</span>
+                            <CategoryIcon category={display} className={cn("h-4 w-4", isIncome ? "text-success" : isSavings ? "text-info" : "text-destructive")} />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold truncate text-foreground">{display}</p>
+                            <p className="text-sm font-semibold truncate text-foreground">{categoryLabel(display)}</p>
                             <p className="text-[11px] text-muted-foreground truncate">
                               {format(new Date(t.date), "EEE, MMM d")}
                               {t.addedBy ? ` • ${t.addedBy}` : ""}

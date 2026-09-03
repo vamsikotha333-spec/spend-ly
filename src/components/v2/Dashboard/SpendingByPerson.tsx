@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Transaction } from "@/types/transaction";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { eachMonthOfInterval, isSameMonth, format, subMonths } from "date-fns";
+import { Trophy } from "lucide-react";
 
 
 interface SpendingByPersonProps {
