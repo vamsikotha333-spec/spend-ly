@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Pencil, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Pencil, Trash2, ChevronDown, ChevronUp, Trophy, TrendingUp, PiggyBank, ShieldAlert, AlertTriangle, CheckCircle2, type LucideIcon } from "lucide-react";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 import { cn } from "@/lib/utils";
 import { Budget } from "@/hooks/useBudgets";
 
@@ -26,14 +27,14 @@ export function BudgetCategoryCard({ item, index, onEdit, onDelete, variant = "e
   // Status semantics flip for savings: high % = good (closer to target)
   const statusConfig = isSavings
     ? {
-        over: { emoji: "🏆", label: noBudget ? "No Target Set" : "Target Reached", cls: "text-success", progressCls: "[&>div]:bg-success" },
-        warning: { emoji: "📈", label: "Almost There", cls: "text-success", progressCls: "[&>div]:bg-success" },
-        good: { emoji: "💰", label: "In Progress", cls: "text-primary", progressCls: "[&>div]:bg-primary" },
+        over: { Icon: Trophy as LucideIcon, label: noBudget ? "No Target Set" : "Target Reached", cls: "text-success", progressCls: "[&>div]:bg-success" },
+        warning: { Icon: TrendingUp as LucideIcon, label: "Almost There", cls: "text-success", progressCls: "[&>div]:bg-success" },
+        good: { Icon: PiggyBank as LucideIcon, label: "In Progress", cls: "text-primary", progressCls: "[&>div]:bg-primary" },
       }
     : {
-        over: { emoji: "🔴", label: noBudget ? "No Budget Set" : "Over Budget", cls: "text-destructive", progressCls: "[&>div]:bg-destructive" },
-        warning: { emoji: "⚠️", label: "Near Limit", cls: "text-warning", progressCls: "[&>div]:bg-warning" },
-        good: { emoji: "✅", label: "On Track", cls: "text-success", progressCls: "[&>div]:bg-success" },
+        over: { Icon: ShieldAlert as LucideIcon, label: noBudget ? "No Budget Set" : "Over Budget", cls: "text-destructive", progressCls: "[&>div]:bg-destructive" },
+        warning: { Icon: AlertTriangle as LucideIcon, label: "Near Limit", cls: "text-warning", progressCls: "[&>div]:bg-warning" },
+        good: { Icon: CheckCircle2 as LucideIcon, label: "On Track", cls: "text-success", progressCls: "[&>div]:bg-success" },
       };
   const cfg = statusConfig[item.status];
 
@@ -46,8 +47,9 @@ export function BudgetCategoryCard({ item, index, onEdit, onDelete, variant = "e
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base">{cfg.emoji}</span>
-            <span className="font-semibold text-sm text-foreground truncate">{item.category}</span>
+            <CategoryIcon category={item.category} className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="font-semibold text-sm text-foreground truncate">{categoryLabel(item.category)}</span>
+            <cfg.Icon className={cn("h-3.5 w-3.5 shrink-0", cfg.cls)} />
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <span className={`text-xs font-semibold ${cfg.cls}`}>{noBudget ? "—" : `${item.pct.toFixed(0)}%`}</span>

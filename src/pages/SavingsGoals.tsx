@@ -388,7 +388,7 @@ export default function SavingsGoals() {
                   </Button>
                   {isComplete && (
                     <div className="text-center py-1 mt-2 animate-fade-in">
-                      <span className="text-sm font-medium text-success">🎉 Goal Achieved!</span>
+                      <span className="text-sm font-medium text-success">Goal Achieved!</span>
                     </div>
                   )}
                 </Card>

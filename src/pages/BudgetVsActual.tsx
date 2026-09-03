@@ -324,9 +324,9 @@ export default function BudgetVsActual() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="over">Over / Reached 🔴</SelectItem>
-                  <SelectItem value="near">Near Limit ⚠️</SelectItem>
-                  <SelectItem value="under">Under / Early 🟢</SelectItem>
+                  <SelectItem value="over">Over / Reached</SelectItem>
+                  <SelectItem value="near">Near Limit</SelectItem>
+                  <SelectItem value="under">Under / Early</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
