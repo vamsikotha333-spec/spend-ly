@@ -10,6 +10,7 @@ import {
   Target,
   Wallet,
   ArrowRight,
+  Brain,
 } from "lucide-react";
 import { Transaction } from "@/types/transaction";
 import { Budget } from "@/hooks/useBudgets";

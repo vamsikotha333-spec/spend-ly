@@ -17,6 +17,7 @@ import {
   Wallet,
   ArrowUpRight,
   ArrowDownRight,
+  Users, Lightbulb as LightbulbIcon,
 } from "lucide-react";
 import { canonicalDisplay } from "@/utils/categoryNormalize";
 import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
