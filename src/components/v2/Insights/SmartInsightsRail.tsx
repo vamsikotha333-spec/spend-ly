@@ -123,16 +123,16 @@ export function SmartInsightsRail({ transactions, filtered, budgets }: Props) {
         const overPace = pct - expectedPct;
 
         let tone: InsightTone = "good";
-        let label = "🟢 Safe";
+        let label = "Safe";
         if (pct >= 100) {
           tone = "danger";
-          label = "🔴 Over budget";
+          label = "Over budget";
         } else if (pct >= 85 || overPace > 15) {
           tone = "warn";
-          label = "⚠️ At risk";
+          label = "At risk";
         } else if (pct >= 60) {
           tone = "info";
-          label = "🟡 Moderate";
+          label = "Moderate";
         }
 
         const dailySafe = daysLeft > 0 && remaining > 0 ? remaining / daysLeft : 0;
@@ -267,7 +267,7 @@ export function SmartInsightsRail({ transactions, filtered, budgets }: Props) {
     <section className="animate-slide-up" style={{ animationDelay: "60ms", animationFillMode: "both" }}>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-          🧠 Smart Insights
+          <Brain className="h-4 w-4 text-muted-foreground" /> Smart Insights
           <span className="text-[10px] font-medium text-muted-foreground ml-1">· {dateFilterLabel}</span>
         </h2>
         <Button variant="ghost" size="sm" asChild className="h-7 text-xs">

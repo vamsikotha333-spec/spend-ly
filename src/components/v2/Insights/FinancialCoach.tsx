@@ -19,6 +19,7 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import { canonicalDisplay } from "@/utils/categoryNormalize";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 import { isSameMonth, subMonths, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useMemberOptions } from "@/hooks/useMembers";
@@ -202,7 +203,7 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
           <Tabs value={person} onValueChange={(v) => setPerson(v)}>
             <TabsList className="bg-white/15 border border-white/20 flex-wrap h-auto">
               <TabsTrigger value="Combined" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
-                👨‍👩 Combined
+                <Users className="h-3.5 w-3.5 mr-1" /> Combined
               </TabsTrigger>
               {memberOptions.map((name) => (
                 <TabsTrigger
@@ -274,7 +275,7 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
           </div>
           {data.remaining > 0 && data.income > 0 && data.remaining / data.income > 0.15 && (
             <div className="mt-3 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-foreground">
-              💡 <strong>{fmtINR(data.remaining)}</strong> is untracked — log missing expenses, or redirect into investments.
+              <Lightbulb className="inline h-3.5 w-3.5 mr-1 -mt-0.5 text-amber-500" /><strong>{fmtINR(data.remaining)}</strong> is untracked — log missing expenses, or redirect into investments.
             </div>
           )}
         </Card>
@@ -295,14 +296,17 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
         </div>
         {data.leaks.length === 0 ? (
           <div className="text-center py-6 text-xs text-muted-foreground">
-            🎉 No major leaks detected. Discretionary spending looks controlled.
+            No major leaks detected. Discretionary spending looks controlled.
           </div>
         ) : (
           <div className="space-y-2">
             {data.leaks.map((l) => (
               <div key={l.cat} className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{l.cat}</p>
+                  <p className="text-sm font-semibold text-foreground truncate flex items-center gap-1.5">
+                    <CategoryIcon category={l.cat} className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    {categoryLabel(l.cat)}
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     {fmtINR(l.amt)} · {l.share.toFixed(0)}% of expenses
                     {l.prev > 0 && (
@@ -335,7 +339,7 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
                 const yearly = monthlyCut * 12;
                 return (
                   <div key={l.cat} className="p-3 rounded-lg bg-success/5 border border-success/20 text-[11px] leading-relaxed">
-                    Reducing <strong>{l.cat}</strong> by <strong className="text-success">{fmtINR(monthlyCut)}/mo</strong> could increase yearly savings by <strong className="text-success">{fmtINR(yearly)}</strong>.
+                    Reducing <strong>{categoryLabel(l.cat)}</strong> by <strong className="text-success">{fmtINR(monthlyCut)}/mo</strong> could increase yearly savings by <strong className="text-success">{fmtINR(yearly)}</strong>.
                   </div>
                 );
               })}
