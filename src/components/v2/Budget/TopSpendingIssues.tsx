@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Flame, AlertTriangle } from "lucide-react";
 
 interface BudgetComparison {
   category: string;
@@ -18,12 +19,12 @@ export function TopSpendingIssues({ comparison }: { comparison: BudgetComparison
 
   return (
     <Card className="p-4 shadow-soft">
-      <h3 className="text-sm font-semibold text-foreground mb-3">🔥 Top Spending Issues</h3>
+      <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5"><Flame className="h-4 w-4 text-warning" /> Top Spending Issues</h3>
       <div className="space-y-2">
         {issues.map((item, i) => (
           <div key={i} className="flex items-center justify-between text-sm py-1.5 border-b border-border/30 last:border-0">
             <div className="flex items-center gap-2">
-              <span>{item.status === "over" ? "🔥" : "⚠️"}</span>
+              {item.status === "over" ? <Flame className="h-4 w-4 text-destructive" /> : <AlertTriangle className="h-4 w-4 text-warning" />}
               <span className="font-medium text-foreground">{item.category}</span>
             </div>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${

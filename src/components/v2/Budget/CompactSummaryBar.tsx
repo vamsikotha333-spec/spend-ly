@@ -1,4 +1,5 @@
 import { getDaysInMonth, parseISO, differenceInCalendarDays } from "date-fns";
+import { Wallet, TrendingDown, PiggyBank, CalendarDays, ShieldCheck, AlertTriangle, ShieldAlert, type LucideIcon } from "lucide-react";
 
 interface Props {
   totalBudget: number;
@@ -18,9 +19,9 @@ export function CompactSummaryBar({ totalBudget, totalActual, selectedMonth }: P
   const overallPct = totalBudget > 0 ? (totalActual / totalBudget) * 100 : 0;
   const riskStatus = overallPct > 90 ? "risk" : overallPct > 70 ? "moderate" : "safe";
   const riskConfig = {
-    safe: { emoji: "🟢", label: "You are in safe zone", cls: "text-success" },
-    moderate: { emoji: "⚠️", label: "Budget getting tight", cls: "text-warning" },
-    risk: { emoji: "🔴", label: "High risk of overspending", cls: "text-destructive" },
+    safe: { Icon: ShieldCheck as LucideIcon, label: "You are in safe zone", cls: "text-success" },
+    moderate: { Icon: AlertTriangle as LucideIcon, label: "Budget getting tight", cls: "text-warning" },
+    risk: { Icon: ShieldAlert as LucideIcon, label: "High risk of overspending", cls: "text-destructive" },
   };
   const dailyStatus = riskConfig[riskStatus];
 
@@ -35,14 +36,14 @@ export function CompactSummaryBar({ totalBudget, totalActual, selectedMonth }: P
       <div className="flex items-center justify-between bg-card rounded-xl px-5 py-3.5 shadow-soft border border-border/50">
         <div className="flex items-center gap-6 md:gap-10 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-lg">💰</span>
+            <Wallet className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Budget</p>
               <p className="text-lg font-bold tabular-nums text-foreground">{fmt(totalBudget)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-lg">💸</span>
+            <TrendingDown className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Spent</p>
               <p className={`text-lg font-bold tabular-nums ${totalActual > totalBudget ? "text-destructive" : "text-foreground"}`}>
@@ -51,7 +52,7 @@ export function CompactSummaryBar({ totalBudget, totalActual, selectedMonth }: P
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-lg">🟢</span>
+            <PiggyBank className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Remaining</p>
               <p className={`text-lg font-bold tabular-nums ${remaining < 0 ? "text-destructive" : "text-success"}`}>
@@ -60,8 +61,8 @@ export function CompactSummaryBar({ totalBudget, totalActual, selectedMonth }: P
             </div>
           </div>
         </div>
-        <div className={`text-xs font-medium ${dailyStatus.cls} hidden md:block`}>
-          {dailyStatus.emoji} {dailyStatus.label}
+        <div className={`text-xs font-medium ${dailyStatus.cls} hidden md:flex items-center gap-1.5`}>
+          <dailyStatus.Icon className="h-3.5 w-3.5" /> {dailyStatus.label}
         </div>
       </div>
 
@@ -69,7 +70,7 @@ export function CompactSummaryBar({ totalBudget, totalActual, selectedMonth }: P
       {totalBudget > 0 && (
         <div className="flex items-center justify-between bg-card rounded-xl px-5 py-3 shadow-soft border border-border/50">
           <div className="flex items-center gap-2 text-sm">
-            <span>📅</span>
+            <CalendarDays className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">
               You can spend <strong className="text-foreground">{fmt(dailyBudget)}/day</strong> to stay within budget
             </span>
@@ -79,7 +80,7 @@ export function CompactSummaryBar({ totalBudget, totalActual, selectedMonth }: P
             riskStatus === "moderate" ? "bg-warning/10 text-warning" :
             "bg-destructive/10 text-destructive"
           }`}>
-            {riskStatus === "safe" ? "🟢 Safe" : riskStatus === "moderate" ? "⚠️ Moderate" : "🔴 Risk"}
+            {riskStatus === "safe" ? "Safe" : riskStatus === "moderate" ? "Moderate" : "Risk"}
           </span>
         </div>
       )}

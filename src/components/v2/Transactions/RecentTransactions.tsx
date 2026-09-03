@@ -2,18 +2,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { TrendingUp, TrendingDown, PiggyBank, Edit, Eye } from "lucide-react";
+import { Edit, Eye, ClipboardList } from "lucide-react";
 import { Transaction } from "@/types/transaction";
 import { cn } from "@/lib/utils";
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  "Rent": "🏠", "Groceries": "🛒", "Vegetables": "🥬", "Dining": "🍽️", "Transport": "🚗",
-  "Health": "🏥", "Shopping": "🛍️", "Utilities": "💡", "Education": "📚", "Entertainment": "🎬",
-  "Fuel": "⛽", "Insurance": "🛡️", "EMI": "🏦", "Subscriptions": "📱", "Clothing": "👕",
-  "Personal Care": "💇", "Gifts": "🎁", "Travel": "✈️", "Home Maintenance": "🔧",
-  "Phone": "📞", "Internet": "🌐", "Salary": "💼", "Freelance": "💻", "Investment": "📈",
-  "Other": "📦",
-};
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
@@ -27,7 +19,7 @@ export function RecentTransactions({ transactions, onViewAll, onEdit }: RecentTr
   return (
     <Card className="p-6 border animate-fade-in" style={{ animationDelay: "350ms", animationFillMode: "both" }}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">📋 Recent Transactions</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5"><ClipboardList className="h-4 w-4" /> Recent Transactions</h3>
         <Button variant="outline" size="sm" onClick={onViewAll}>
           <Eye className="mr-2 h-4 w-4" />
           View All
@@ -41,7 +33,6 @@ export function RecentTransactions({ transactions, onViewAll, onEdit }: RecentTr
           recentTransactions.map((transaction, index) => {
             const type = transaction.transaction_type || (transaction.type === "credit" ? "Income" : "Expense");
             const amountSign = type === "Income" ? "+" : type === "Savings" ? "" : "-";
-            const emoji = CATEGORY_EMOJIS[transaction.category] || "📦";
             
             return (
               <div
@@ -50,10 +41,12 @@ export function RecentTransactions({ transactions, onViewAll, onEdit }: RecentTr
                 style={{ animationDelay: `${400 + index * 60}ms`, animationFillMode: "both" }}
               >
                 <div className="flex items-center gap-4 flex-1">
-                  <span className="text-2xl">{emoji}</span>
+                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0">
+                    <CategoryIcon category={transaction.category} className="h-4 w-4 text-muted-foreground" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold truncate text-sm">{transaction.category}</p>
+                      <p className="font-semibold truncate text-sm">{categoryLabel(transaction.category)}</p>
                       <Badge variant="outline" className="text-[10px] h-5 rounded-md">
                         {transaction.applicable_to || "Central"}
                       </Badge>

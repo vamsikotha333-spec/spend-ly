@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 import { Search, Download, Edit, Trash2, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -191,11 +192,11 @@ export default function Transactions() {
                       type === "Expense" && "bg-destructive/10",
                       type === "Savings" && "bg-info/10"
                     )}>
-                      {getIcon(t)}
+                      <CategoryIcon category={t.category} className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm truncate">{t.category}</span>
+                        <span className="font-medium text-sm truncate">{categoryLabel(t.category)}</span>
                         <Badge variant="outline" className="text-[10px] h-5">{t.applicable_to || "Central"}</Badge>
                       </div>
                       {t.description && <p className="text-xs text-muted-foreground truncate">{t.description}</p>}

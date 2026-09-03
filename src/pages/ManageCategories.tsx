@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Search, Tag, Loader2, Plus } from "lucide-react";
+import { Search, Tag, Loader2, Plus, Globe, User } from "lucide-react";
 import { toast } from "sonner";
 import {
   useCategories,
@@ -168,7 +168,7 @@ export default function ManageCategories() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 px-1">
                               <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                🌍 Default Categories
+                                <Globe className="inline h-3.5 w-3.5 mr-1 -mt-0.5" />Default Categories
                               </h3>
                               <Badge variant="outline" className="h-5 text-[10px]">
                                 {defaults.length}
@@ -193,7 +193,7 @@ export default function ManageCategories() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 px-1">
                               <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                👤 My Categories
+                                <User className="inline h-3.5 w-3.5 mr-1 -mt-0.5" />My Categories
                               </h3>
                               <Badge variant="outline" className="h-5 text-[10px]">
                                 {custom.length}

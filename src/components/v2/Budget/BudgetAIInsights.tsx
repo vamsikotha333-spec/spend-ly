@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { Brain } from "lucide-react";
+import { Brain, AlertTriangle, TrendingDown, Target, CheckCircle2, type LucideIcon } from "lucide-react";
 
 interface BudgetComparison {
   category: string;
@@ -12,7 +12,7 @@ interface BudgetComparison {
 
 export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[] }) {
   const insights = useMemo(() => {
-    const result: { emoji: string; text: string; type: "danger" | "warning" | "success" }[] = [];
+    const result: { Icon: LucideIcon; text: string; type: "danger" | "warning" | "success" }[] = [];
 
     // Over budget
     comparison
@@ -22,7 +22,7 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
       .forEach((c) => {
         const exceeded = c.actual - c.budget_amount;
         result.push({
-          emoji: "⚠️",
+          Icon: AlertTriangle,
           text: `${c.category} exceeded by ₹${exceeded.toLocaleString("en-IN")} (${c.pct.toFixed(0)}%)`,
           type: "danger",
         });
@@ -35,7 +35,7 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
       .slice(0, 2)
       .forEach((c) => {
         result.push({
-          emoji: "📉",
+          Icon: TrendingDown,
           text: `${c.category} is close to limit (${c.pct.toFixed(0)}%)`,
           type: "warning",
         });
@@ -47,7 +47,7 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
       .slice(0, 1)
       .forEach((c) => {
         result.push({
-          emoji: "💡",
+          Icon: Target,
           text: `${c.category} budget untouched`,
           type: "success",
         });
@@ -58,7 +58,7 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
     if (diningLike) {
       const saveable = Math.round(diningLike.actual * 0.3);
       result.push({
-        emoji: "🎯",
+        Icon: Target,
         text: `You can save ₹${saveable.toLocaleString("en-IN")} by reducing ${diningLike.category}`,
         type: "success",
       });
@@ -68,7 +68,7 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
     const safeCount = comparison.filter((c) => c.pct < 70).length;
     if (safeCount > 0 && result.length < 4) {
       result.push({
-        emoji: "✅",
+        Icon: CheckCircle2,
         text: `${safeCount} categor${safeCount > 1 ? "ies" : "y"} on track — great job!`,
         type: "success",
       });
@@ -89,7 +89,7 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
     <Card className="p-5 shadow-soft bg-[var(--gradient-insight)] overflow-hidden">
       <div className="flex items-center gap-2 mb-4">
         <Brain className="h-5 w-5 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">🤖 AI Budget Insights</h3>
+        <h3 className="text-sm font-semibold text-foreground">AI Budget Insights</h3>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {insights.map((insight, i) => (
@@ -98,8 +98,10 @@ export function BudgetAIInsights({ comparison }: { comparison: BudgetComparison[
             className={`border-l-4 ${borderColors[insight.type]} bg-card/80 backdrop-blur-sm rounded-lg px-4 py-3 text-sm animate-fade-in`}
             style={{ animationDelay: `${i * 80}ms`, animationFillMode: "both" }}
           >
-            <span className="mr-2">{insight.emoji}</span>
-            <span className="text-foreground/90">{insight.text}</span>
+            <span className="flex items-start gap-2">
+              <insight.Icon className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+              <span className="text-foreground/90">{insight.text}</span>
+            </span>
           </div>
         ))}
       </div>
