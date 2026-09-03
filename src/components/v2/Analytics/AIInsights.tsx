@@ -28,6 +28,7 @@ import { format, eachMonthOfInterval, isSameMonth, startOfMonth, endOfMonth, sub
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 import ReactMarkdown from "react-markdown";
 import { PeriodComparison } from "./PeriodComparison";
 import { useSavingsGoals } from "@/hooks/useSavingsGoals";
@@ -165,7 +166,8 @@ function CategoryBar({ cat, index, maxAmount }: { cat: StructuredInsights["topCa
     <div className="animate-slide-up" style={{ animationDelay: `${300 + index * 60}ms`, animationFillMode: "both" }}>
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-medium truncate max-w-[140px]">{cat.category}</span>
+          <CategoryIcon category={cat.category} className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <span className="text-xs font-medium truncate max-w-[140px]">{categoryLabel(cat.category)}</span>
           {cat.trend === "up" && <ArrowUpRight className="h-3 w-3 text-destructive" />}
           {cat.trend === "down" && <ArrowDownRight className="h-3 w-3 text-success" />}
           {cat.trend === "stable" && <Minus className="h-3 w-3 text-muted-foreground" />}

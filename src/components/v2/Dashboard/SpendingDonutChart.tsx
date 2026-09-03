@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Transaction } from "@/types/transaction";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 
 interface SpendingDonutChartProps {
   transactions: Transaction[];
@@ -23,7 +24,7 @@ export function SpendingDonutChart({ transactions }: SpendingDonutChartProps) {
   const data = Object.entries(catMap)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 8)
-    .map(([name, value]) => ({ name: name.replace(/^[^\w]*\s/, ""), value }));
+    .map(([name, value]) => ({ name: categoryLabel(name) || name, raw: name, value }));
 
   const total = data.reduce((s, d) => s + d.value, 0);
 
@@ -61,6 +62,7 @@ export function SpendingDonutChart({ transactions }: SpendingDonutChartProps) {
             {data.map((d, i) => (
               <div key={d.name} className="flex items-center gap-2 text-xs animate-fade-in" style={{ animationDelay: `${400 + i * 50}ms`, animationFillMode: "both" }}>
                 <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                <CategoryIcon category={d.raw} className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <span className="truncate max-w-[140px]">{d.name}</span>
                 <span className="ml-auto font-medium tabular-nums">{((d.value / total) * 100).toFixed(0)}%</span>
               </div>

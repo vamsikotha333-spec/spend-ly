@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { CategoryIcon, categoryLabel } from "@/utils/categoryIcon";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Transaction } from "@/types/transaction";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
@@ -44,7 +45,7 @@ export function CategoryDistributionChart({ transactions }: Props) {
     return Object.entries(map)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 8)
-      .map(([name, value]) => ({ name, value }));
+      .map(([name, value]) => ({ name: categoryLabel(name) || name, raw: name, value }));
   }, [transactions, type]);
 
   const total = data.reduce((s, d) => s + d.value, 0);

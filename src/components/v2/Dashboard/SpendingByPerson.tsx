@@ -167,7 +167,7 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
             {highest && (
               <div className="p-4 rounded-lg bg-warning/10 border border-warning/20 animate-scale-in">
                 <p className="text-sm font-semibold text-foreground">
-                  🏆 Highest Spender: <span className="text-warning">{highest.name}</span>
+                  <Trophy className="inline h-4 w-4 text-warning mr-1 -mt-0.5" />Highest Spender: <span className="text-warning">{highest.name}</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   ₹{highest.value.toLocaleString("en-IN", { minimumFractionDigits: 2 })} ({total > 0 ? ((highest.value / total) * 100).toFixed(0) : 0}% of total expenses)
@@ -194,7 +194,11 @@ export function SpendingByPerson({ transactions }: SpendingByPersonProps) {
                     const catPct = personMap[person] > 0 ? (cat.amount / personMap[person]) * 100 : 0;
                     return (
                       <div key={cat.category} className="flex items-center justify-between text-xs">
-                        <span className="truncate max-w-[180px] text-muted-foreground">{ci + 1}. {cat.category}</span>
+                        <span className="truncate max-w-[180px] text-muted-foreground flex items-center gap-1.5">
+                          <span className="tabular-nums">{ci + 1}.</span>
+                          <CategoryIcon category={cat.category} className="h-3.5 w-3.5 shrink-0" />
+                          {categoryLabel(cat.category)}
+                        </span>
                         <span className="tabular-nums font-medium">₹{cat.amount.toLocaleString("en-IN")} <span className="text-muted-foreground">({catPct.toFixed(0)}%)</span></span>
                       </div>
                     );

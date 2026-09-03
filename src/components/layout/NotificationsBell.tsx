@@ -25,7 +25,7 @@ export function NotificationsBell() {
           <p className="text-[11px] text-muted-foreground">Smart alerts about your money</p>
         </div>
         <div className="p-6 text-center">
-          <span className="text-3xl block mb-2">🔔</span>
+          <Bell className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
           <p className="text-xs font-semibold text-foreground">You're all caught up</p>
           <p className="text-[11px] text-muted-foreground mt-1">
             We'll alert you about budgets, large transactions and goal milestones.
