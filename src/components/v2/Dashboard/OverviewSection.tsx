@@ -330,68 +330,67 @@ export function OverviewSection() {
         {/* Net Cashflow / Savings Rate — the "how am I doing right now" band */}
         <section className="animate-fade-in" style={{ animationDelay: "40ms", animationFillMode: "both" }}>
 
-          <Card className="relative overflow-hidden shadow-soft p-4 md:p-5" style={{ background: "var(--gradient-primary)" }}>
-            <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-8 w-56 h-56 rounded-full bg-white/5 blur-3xl pointer-events-none" />
-            <div className="relative">
+          <Card className="p-5">
+            <div>
               <div className="flex items-start justify-between mb-3 flex-wrap gap-2">
                 <div>
-                  <p className="text-[10px] font-semibold text-primary-foreground/70 uppercase tracking-widest mb-0.5">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">
                     {dateFilterLabel} Overview
                   </p>
-                  <h2 className="text-sm md:text-base font-bold text-primary-foreground flex items-center gap-2">
+                  <h2 className="text-sm md:text-base font-bold text-foreground flex items-center gap-2">
                     Net Cashflow
-                    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-white/20 text-primary-foreground uppercase tracking-wider">
+                    <StatusBadge tone={netCashflow >= 0 ? "positive" : "negative"}>
                       {netCashflow >= 0 ? "Positive" : "Negative"}
-                    </span>
+                    </StatusBadge>
                   </h2>
-                  <p className="text-xl md:text-2xl font-bold text-primary-foreground tabular-nums tracking-tight mt-0.5">
+                  <p className={cn("text-xl md:text-2xl font-bold tabular-nums tracking-tight mt-0.5", netCashflow >= 0 ? TONE_TEXT.positive : TONE_TEXT.negative)}>
                     {netCashflow >= 0 ? "+" : "-"}{formatCompactINR(Math.abs(netCashflow))}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-semibold text-primary-foreground/70 uppercase tracking-widest mb-0.5">Savings Rate</p>
-                  <p className="text-xl md:text-2xl font-bold text-primary-foreground tabular-nums">{stats.savingsRate.toFixed(0)}%</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">Savings Rate</p>
+                  <p className="text-xl md:text-2xl font-bold text-foreground tabular-nums">{stats.savingsRate.toFixed(0)}%</p>
                 </div>
               </div>
 
               {stats.income > 0 ? (
                 <>
                   {/* Bar represents 100% of income, split into expense / savings / remaining */}
-                  <div className="h-2 w-full rounded-full overflow-hidden flex bg-white/15 ring-1 ring-white/20 shadow-inner">
+                  <div className="h-2 w-full rounded-full overflow-hidden flex bg-muted">
                     <div className="h-full bg-destructive transition-all duration-500" style={{ width: `${Math.min(100, expenseRatio)}%` }} />
                     <div className="h-full bg-info transition-all duration-500" style={{ width: `${Math.min(100, savingsRatio)}%` }} />
-                    <div className="h-full bg-success/60 transition-all duration-500" style={{ width: `${remainingRatio}%` }} />
+                    <div className="h-full bg-success transition-all duration-500" style={{ width: `${remainingRatio}%` }} />
                   </div>
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-success ring-2 ring-white/30 shrink-0" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-success shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Income</p>
-                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{formatCompactINR(stats.income)}</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Income</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">{formatCompactINR(stats.income)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-destructive ring-2 ring-white/30 shrink-0" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-destructive shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Expense Ratio</p>
-                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{expenseRatio.toFixed(0)}%</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Expense Ratio</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">{expenseRatio.toFixed(0)}%</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-info ring-2 ring-white/30 shrink-0" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-info shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-[10px] text-primary-foreground/70 font-medium uppercase tracking-wider">Savings Rate</p>
-                        <p className="text-sm font-bold text-primary-foreground tabular-nums">{savingsRatio.toFixed(0)}%</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Savings Rate</p>
+                        <p className="text-sm font-bold text-foreground tabular-nums">{savingsRatio.toFixed(0)}%</p>
                       </div>
                     </div>
                   </div>
                 </>
               ) : (
-                <p className="text-sm text-primary-foreground/80">Add transactions to see your monthly overview.</p>
+                <p className="text-sm text-muted-foreground">Add transactions to see your monthly overview.</p>
               )}
             </div>
           </Card>
+
         </section>
 
         {/* 2. Smart Insights — budget + period-aware, driven by global filter */}
