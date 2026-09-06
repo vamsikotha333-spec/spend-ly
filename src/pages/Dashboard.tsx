@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { useTransactions } from "@/hooks/useTransactions";
-import { useFilters } from "@/contexts/FilterContext";
+import { DashboardDataProvider, useDashboardData } from "@/contexts/DashboardDataContext";
 import { OverviewSection } from "@/components/v2/Dashboard/OverviewSection";
 import { MonthlySnapshot } from "@/components/v2/Dashboard/MonthlySnapshot";
 import { IncomeExpenseChart } from "@/components/v2/Dashboard/IncomeExpenseChart";
@@ -20,15 +19,24 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 export default function Dashboard() {
-  const { transactions, isLoading, addTransaction, updateTransaction } = useTransactions();
-  const { getFilteredTransactions } = useFilters();
+  return (
+    <DashboardDataProvider>
+      <DashboardInner />
+    </DashboardDataProvider>
+  );
+}
+
+function DashboardInner() {
+  const { scoped, isLoading, addTransaction, updateTransaction } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState("");
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
   const [showAllTransactions, setShowAllTransactions] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
 
-  const filteredTransactions = useMemo(() => {
-    let result = getFilteredTransactions(transactions);
+  // Search only narrows the transaction LIST; all totals/analytics use `scoped`
+  // so every section agrees for the selected period.
+  const searchedTransactions = useMemo(() => {
+    let result = scoped;
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       // People search uses "Applicable To" only — "Added By" stays audit-only data.
@@ -40,7 +48,7 @@ export default function Dashboard() {
       );
     }
     return result;
-  }, [transactions, searchTerm, getFilteredTransactions]);
+  }, [scoped, searchTerm]);
 
   const handleAddTransaction = async (transaction: Omit<Transaction, "id">) => {
     try {
@@ -110,21 +118,21 @@ export default function Dashboard() {
         {/* 2 — Monthly Snapshot */}
         <section className="space-y-3">
           <SectionTitle title="Monthly Snapshot" hint="Spend, savings rate and top category" />
-          <MonthlySnapshot transactions={filteredTransactions} />
+          <MonthlySnapshot transactions={scoped} />
         </section>
 
         {/* 3 — Financial Performance */}
         <section className="space-y-3">
           <SectionTitle title="Financial Performance" hint="Income vs Expenses vs Savings" />
-          <IncomeExpenseChart transactions={filteredTransactions} />
+          <IncomeExpenseChart transactions={scoped} />
         </section>
 
         {/* 4 — Spending Analysis + Applicable To Analysis */}
         <section className="space-y-3">
           <SectionTitle title="Spending Analysis" hint="Where the money goes, and who it applies to" />
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 items-start">
-            <SpendingDonutChart transactions={filteredTransactions} />
-            <SpendingByPerson transactions={filteredTransactions} />
+            <SpendingDonutChart transactions={scoped} />
+            <SpendingByPerson transactions={scoped} />
           </div>
         </section>
 
@@ -141,7 +149,7 @@ export default function Dashboard() {
         <section className="space-y-3">
           <SectionTitle title="Recent Transactions" hint="Latest activity for this period" />
           <RecentTransactions
-            transactions={filteredTransactions}
+            transactions={searchedTransactions}
             onViewAll={() => setShowAllTransactions(true)}
             onEdit={(t) => { setEditingTransaction(t); setShowQuickAdd(true); }}
           />
@@ -150,7 +158,7 @@ export default function Dashboard() {
         <TransactionDialog
           open={showAllTransactions}
           onOpenChange={setShowAllTransactions}
-          transactions={filteredTransactions}
+          transactions={searchedTransactions}
           onEdit={(t) => { setEditingTransaction(t); setShowQuickAdd(true); }}
         />
       </div>
