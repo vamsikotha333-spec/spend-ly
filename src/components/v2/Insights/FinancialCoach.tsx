@@ -188,30 +188,26 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
   return (
     <div className="space-y-4">
       {/* Header with person filter */}
-      <Card className="p-4 md:p-5 shadow-soft" style={{ background: "var(--gradient-primary)" }}>
+      <Card className="p-5 border shadow-soft">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-primary-foreground/70 uppercase tracking-widest mb-1">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">
               AI Financial Coach
             </p>
-            <h2 className="text-base md:text-lg font-bold text-primary-foreground flex items-center gap-2">
-              <Sparkles className="h-4 w-4" /> {greeting} 👋
+            <h2 className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" /> {greeting}
             </h2>
-            <p className="text-xs text-primary-foreground/85 mt-1 max-w-xl leading-relaxed">
+            <p className="text-xs text-muted-foreground mt-1 max-w-xl leading-relaxed">
               Personalized analysis of spending behavior, money leaks, and savings opportunities — updated live with your data.
             </p>
           </div>
           <Tabs value={person} onValueChange={(v) => setPerson(v)}>
-            <TabsList className="bg-white/15 border border-white/20 flex-wrap h-auto">
-              <TabsTrigger value="Combined" className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary">
+            <TabsList className="flex-wrap h-auto">
+              <TabsTrigger value="Combined" className="text-xs">
                 <Users className="h-3.5 w-3.5 mr-1" /> Combined
               </TabsTrigger>
               {memberOptions.map((name) => (
-                <TabsTrigger
-                  key={name}
-                  value={name}
-                  className="text-xs data-[state=active]:bg-white data-[state=active]:text-primary"
-                >
+                <TabsTrigger key={name} value={name} className="text-xs">
                   {name}
                 </TabsTrigger>
               ))}
@@ -219,6 +215,7 @@ export function FinancialCoach({ transactions, allTransactions }: Props) {
           </Tabs>
         </div>
       </Card>
+
 
       {/* Health Score + Key metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
