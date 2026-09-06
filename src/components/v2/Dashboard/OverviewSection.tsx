@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useTransactions } from "@/hooks/useTransactions";
+import { useDashboardData } from "@/contexts/DashboardDataContext";
+import { getTxType } from "@/lib/totals";
 import { useSavingsGoals } from "@/hooks/useSavingsGoals";
 import { useBudgets } from "@/hooks/useBudgets";
 import { useFilters } from "@/contexts/FilterContext";
@@ -28,9 +29,7 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 
 
 
-function getType(t: any) {
-  return t.transaction_type || (t.type === "credit" ? "Income" : "Expense");
-}
+const getType = getTxType;
 
 function formatCompactINR(n: number) {
   const abs = Math.abs(n);
@@ -41,10 +40,10 @@ function formatCompactINR(n: number) {
 }
 
 export function OverviewSection() {
-  const { transactions, isLoading } = useTransactions();
+  const { transactions, scoped: scopedTransactions, totals, isLoading } = useDashboardData();
   const { goals } = useSavingsGoals();
   const { budgets } = useBudgets();
-  const { filters, getFilteredTransactions, dateFilterLabel } = useFilters();
+  const { filters, dateFilterLabel } = useFilters();
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
@@ -67,19 +66,12 @@ export function OverviewSection() {
     return () => { active = false; };
   }, []);
 
-  // Use global date filter (month/range/all)
-  const scopedTransactions = useMemo(
-    () => getFilteredTransactions(transactions),
-    [transactions, getFilteredTransactions]
-  );
   const selectedDate = filters.mode === "month" ? filters.selectedMonth : null;
 
   const stats = useMemo(() => {
     const scoped = scopedTransactions;
-    const income = scoped.filter((t) => getType(t) === "Income").reduce((s, t) => s + t.amount, 0);
-    const expenses = scoped.filter((t) => getType(t) === "Expense").reduce((s, t) => s + t.amount, 0);
-    const savings = scoped.filter((t) => getType(t) === "Savings").reduce((s, t) => s + t.amount, 0);
-    const savingsRate = income > 0 ? ((savings / income) * 100) : 0;
+    // Single source of truth — shared with every other dashboard section.
+    const { income, expenses, savings, savingsRate } = totals;
 
     // Today vs Yesterday
     const yesterday = subDays(now, 1);
@@ -193,7 +185,7 @@ export function OverviewSection() {
       sparkIncome, sparkExpenses, sparkSavings, sparkRemaining,
       deltas,
     };
-  }, [transactions, scopedTransactions]);
+  }, [transactions, scopedTransactions, totals]);
 
   if (isLoading) return null;
 

@@ -30,7 +30,19 @@ export function useCountUp(target: number, duration = 1500, startDelay = 100) {
     const timer = window.setTimeout(() => {
       raf = requestAnimationFrame(tick);
     }, startDelay);
+    // If the tab is hidden, rAF pauses and the counter can freeze mid-animation
+    // showing a value lower than the real total. Snap to the final number instead.
+    const snap = () => {
+      if (document.hidden) {
+        if (raf) cancelAnimationFrame(raf);
+        setValue(target);
+        setDone(true);
+      }
+    };
+    document.addEventListener("visibilitychange", snap);
+    if (document.hidden) snap();
     return () => {
+      document.removeEventListener("visibilitychange", snap);
       window.clearTimeout(timer);
       if (raf) cancelAnimationFrame(raf);
     };
