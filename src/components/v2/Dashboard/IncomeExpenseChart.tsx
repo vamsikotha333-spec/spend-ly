@@ -7,6 +7,15 @@ interface IncomeExpenseChartProps {
   transactions: Transaction[];
 }
 
+function formatAxisINR(n: number) {
+  const abs = Math.abs(n);
+  const sign = n < 0 ? "-" : "";
+  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(1)}Cr`;
+  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(1)}L`;
+  if (abs >= 1000) return `${sign}₹${Math.round(abs / 1000)}K`;
+  return `${sign}₹${abs}`;
+}
+
 export function IncomeExpenseChart({ transactions }: IncomeExpenseChartProps) {
   const now = new Date();
   const start = subMonths(now, 5);
@@ -34,7 +43,7 @@ export function IncomeExpenseChart({ transactions }: IncomeExpenseChartProps) {
           <BarChart data={data} barGap={4}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-            <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+            <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} tickFormatter={formatAxisINR} />
             <Tooltip
               formatter={(value: number) => `₹${value.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
               contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }}

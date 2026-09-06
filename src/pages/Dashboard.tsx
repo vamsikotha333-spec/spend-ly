@@ -9,7 +9,6 @@ import { SpendingByPerson } from "@/components/v2/Dashboard/SpendingByPerson";
 import { RecentTransactions } from "@/components/v2/Transactions/RecentTransactions";
 import { NetWorthCard } from "@/components/v2/Home/NetWorthCard";
 import { CashFlowForecast } from "@/components/v2/Home/CashFlowForecast";
-import { LoggingStreak } from "@/components/v2/Home/LoggingStreak";
 import { TransactionFormV2 } from "@/components/v2/Transactions/TransactionFormV2";
 import { TransactionDialog } from "@/components/v2/Transactions/TransactionDialog";
 import { AdvancedFilter } from "@/components/v2/Dashboard/AdvancedFilter";
@@ -132,10 +131,9 @@ export default function Dashboard() {
         {/* 5 — Position & Planning */}
         <section className="space-y-3">
           <SectionTitle title="Position & Planning" hint="Net worth and projected cash flow" />
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 items-start">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 items-start">
             <NetWorthCard />
             <CashFlowForecast />
-            <LoggingStreak transactions={transactions} />
           </div>
         </section>
 
