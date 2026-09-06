@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Transaction } from "@/types/transaction";
-import { isSameMonth } from "date-fns";
+import { computeTotals, getTxType } from "@/lib/totals";
 import { CalendarDays, TrendingUp, Tag } from "lucide-react";
 
 interface MonthlySnapshotProps {
@@ -8,16 +8,13 @@ interface MonthlySnapshotProps {
 }
 
 export function MonthlySnapshot({ transactions }: MonthlySnapshotProps) {
-  const now = new Date();
-  const thisMonth = transactions.filter((t) => isSameMonth(t.date, now));
-
-  const income = thisMonth.filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Income").reduce((s, t) => s + t.amount, 0);
-  const expenses = thisMonth.filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense").reduce((s, t) => s + t.amount, 0);
-  const savings = thisMonth.filter((t) => t.transaction_type === "Savings").reduce((s, t) => s + t.amount, 0);
-  const savingsRate = income > 0 ? ((savings / income) * 100).toFixed(1) : "0.0";
+  // Already scoped to the selected period by the dashboard — never re-filter here.
+  const scoped = transactions;
+  const { expenses, savingsRate: rate } = computeTotals(scoped);
+  const savingsRate = rate.toFixed(1);
 
   const catMap: Record<string, number> = {};
-  thisMonth.filter((t) => (t.transaction_type || (t.type === "credit" ? "Income" : "Expense")) === "Expense")
+  scoped.filter((t) => getTxType(t) === "Expense")
     .forEach((t) => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
   const topCategory = Object.entries(catMap).sort(([, a], [, b]) => b - a)[0];
 
@@ -29,7 +26,7 @@ export function MonthlySnapshot({ transactions }: MonthlySnapshotProps) {
 
   return (
     <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "100ms", animationFillMode: "both" }}>
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">This Month's Snapshot</h3>
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Snapshot</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {items.map((item, i) => {
           const Icon = item.icon;
