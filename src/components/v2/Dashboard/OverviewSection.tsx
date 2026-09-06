@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDashboardData } from "@/contexts/DashboardDataContext";
-import { computeTotals, getTxType } from "@/lib/totals";
+import { getTxType } from "@/lib/totals";
 import { useSavingsGoals } from "@/hooks/useSavingsGoals";
 import { useBudgets } from "@/hooks/useBudgets";
 import { useFilters } from "@/contexts/FilterContext";
