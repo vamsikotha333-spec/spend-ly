@@ -38,6 +38,10 @@ interface SpendingCategoryTableProps {
 const getTxnType = (t: Transaction): TxnType =>
   (t.transaction_type as TxnType) || (t.type === "credit" ? "Income" : "Expense");
 
+/** Indian (lakh/crore) comma grouping with 2 decimals, matching the app's shared currency formatting. */
+const fmtINR = (n: number) =>
+  `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
 const TAB_META: Record<TxnType, { label: string; heading: string; sortLabels: { desc: string; asc: string } }> = {
   Expense: { label: "Expenses", heading: "Spending by Category", sortLabels: { desc: "Highest Spending", asc: "Lowest Spending" } },
   Savings: { label: "Savings", heading: "Savings by Category", sortLabels: { desc: "Highest Savings", asc: "Lowest Savings" } },
