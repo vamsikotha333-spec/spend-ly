@@ -38,6 +38,10 @@ interface SpendingCategoryTableProps {
 const getTxnType = (t: Transaction): TxnType =>
   (t.transaction_type as TxnType) || (t.type === "credit" ? "Income" : "Expense");
 
+/** Indian (lakh/crore) comma grouping with 2 decimals, matching the app's shared currency formatting. */
+const fmtINR = (n: number) =>
+  `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
 const TAB_META: Record<TxnType, { label: string; heading: string; sortLabels: { desc: string; asc: string } }> = {
   Expense: { label: "Expenses", heading: "Spending by Category", sortLabels: { desc: "Highest Spending", asc: "Lowest Spending" } },
   Savings: { label: "Savings", heading: "Savings by Category", sortLabels: { desc: "Highest Savings", asc: "Lowest Savings" } },
@@ -257,12 +261,12 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
                       const amount = row.months[month.toISOString()];
                       return (
                         <TableCell key={month.toISOString()} className="text-right tabular-nums">
-                          {amount > 0 ? `₹${amount.toFixed(2)}` : "-"}
+                          {amount > 0 ? fmtINR(amount) : "-"}
                         </TableCell>
                       );
                     })}
                     <TableCell className="text-right font-bold bg-muted/30 tabular-nums">
-                      {row.total > 0 ? `₹${row.total.toFixed(2)}` : "-"}
+                      {row.total > 0 ? fmtINR(row.total) : "-"}
                     </TableCell>
                   </TableRow>
                 );
@@ -273,13 +277,13 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
                 {months.map((month) => {
                   const monthKey = month.toISOString();
                   return (
-                    <TableCell key={monthKey} className="text-right tabular-nums">
-                      ₹{columnTotals[monthKey].toFixed(2)}
+                      <TableCell key={monthKey} className="text-right tabular-nums">
+                      {fmtINR(columnTotals[monthKey])}
                     </TableCell>
                   );
                 })}
                 <TableCell className="text-right bg-muted tabular-nums">
-                  ₹{grandTotal.toFixed(2)}
+                  {fmtINR(grandTotal)}
                 </TableCell>
               </TableRow>
             </TableBody>
