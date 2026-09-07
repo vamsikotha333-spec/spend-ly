@@ -261,12 +261,12 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
                       const amount = row.months[month.toISOString()];
                       return (
                         <TableCell key={month.toISOString()} className="text-right tabular-nums">
-                          {amount > 0 ? `₹${amount.toFixed(2)}` : "-"}
+                          {amount > 0 ? fmtINR(amount) : "-"}
                         </TableCell>
                       );
                     })}
                     <TableCell className="text-right font-bold bg-muted/30 tabular-nums">
-                      {row.total > 0 ? `₹${row.total.toFixed(2)}` : "-"}
+                      {row.total > 0 ? fmtINR(row.total) : "-"}
                     </TableCell>
                   </TableRow>
                 );
