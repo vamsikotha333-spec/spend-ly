@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          member: string | null
           name: string
           notes: string | null
           type: string
@@ -28,6 +29,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          member?: string | null
           name: string
           notes?: string | null
           type: string
@@ -38,6 +40,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          member?: string | null
           name?: string
           notes?: string | null
           type?: string
@@ -311,6 +314,7 @@ export type Database = {
           created_at: string
           id: string
           interest_rate: number | null
+          member: string | null
           name: string
           notes: string | null
           type: string
@@ -322,6 +326,7 @@ export type Database = {
           created_at?: string
           id?: string
           interest_rate?: number | null
+          member?: string | null
           name: string
           notes?: string | null
           type: string
@@ -333,6 +338,7 @@ export type Database = {
           created_at?: string
           id?: string
           interest_rate?: number | null
+          member?: string | null
           name?: string
           notes?: string | null
           type?: string
@@ -391,6 +397,39 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      net_worth_snapshots: {
+        Row: {
+          assets_total: number
+          created_at: string
+          id: string
+          liabilities_total: number
+          net_worth: number
+          snapshot_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assets_total?: number
+          created_at?: string
+          id?: string
+          liabilities_total?: number
+          net_worth?: number
+          snapshot_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assets_total?: number
+          created_at?: string
+          id?: string
+          liabilities_total?: number
+          net_worth?: number
+          snapshot_date?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

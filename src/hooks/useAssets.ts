@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AssetType = "cash" | "bank" | "investment" | "gold" | "other";
+export type AssetType = "cash" | "bank" | "investment" | "gold" | "real_estate" | "other";
 
 export interface Asset {
   id: string;
@@ -11,6 +11,7 @@ export interface Asset {
   type: AssetType;
   value: number;
   notes: string | null;
+  member: string | null;
   created_at: string;
   updated_at: string;
 }

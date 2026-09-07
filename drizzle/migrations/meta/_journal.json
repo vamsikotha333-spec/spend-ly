@@ -8,6 +8,13 @@
       "when": 1787977594761,
       "tag": "0000_categories_unique_per_user",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788755691269,
+      "tag": "0001_networth_members_and_snapshots",
+      "breakpoints": true
     }
   ]
 }

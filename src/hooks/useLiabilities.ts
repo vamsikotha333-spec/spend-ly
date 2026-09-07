@@ -12,6 +12,7 @@ export interface Liability {
   amount: number;
   interest_rate: number | null;
   notes: string | null;
+  member: string | null;
   created_at: string;
   updated_at: string;
 }
