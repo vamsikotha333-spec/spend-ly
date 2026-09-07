@@ -277,13 +277,13 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
                 {months.map((month) => {
                   const monthKey = month.toISOString();
                   return (
-                    <TableCell key={monthKey} className="text-right tabular-nums">
-                      ₹{columnTotals[monthKey].toFixed(2)}
+                      <TableCell key={monthKey} className="text-right tabular-nums">
+                      {fmtINR(columnTotals[monthKey])}
                     </TableCell>
                   );
                 })}
                 <TableCell className="text-right bg-muted tabular-nums">
-                  ₹{grandTotal.toFixed(2)}
+                  {fmtINR(grandTotal)}
                 </TableCell>
               </TableRow>
             </TableBody>
