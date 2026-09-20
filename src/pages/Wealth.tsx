@@ -32,7 +32,7 @@ function fmt(n: number) {
   return `${sign}₹${Math.abs(n).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 }
 
-import { AssetDialog, LiabilityDialog, ASSET_TYPES, LIABILITY_TYPES, assetTypeMeta, liabilityTypeMeta } from "@/components/wealth/AssetLiabilityDialogs";
+import { AssetDialog, LiabilityDialog, assetTypeMeta, liabilityTypeMeta } from "@/components/wealth/AssetLiabilityDialogs";
 
 
 export default function Wealth() {
