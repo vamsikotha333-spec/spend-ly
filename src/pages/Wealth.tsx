@@ -32,167 +32,8 @@ function fmt(n: number) {
   return `${sign}₹${Math.abs(n).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 }
 
-const ASSET_TYPES: { value: AssetType; label: string; emoji: string }[] = [
-  { value: "cash", label: "Cash", emoji: "💵" },
-  { value: "bank", label: "Bank Account", emoji: "🏦" },
-  { value: "investment", label: "Investment", emoji: "📈" },
-  { value: "gold", label: "Gold", emoji: "🪙" },
-  { value: "other", label: "Other", emoji: "📦" },
-];
+import { AssetDialog, LiabilityDialog, assetTypeMeta, liabilityTypeMeta } from "@/components/wealth/AssetLiabilityDialogs";
 
-const LIABILITY_TYPES: { value: LiabilityType; label: string; emoji: string }[] = [
-  { value: "loan", label: "Loan", emoji: "💳" },
-  { value: "credit_card", label: "Credit Card", emoji: "💳" },
-  { value: "mortgage", label: "Mortgage", emoji: "🏠" },
-  { value: "other", label: "Other", emoji: "📄" },
-];
-
-function AssetDialog({
-  open, onOpenChange, initial, onSave,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  initial?: Asset;
-  onSave: (data: { name: string; type: AssetType; value: number; notes: string | null }) => Promise<void>;
-}) {
-  const [name, setName] = useState(initial?.name || "");
-  const [type, setType] = useState<AssetType>(initial?.type || "bank");
-  const [value, setValue] = useState<string>(initial ? String(initial.value) : "");
-  const [notes, setNotes] = useState(initial?.notes || "");
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    if (!name.trim()) { toast.error("Name is required"); return; }
-    const v = Number(value);
-    if (!isFinite(v) || v < 0) { toast.error("Enter a valid value"); return; }
-    setSaving(true);
-    try {
-      await onSave({ name: name.trim(), type, value: v, notes: notes.trim() || null });
-      onOpenChange(false);
-    } catch (e: any) {
-      toast.error(e?.message || "Failed to save");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{initial ? "Edit Asset" : "Add Asset"}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div>
-            <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. HDFC Savings" />
-          </div>
-          <div>
-            <Label>Type</Label>
-            <Select value={type} onValueChange={(v) => setType(v as AssetType)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {ASSET_TYPES.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{t.emoji} {t.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Value (₹)</Label>
-            <Input type="number" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" />
-          </div>
-          <div>
-            <Label>Notes (optional)</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function LiabilityDialog({
-  open, onOpenChange, initial, onSave,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  initial?: Liability;
-  onSave: (data: { name: string; type: LiabilityType; amount: number; interest_rate: number | null; notes: string | null }) => Promise<void>;
-}) {
-  const [name, setName] = useState(initial?.name || "");
-  const [type, setType] = useState<LiabilityType>(initial?.type || "loan");
-  const [amount, setAmount] = useState<string>(initial ? String(initial.amount) : "");
-  const [rate, setRate] = useState<string>(initial?.interest_rate != null ? String(initial.interest_rate) : "");
-  const [notes, setNotes] = useState(initial?.notes || "");
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    if (!name.trim()) { toast.error("Name is required"); return; }
-    const a = Number(amount);
-    if (!isFinite(a) || a < 0) { toast.error("Enter a valid amount"); return; }
-    const r = rate ? Number(rate) : null;
-    if (r != null && (!isFinite(r) || r < 0)) { toast.error("Enter a valid interest rate"); return; }
-    setSaving(true);
-    try {
-      await onSave({ name: name.trim(), type, amount: a, interest_rate: r, notes: notes.trim() || null });
-      onOpenChange(false);
-    } catch (e: any) {
-      toast.error(e?.message || "Failed to save");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{initial ? "Edit Liability" : "Add Liability"}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div>
-            <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Home Loan" />
-          </div>
-          <div>
-            <Label>Type</Label>
-            <Select value={type} onValueChange={(v) => setType(v as LiabilityType)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {LIABILITY_TYPES.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>{t.emoji} {t.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Amount (₹)</Label>
-              <Input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
-            </div>
-            <div>
-              <Label>Interest % (optional)</Label>
-              <Input type="number" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <Label>Notes (optional)</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export default function Wealth() {
   const { assets, total: assetsTotal, addAsset, updateAsset, deleteAsset, isLoading: aLoading } = useAssets();
@@ -399,11 +240,11 @@ export default function Wealth() {
           ) : (
             <div className="divide-y">
               {assets.map((a) => {
-                const meta = ASSET_TYPES.find((t) => t.value === a.type) || ASSET_TYPES[4];
+                const meta = assetTypeMeta(a.type);
                 return (
                   <div key={a.id} className="flex items-center justify-between gap-2 py-2.5">
                     <div className="min-w-0 flex items-center gap-3">
-                      <span className="text-xl">{meta.emoji}</span>
+                      <span className="w-8 h-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0"><meta.Icon className="h-4 w-4" /></span>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">{a.name}</p>
                         <p className="text-[11px] text-muted-foreground">{meta.label}{a.notes ? ` • ${a.notes}` : ""}</p>
@@ -447,11 +288,11 @@ export default function Wealth() {
           ) : (
             <div className="divide-y">
               {liabilities.map((l) => {
-                const meta = LIABILITY_TYPES.find((t) => t.value === l.type) || LIABILITY_TYPES[3];
+                const meta = liabilityTypeMeta(l.type);
                 return (
                   <div key={l.id} className="flex items-center justify-between gap-2 py-2.5">
                     <div className="min-w-0 flex items-center gap-3">
-                      <span className="text-xl">{meta.emoji}</span>
+                      <span className="w-8 h-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center shrink-0"><meta.Icon className="h-4 w-4" /></span>
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">{l.name}</p>
                         <p className="text-[11px] text-muted-foreground">

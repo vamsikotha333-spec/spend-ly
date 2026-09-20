@@ -1,9 +1,15 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Wallet, ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
+import { Wallet, ArrowRight, TrendingUp, TrendingDown, Plus } from "lucide-react";
 import { useAssets } from "@/hooks/useAssets";
 import { useLiabilities } from "@/hooks/useLiabilities";
+import { useRecordNetWorthSnapshot } from "@/hooks/useNetWorthSnapshots";
 import { AnimatedCounter } from "@/components/common/AnimatedCounter";
+import { Sparkline } from "@/components/common/Sparkline";
+import { Button } from "@/components/ui/button";
+import { AssetDialog, LiabilityDialog, assetTypeMeta } from "@/components/wealth/AssetLiabilityDialogs";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 function formatCompactINR(n: number) {
@@ -14,27 +20,34 @@ function formatCompactINR(n: number) {
   return `₹${n.toLocaleString("en-IN")}`;
 }
 
-const TYPE_META: Record<string, { label: string; emoji: string; color: string }> = {
-  cash: { label: "Cash", emoji: "💵", color: "bg-emerald-500" },
-  bank: { label: "Bank", emoji: "🏦", color: "bg-blue-500" },
-  investment: { label: "Investments", emoji: "📈", color: "bg-violet-500" },
-  gold: { label: "Gold", emoji: "🪙", color: "bg-amber-500" },
-  other: { label: "Other", emoji: "📦", color: "bg-slate-500" },
+const TYPE_FILL: Record<string, string> = {
+  cash: "bg-success",
+  bank: "bg-info",
+  investment: "bg-primary",
+  gold: "bg-warning",
+  real_estate: "bg-muted-foreground",
+  other: "bg-muted-foreground/60",
 };
 
 export function NetWorthCard() {
-  const { assets, total: assetsTotal, isLoading: aLoading } = useAssets();
-  const { total: liabilitiesTotal, isLoading: lLoading } = useLiabilities();
+  const { assets, total: assetsTotal, addAsset, isLoading: aLoading } = useAssets();
+  const { liabilities, total: liabilitiesTotal, addLiability, isLoading: lLoading } = useLiabilities();
+  const ready = !aLoading && !lLoading;
+  const snapshots = useRecordNetWorthSnapshot(assetsTotal, liabilitiesTotal, ready);
+
+  const [assetOpen, setAssetOpen] = useState(false);
+  const [liabOpen, setLiabOpen] = useState(false);
 
   const netWorth = assetsTotal - liabilitiesTotal;
   const positive = netWorth >= 0;
 
-  // Breakdown by asset type
   const grouped: Record<string, number> = {};
   for (const a of assets) grouped[a.type] = (grouped[a.type] || 0) + Number(a.value || 0);
   const totalForBreakdown = Object.values(grouped).reduce((s, v) => s + v, 0);
+  const breakdown = Object.entries(grouped).sort((a, b) => b[1] - a[1]);
 
-  const isEmpty = !aLoading && !lLoading && assets.length === 0 && liabilitiesTotal === 0;
+  const isEmpty = ready && assets.length === 0 && liabilities.length === 0;
+  const trendValues = snapshots.map((s) => s.net_worth);
 
   return (
     <Card className="p-4 md:p-5 border shadow-soft hover-lift">
@@ -52,7 +65,7 @@ export function NetWorthCard() {
           </div>
         </div>
         <Link
-          to="/wealth"
+          to="/wealth/net-worth"
           className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-0.5 shrink-0"
         >
           Manage <ArrowRight className="h-3 w-3" />
@@ -65,12 +78,14 @@ export function NetWorthCard() {
           <p className="text-xs text-muted-foreground mt-1">
             Add your cash, bank, investments, gold, and loans to see net worth.
           </p>
-          <Link
-            to="/wealth"
-            className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-          >
-            Add assets & liabilities <ArrowRight className="h-3 w-3" />
-          </Link>
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <Button size="sm" onClick={() => setAssetOpen(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add asset
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setLiabOpen(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add liability
+            </Button>
+          </div>
         </div>
       ) : (
         <>
@@ -89,24 +104,38 @@ export function NetWorthCard() {
             </div>
           </div>
 
+          {trendValues.length > 1 && (
+            <div className="mb-3">
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Trend</p>
+              <Sparkline data={trendValues} className={positive ? "text-success" : "text-destructive"} />
+            </div>
+          )}
+
           {totalForBreakdown > 0 && (
             <>
               <div className="flex h-2 w-full rounded-full overflow-hidden bg-muted">
-                {Object.entries(grouped).map(([type, val]) => {
-                  const pct = (val / totalForBreakdown) * 100;
-                  const meta = TYPE_META[type] || TYPE_META.other;
-                  return <div key={type} className={cn("h-full", meta.color)} style={{ width: `${pct}%` }} />;
-                })}
+                {breakdown.map(([type, val]) => (
+                  <div
+                    key={type}
+                    className={cn("h-full", TYPE_FILL[type] || TYPE_FILL.other)}
+                    style={{ width: `${(val / totalForBreakdown) * 100}%` }}
+                  />
+                ))}
               </div>
-              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                {Object.entries(grouped).map(([type, val]) => {
-                  const meta = TYPE_META[type] || TYPE_META.other;
+              <div className="mt-2 space-y-1">
+                {breakdown.map(([type, val]) => {
+                  const meta = assetTypeMeta(type);
                   const pct = (val / totalForBreakdown) * 100;
                   return (
-                    <div key={type} className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <span className={cn("w-2 h-2 rounded-full", meta.color)} />
-                      <span className="font-medium text-foreground">{meta.emoji} {meta.label}</span>
-                      <span className="tabular-nums">{pct.toFixed(0)}%</span>
+                    <div key={type} className="flex items-center justify-between text-[11px]">
+                      <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                        <span className={cn("w-2 h-2 rounded-full", TYPE_FILL[type] || TYPE_FILL.other)} />
+                        <meta.Icon className="h-3 w-3" />
+                        <span className="font-medium text-foreground">{meta.label}</span>
+                      </span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {formatCompactINR(val)} <span className="text-foreground font-medium">{pct.toFixed(0)}%</span>
+                      </span>
                     </div>
                   );
                 })}
@@ -115,6 +144,17 @@ export function NetWorthCard() {
           )}
         </>
       )}
+
+      <AssetDialog
+        open={assetOpen}
+        onOpenChange={setAssetOpen}
+        onSave={async (data) => { await addAsset(data); toast.success("Asset added"); }}
+      />
+      <LiabilityDialog
+        open={liabOpen}
+        onOpenChange={setLiabOpen}
+        onSave={async (data) => { await addLiability(data); toast.success("Liability added"); }}
+      />
     </Card>
   );
 }
