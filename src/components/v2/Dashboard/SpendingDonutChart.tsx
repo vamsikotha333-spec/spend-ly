@@ -21,12 +21,13 @@ export function SpendingDonutChart({ transactions }: SpendingDonutChartProps) {
   const catMap: Record<string, number> = {};
   expenses.forEach((t) => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
 
-  const data = Object.entries(catMap)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 8)
+  const sorted = Object.entries(catMap).sort(([, a], [, b]) => b - a);
+  const total = sorted.reduce((s, [, v]) => s + v, 0);
+  const data = sorted
+    .slice(0, 7)
     .map(([name, value]) => ({ name: categoryLabel(name) || name, raw: name, value }));
-
-  const total = data.reduce((s, d) => s + d.value, 0);
+  const rest = sorted.slice(7).reduce((s, [, v]) => s + v, 0);
+  if (rest > 0) data.push({ name: "Other", raw: "Other", value: rest });
 
   return (
     <Card className="p-6 shadow-soft animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>

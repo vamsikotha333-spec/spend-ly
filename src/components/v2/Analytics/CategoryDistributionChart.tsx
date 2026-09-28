@@ -35,20 +35,20 @@ const META: Record<TxnType, { label: string; title: string }> = {
 export function CategoryDistributionChart({ transactions }: Props) {
   const [type, setType] = useState<TxnType>("Expense");
 
-  const data = useMemo(() => {
+  const { data, total } = useMemo(() => {
     const map: Record<string, number> = {};
     transactions
       .filter((t) => getType(t) === type)
       .forEach((t) => {
         map[t.category] = (map[t.category] || 0) + t.amount;
       });
-    return Object.entries(map)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 8)
-      .map(([name, value]) => ({ name: categoryLabel(name) || name, raw: name, value }));
+    const sorted = Object.entries(map).sort(([, a], [, b]) => b - a);
+    const total = sorted.reduce((s, [, v]) => s + v, 0);
+    const top = sorted.slice(0, 7).map(([name, value]) => ({ name: categoryLabel(name) || name, raw: name, value }));
+    const rest = sorted.slice(7).reduce((s, [, v]) => s + v, 0);
+    if (rest > 0) top.push({ name: "Other", raw: "Other", value: rest });
+    return { data: top, total };
   }, [transactions, type]);
-
-  const total = data.reduce((s, d) => s + d.value, 0);
 
   return (
     <Card className="p-4 md:p-5 shadow-soft">
