@@ -267,6 +267,11 @@ export function SpendingCategoryTable({ transactions }: SpendingCategoryTablePro
                     })}
                     <TableCell className="text-right font-bold bg-muted/30 tabular-nums">
                       {row.total > 0 ? fmtINR(row.total) : "-"}
+                      {row.total > 0 && grandTotal > 0 && (
+                        <span className="block text-[10px] font-normal text-muted-foreground">
+                          {Math.round((row.total / grandTotal) * 100)}%
+                        </span>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
