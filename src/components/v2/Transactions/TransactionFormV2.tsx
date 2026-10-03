@@ -14,6 +14,7 @@ import { Transaction } from "@/types/transaction";
 import { CategoryCombobox } from "@/components/v2/Categories/CategoryCombobox";
 import { useMembers } from "@/hooks/useMembers";
 import { Link } from "react-router-dom";
+import { MutualFundSelect, isMutualFundCategory } from "./MutualFundSelect";
 
 interface TransactionFormV2Props {
   onAddTransaction: (transaction: Omit<Transaction, "id">, mode?: "another" | "list") => void;
@@ -33,6 +34,8 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
   const [date, setDate] = useState<Date>(editTransaction?.date ? new Date(editTransaction.date) : new Date());
   const [addedBy, setAddedBy] = useState(editTransaction?.addedBy || "");
   const [applicableTo, setApplicableTo] = useState(editTransaction?.applicable_to || "");
+  const [fundId, setFundId] = useState(editTransaction?.investment_id || "");
+  const isMF = transactionType === "Savings" && isMutualFundCategory(category);
   
 
   const [saveMode, setSaveMode] = useState<"another" | "list">("another");
@@ -47,12 +50,17 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
       setDate(new Date(editTransaction.date));
       setAddedBy(editTransaction.addedBy);
       setApplicableTo(editTransaction.applicable_to || "");
+      setFundId(editTransaction.investment_id || "");
     }
   }, [editTransaction]);
 
   const submitWithMode = (mode: "another" | "list") => {
     if (!amount || !category || !addedBy || !applicableTo) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+    if (isMF && !fundId) {
+      toast.error("Please select which mutual fund");
       return;
     }
 
@@ -65,6 +73,7 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
       date,
       addedBy,
       applicable_to: applicableTo,
+      investment_id: isMF ? fundId : null,
     };
 
     onAddTransaction(transaction, mode);
@@ -163,6 +172,8 @@ export function TransactionFormV2({ onAddTransaction, editTransaction, onCancelE
             onChange={setCategory}
           />
         </div>
+
+        {isMF && <MutualFundSelect value={fundId} onChange={setFundId} />}
 
         <div className="space-y-2">
           <Label htmlFor="amount">Amount *</Label>
