@@ -1,3 +1,4 @@
+import { isMutualFundType } from "@/components/v2/Transactions/MutualFundSelect";
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -582,6 +583,7 @@ export default function Investments() {
                       const diff = Number(inv.current_value) - Number(inv.invested_amount);
                       const pct = Number(inv.invested_amount) > 0 ? (diff / Number(inv.invested_amount)) * 100 : 0;
                       const pos = diff >= 0;
+                      const noCV = isMutualFundType(inv.type_name) && !Number(inv.current_value);
                       return (
                         <tr key={inv.id} className="hover:bg-muted/40">
                           <td className="py-2 pr-2">
@@ -606,6 +608,9 @@ export default function Investments() {
                             </div>
                           </td>
                           <td className="py-2 pr-2 text-right tabular-nums">{fmt(Number(inv.invested_amount))}</td>
+                          {noCV ? (
+                            <td colSpan={3} className="py-2 pr-2 text-right text-[11px] text-muted-foreground">Current value not updated</td>
+                          ) : (<>
                           <td className="py-2 pr-2 text-right tabular-nums font-semibold">{fmt(Number(inv.current_value))}</td>
                           <td className={cn("py-2 pr-2 text-right tabular-nums font-medium", pos ? "text-success" : "text-destructive")}>
                             {pos ? "+" : ""}{fmt(diff)}
@@ -613,6 +618,7 @@ export default function Investments() {
                           <td className={cn("py-2 pr-2 text-right tabular-nums font-medium", pos ? "text-success" : "text-destructive")}>
                             {pct.toFixed(1)}%
                           </td>
+                          </>)}
                           <td className="py-2 pr-2">
                             <Badge variant={inv.status === "active" ? "default" : "outline"} className="text-[10px]">
                               {inv.status || "active"}
@@ -647,6 +653,7 @@ export default function Investments() {
                   const diff = Number(inv.current_value) - Number(inv.invested_amount);
                   const pct = Number(inv.invested_amount) > 0 ? (diff / Number(inv.invested_amount)) * 100 : 0;
                   const pos = diff >= 0;
+                  const noCV = isMutualFundType(inv.type_name) && !Number(inv.current_value);
                   return (
                     <div key={inv.id} className="py-3">
                       <div className="flex items-start justify-between gap-2">
@@ -667,10 +674,12 @@ export default function Investments() {
                           </div>
                         </div>
                         <div className="text-right shrink-0">
+                          {noCV ? <p className="text-[11px] text-muted-foreground">Current value not updated</p> : (<>
                           <p className="text-sm font-bold tabular-nums">{fmt(Number(inv.current_value))}</p>
                           <p className={cn("text-[11px] font-medium tabular-nums", pos ? "text-success" : "text-destructive")}>
                             {pos ? "+" : ""}{fmt(diff)} ({pct.toFixed(1)}%)
                           </p>
+                          </>)}
                         </div>
                       </div>
                       <div className="mt-2 flex items-center justify-between">

@@ -569,6 +569,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          investment_id: string | null
           transaction_type: string | null
           type: string
           user_id: string
@@ -582,6 +583,7 @@ export type Database = {
           date: string
           description?: string | null
           id?: string
+          investment_id?: string | null
           transaction_type?: string | null
           type: string
           user_id?: string
@@ -595,11 +597,20 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          investment_id?: string | null
           transaction_type?: string | null
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_investment_id_fkey"
+            columns: ["investment_id"]
+            isOneToOne: false
+            referencedRelation: "investments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
