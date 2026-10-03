@@ -8,6 +8,7 @@ export interface Transaction {
   date: Date;
   addedBy: string;
   applicable_to?: string;
+  investment_id?: string | null;
 }
 
 export const TRANSACTION_TYPES = ["Income", "Expense", "Savings"] as const;
