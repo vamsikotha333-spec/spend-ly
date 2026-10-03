@@ -17,6 +17,7 @@ export function useTransactions() {
     date: new Date(t.date),
     addedBy: t.added_by,
     applicable_to: t.applicable_to,
+    investment_id: t.investment_id ?? null,
   });
 
   useEffect(() => {
@@ -65,6 +66,7 @@ export function useTransactions() {
       date: transaction.date.toISOString(),
       added_by: transaction.addedBy,
       applicable_to: transaction.applicable_to,
+      investment_id: transaction.investment_id ?? null,
     });
     if (error) throw error;
   };
@@ -81,6 +83,7 @@ export function useTransactions() {
         date: transaction.date.toISOString(),
         added_by: transaction.addedBy,
         applicable_to: transaction.applicable_to,
+        investment_id: transaction.investment_id ?? null,
       })
       .eq("id", id);
     if (error) throw error;
