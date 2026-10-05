@@ -133,9 +133,10 @@ function InvestmentDialog({
     if (!form.name.trim()) return toast.error("Name is required");
     if (!form.type_name.trim()) return toast.error("Investment Type is required");
 
+    const isMF = isMutualFundType(form.type_name);
     // For interest turnover we can derive amounts from principal if missing.
-    let invested = Number(form.invested_amount);
-    let current = Number(form.current_value);
+    let invested = isMF ? Number(initial?.invested_amount ?? 0) : Number(form.invested_amount);
+    let current = isMF && form.current_value.trim() === "" ? 0 : Number(form.current_value);
     if (isInterest) {
       const p = Number(form.principal_amount || 0);
       if (!isFinite(invested) || invested <= 0) invested = p;
@@ -154,7 +155,8 @@ function InvestmentDialog({
         purpose: form.purpose.trim() || null,
         bank_name: form.bank_name.trim() || null,
         tags: form.tags,
-        invested_amount: invested,
+        // Mutual funds: invested total is maintained from linked FinTracker entries — never overwrite it.
+        ...(isMF && initial ? {} : { invested_amount: invested }),
         current_value: current,
         invested_on: form.invested_on,
         status: form.status || "active",
@@ -188,7 +190,7 @@ function InvestmentDialog({
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="md:col-span-2">
-              <Label>Investment Name *</Label>
+              <Label>{isMutualFundType(form.type_name) ? "Mutual Fund Name *" : "Investment Name *"}</Label>
               <Input value={form.name} onChange={(e) => setField("name", e.target.value)} placeholder="e.g. HDFC Flexi Cap SIP" />
             </div>
             <div>
@@ -223,12 +225,22 @@ function InvestmentDialog({
           {!isInterest && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <Label>Invested Amount (₹) *</Label>
-                <Input type="number" inputMode="decimal" value={form.invested_amount} onChange={(e) => setField("invested_amount", e.target.value)} />
+                {isMutualFundType(form.type_name) ? (
+                  <>
+                    <Label>Total Invested (₹)</Label>
+                    <Input value={Number(initial?.invested_amount ?? 0).toLocaleString("en-IN")} disabled readOnly />
+                    <p className="text-[11px] text-muted-foreground mt-1">Calculated from linked FinTracker entries</p>
+                  </>
+                ) : (
+                  <>
+                    <Label>Invested Amount (₹) *</Label>
+                    <Input type="number" inputMode="decimal" value={form.invested_amount} onChange={(e) => setField("invested_amount", e.target.value)} />
+                  </>
+                )}
               </div>
               <div>
-                <Label>Current Value (₹) *</Label>
-                <Input type="number" inputMode="decimal" value={form.current_value} onChange={(e) => setField("current_value", e.target.value)} />
+                <Label>Current Value (₹){isMutualFundType(form.type_name) ? <span className="text-muted-foreground font-normal"> (optional)</span> : " *"}</Label>
+                <Input type="number" inputMode="decimal" value={isMutualFundType(form.type_name) && form.current_value === "0" ? "" : form.current_value} placeholder={isMutualFundType(form.type_name) ? "Update periodically" : undefined} onChange={(e) => setField("current_value", e.target.value)} />
               </div>
               <div>
                 <Label>Purchase Date</Label>
