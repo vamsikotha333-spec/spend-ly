@@ -1,19 +1,19 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
 
   try {
     const payload = await req.json();
     const { monthlyData, categoryData, memberData, goalData, recurringData, trendData } = payload || {};
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const AI_API_KEY = Deno.env.get("AI_API_KEY");
+    if (!AI_API_KEY) throw new Error("AI_API_KEY is not configured");
+    const AI_BASE_URL = Deno.env.get("AI_BASE_URL") || "https://api.openai.com/v1";
+    const AI_MODEL = Deno.env.get("AI_MODEL") || "gpt-4o-mini";
 
     const systemPrompt = `You are a sharp, candid personal financial advisor analyzing an Indian household's real financial data. You speak directly to the user using "you" and "your". You refer to household members by the exact names provided in the data — never invent names, never use placeholders like "Member A".
 
@@ -73,14 +73,14 @@ Strict rules:
 
     const userPrompt = `Monthly summary (income/expense/savings per month):\n${JSON.stringify(monthlyData ?? [], null, 2)}\n\nCategory breakdown (expenses):\n${JSON.stringify(categoryData ?? [], null, 2)}\n\nMember-wise contribution (real names, expense and savings share):\n${JSON.stringify(memberData ?? [], null, 2)}\n\nSavings goals (progress vs target):\n${JSON.stringify(goalData ?? [], null, 2)}\n\nRecurring/recent recurring patterns:\n${JSON.stringify(recurringData ?? [], null, 2)}\n\nCategory MoM trend deltas:\n${JSON.stringify(trendData ?? [], null, 2)}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(`${AI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: AI_MODEL,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -95,14 +95,8 @@ Strict rules:
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds in Settings > Workspace > Usage." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
+      console.error("AI API error:", response.status, t);
       return new Response(JSON.stringify({ error: "AI analysis failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
